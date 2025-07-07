@@ -11,6 +11,7 @@ import { CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 interface ExercisePageProps {
   unit: Unit;
@@ -29,6 +30,8 @@ export default function ExercisePage({
   const { toast } = useToast();
   const router = useRouter();
   const isCompleted = isComplete(video.id);
+  
+  const themeClass = `unit-${unit.id.split('-')[1]}-theme`;
 
   const handleComplete = () => {
     if (!isCompleted) {
@@ -47,7 +50,7 @@ export default function ExercisePage({
 
   return (
     <SidebarProvider>
-      <div className="flex h-full">
+      <div className={cn("flex h-full", themeClass)}>
         <Sidebar collapsible="icon">
           <ExerciseSidebar unit={unit} currentVideoId={video.id} completedVideos={completedVideos} />
         </Sidebar>
