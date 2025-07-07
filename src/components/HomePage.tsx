@@ -12,7 +12,7 @@ export default function HomePage() {
       <div className="text-center mb-12">
         <h2 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-2">Welcome to 3rd Eye CrossTraining</h2>
         <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-          Embark on a journey to awaken your inner potential. These guided exercises are designed to stimulate your pineal gland and expand your consciousness.
+          These visual exercises emerge from years of  of personal reflection and study. The exercises combine features of visual optics, spactial depth, super symmetry, and directions of rotation or spin. By following the prescribed methods included with these exercises, a unique perspective of observation is achieved. Purposeful and sustained alterations of visual optics which govern human sight coalesce into a visual experience which utilizes and stimulates structures of the brain and visual cortex, and thereby stimulate interior components of the brain, namely the pineal gland.
         </p>
       </div>
 
