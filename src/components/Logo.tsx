@@ -9,6 +9,10 @@ export default function Logo({ className }: { className?: string }) {
     >
       <defs>
         <path id="circlePath" d="M 10,50 A 40,40 0 1 1 90,50 A 40,40 0 1 1 10,50" />
+        <radialGradient id="orbGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+          <stop offset="0%" stopColor="hsl(var(--primary-foreground))" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="hsl(var(--primary-foreground))" stopOpacity="0" />
+        </radialGradient>
       </defs>
       <g stroke="currentColor" fill="none" strokeWidth="1">
         <circle cx="50" cy="50" r="38" />
@@ -32,7 +36,7 @@ export default function Logo({ className }: { className?: string }) {
         <path d="M50 18 C 51.25 18, 55 50, 55 50 S 51.25 82, 50 82" />
         <path d="M50 18 C 48.75 18, 45 50, 45 50 S 48.75 82, 50 82" />
 
-        <circle cx="50" cy="50" r="10" strokeWidth="0.5" className="opacity-50" />
+        <circle cx="50" cy="50" r="12" fill="url(#orbGradient)" stroke="none" />
         <circle cx="50" cy="50" r="3" fill="currentColor" stroke="none" />
       </g>
       <g fill="currentColor" stroke="none">
