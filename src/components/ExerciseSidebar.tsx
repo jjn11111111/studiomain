@@ -11,6 +11,7 @@ import {
 } from './ui/sidebar';
 import { CheckCircle, Circle, BrainCircuit } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ColoredGroupTitle } from './ColoredGroupTitle';
 
 interface ExerciseSidebarProps {
   unit: Unit;
@@ -32,7 +33,9 @@ export default function ExerciseSidebar({ unit, currentVideoId, completedVideos 
       </SidebarHeader>
       <SidebarContent>
         <div className="p-2">
-            <h3 className="text-sm font-semibold text-muted-foreground px-2 font-headline">{unit.title}</h3>
+            <h3 className="text-sm font-semibold text-muted-foreground px-2 font-headline">
+              <ColoredGroupTitle title={unit.title} />
+            </h3>
         </div>
         <SidebarMenu>
           {unit.videos.map((video) => {

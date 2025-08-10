@@ -6,6 +6,8 @@ import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import { ArrowRight, Lock, PlayCircle } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
+import { ColoredGroupTitle } from './ColoredGroupTitle';
+import { cn } from '@/lib/utils';
 
 interface UnitCardProps {
   unit: Unit;
@@ -39,11 +41,15 @@ export default function UnitCard({ unit, completedVideos, isInitialized }: UnitC
       </Card>
     );
   }
+  
+  const themeClass = `unit-${unit.id.split('-')[1]}-theme`;
 
   return (
-    <Card className="flex flex-col md:flex-row items-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 overflow-hidden">
+    <Card className={cn("flex flex-col md:flex-row items-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 overflow-hidden", themeClass)}>
       <CardHeader className="w-full md:w-2/3">
-        <CardTitle className="font-headline text-2xl text-primary">{unit.title}</CardTitle>
+        <CardTitle className="font-headline text-2xl text-primary">
+           <ColoredGroupTitle title={unit.title} />
+        </CardTitle>
         <CardDescription>{unit.description}</CardDescription>
       </CardHeader>
       <CardContent className="w-full md:w-1/3 p-6 flex flex-col items-center justify-center gap-4 bg-muted/50 h-full">

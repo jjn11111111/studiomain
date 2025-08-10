@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { ColoredGroupTitle } from './ColoredGroupTitle';
 
 interface ExercisePageProps {
   unit: Unit;
@@ -57,7 +58,9 @@ export default function ExercisePage({
         <SidebarInset>
           <div className="flex flex-col p-4 md:p-8 h-full">
             <header className="mb-6">
-              <p className="text-sm font-medium text-accent font-headline">{unit.title} - Level {video.level}</p>
+              <div className="text-sm font-medium text-accent font-headline">
+                <ColoredGroupTitle title={unit.title} /> - Level {video.level}
+              </div>
               <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">{video.title}</h1>
               <p className="mt-2 text-muted-foreground">{video.description}</p>
             </header>
