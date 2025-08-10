@@ -24,7 +24,7 @@ export default function ExerciseSidebar({ unit, currentVideoId, completedVideos 
     <>
       <SidebarHeader>
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/training" className="flex items-center gap-2">
             <BrainCircuit className="h-6 w-6 text-primary" />
             <span className="font-bold text-lg font-headline text-primary">3rd Eye CrossTraining</span>
           </Link>

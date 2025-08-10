@@ -1,31 +1,46 @@
 'use client';
 
-import { exerciseData } from '@/lib/data';
-import UnitCard from './UnitCard';
-import { useProgress } from '@/hooks/use-progress';
+import Link from 'next/link';
+import { Button } from './ui/button';
+import { Eye, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import Logo from './Logo';
 
 export default function HomePage() {
-  const { completedVideos, isInitialized } = useProgress();
-
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-2">Welcome to 3rd Eye CrossTraining</h2>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-          These visual exercises emerge from years of  of personal reflection and study. The exercises combine features of visual optics, spactial depth, super symmetry, and directions of rotation or spin. By following the prescribed methods included with these exercises, a unique perspective of observation is achieved. Purposeful and sustained alterations of visual optics which govern human sight coalesce into a visual experience which utilizes and stimulates structures of the brain and visual cortex, and thereby stimulate interior components of the brain, namely the pineal gland.
+    <div className={cn('flex flex-col items-center justify-center flex-grow w-full h-full dark')}>
+      <div className="absolute inset-0 w-full h-full aurora-bg" />
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10 flex flex-col items-center justify-center text-center text-primary-foreground p-8"
+      >
+        <div className="mb-8">
+          <Logo className="w-48 h-48 md:w-64 md:h-64 text-primary-foreground" />
+        </div>
+        <h1 className="text-4xl md:text-6xl font-bold font-headline mb-4">
+          3rd Eye CrossTraining
+        </h1>
+        <p className="max-w-2xl text-lg md:text-xl text-primary-foreground/80 mb-12">
+          Stimulate your pineal gland and unlock new dimensions of perception with our unique stereoscopic video exercises.
         </p>
-      </div>
-
-      <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-1">
-        {exerciseData.map((unit) => (
-          <UnitCard 
-            key={unit.id} 
-            unit={unit} 
-            completedVideos={completedVideos} 
-            isInitialized={isInitialized}
-          />
-        ))}
-      </div>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary-foreground/50">
+            <Link href="/training">
+              <Eye className="mr-2" />
+              Begin Training
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="text-primary-foreground border-primary-foreground/50 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+             <Link href="/about">
+              <Zap className="mr-2" />
+              Learn More
+            </Link>
+          </Button>
+        </div>
+      </motion.div>
     </div>
   );
 }

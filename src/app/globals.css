@@ -88,6 +88,22 @@ body {
 }
 
 @layer utilities {
+  .aurora-bg {
+    background: radial-gradient(ellipse at 25% 25%, hsl(240 10% 3.9%) 0%, transparent 50%),
+                radial-gradient(ellipse at 75% 25%, hsl(270 80% 20% / 0.5) 0%, transparent 50%),
+                radial-gradient(ellipse at 25% 75%, hsl(180 80% 20% / 0.5) 0%, transparent 50%),
+                radial-gradient(ellipse at 75% 75%, hsl(30 80% 20% / 0.5) 0%, transparent 50%);
+    background-size: 200% 200%;
+    animation: aurora 20s linear infinite;
+  }
+
+  @keyframes aurora {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+  }
+
+
   .unit-1-theme {
     --primary: 0 84.2% 60.2%;
     --primary-foreground: 0 0% 98%;
