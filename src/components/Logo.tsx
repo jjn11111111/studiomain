@@ -32,7 +32,8 @@ export default function Logo({ className }: { className?: string }) {
         <path d="M50 18 C 51.25 18, 55 50, 55 50 S 51.25 82, 50 82" />
         <path d="M50 18 C 48.75 18, 45 50, 45 50 S 48.75 82, 50 82" />
 
-        <circle cx="50" cy="50" r="10" />
+        <circle cx="50" cy="50" r="10" strokeWidth="0.5" className="opacity-50" />
+        <circle cx="50" cy="50" r="3" fill="currentColor" stroke="none" />
       </g>
       <g fill="currentColor" stroke="none">
         <circle cx="50" cy="25" r="3" fill="#FFFFFF" />
