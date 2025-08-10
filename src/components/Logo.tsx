@@ -13,6 +13,7 @@ export default function Logo({ className }: { className?: string }) {
       <g stroke="currentColor" fill="none" strokeWidth="1">
         <circle cx="50" cy="50" r="38" />
 
+        {/* The original 4 oblong shapes */}
         <path d="M50 18 C 65 18, 75 50, 75 50 S 65 82, 50 82" />
         <path d="M50 18 C 35 18, 25 50, 25 50 S 35 82, 50 82" />
 
@@ -25,9 +26,15 @@ export default function Logo({ className }: { className?: string }) {
         <path d="M50 18 C 56 18, 60 50, 60 50 S 56 82, 50 82" />
         <path d="M50 18 C 44 18, 40 50, 40 50 S 44 82, 50 82" />
 
-        <circle cx="50" cy="50" r="10" />
-        <circle cx="50" cy="50" r="15" />
+        {/* The two new oblong shapes */}
+        <path d="M50 18 C 53 18, 55 50, 55 50 S 53 82, 50 82" />
+        <path d="M50 18 C 47 18, 45 50, 45 50 S 47 82, 50 82" />
+        
+        <path d="M50 18 C 51.5 18, 52.5 50, 52.5 50 S 51.5 82, 50 82" />
+        <path d="M50 18 C 48.5 18, 47.5 50, 47.5 50 S 48.5 82, 50 82" />
 
+
+        <circle cx="50" cy="50" r="10" />
       </g>
       <g fill="currentColor" stroke="none">
         <circle cx="50" cy="25" r="3" fill="#FFFFFF" />
