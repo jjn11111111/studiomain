@@ -14,6 +14,24 @@ export default function Logo({ className }: { className?: string }) {
           <stop offset="100%" stopColor="hsl(var(--primary-foreground))" stopOpacity="0" />
         </radialGradient>
       </defs>
+      
+      {/* Floating background orb */}
+      <circle cx="50" cy="50" r="30" fill="url(#orbGradient)" stroke="none" opacity="0.5" />
+
+      {/* Chakra points (inside the cage) */}
+      <g fill="currentColor" stroke="none">
+        <circle cx="50" cy="25" r="3" fill="#FFFFFF" />
+        <circle cx="50" cy="32" r="3" fill="#9400D3" />
+        <circle cx="50" cy="39" r="3" fill="#4B0082" />
+        <circle cx="50" cy="46" r="3" fill="#0000FF" />
+        <circle cx="50" cy="53" r="3" fill="#00FF00" />
+        <circle cx="50" cy="60" r="3" fill="#FFFF00" />
+        <circle cx="50" cy="67" r="3" fill="#FF7F00" />
+        <circle cx="50" cy="74" r="3" fill="#FF0000" />
+        <circle cx="50" cy="81" r="3" fill="#000000" />
+      </g>
+
+      {/* Rings (the "cage") and center point */}
       <g stroke="currentColor" fill="none" strokeWidth="1">
         <circle cx="50" cy="50" r="38" />
 
@@ -35,21 +53,10 @@ export default function Logo({ className }: { className?: string }) {
         
         <path d="M50 18 C 51.25 18, 55 50, 55 50 S 51.25 82, 50 82" />
         <path d="M50 18 C 48.75 18, 45 50, 45 50 S 48.75 82, 50 82" />
-
-        <circle cx="50" cy="50" r="12" fill="url(#orbGradient)" stroke="none" />
+        
         <circle cx="50" cy="50" r="3" fill="currentColor" stroke="none" />
       </g>
-      <g fill="currentColor" stroke="none">
-        <circle cx="50" cy="25" r="3" fill="#FFFFFF" />
-        <circle cx="50" cy="32" r="3" fill="#9400D3" />
-        <circle cx="50" cy="39" r="3" fill="#4B0082" />
-        <circle cx="50" cy="46" r="3" fill="#0000FF" />
-        <circle cx="50" cy="53" r="3" fill="#00FF00" />
-        <circle cx="50" cy="60" r="3" fill="#FFFF00" />
-        <circle cx="50" cy="67" r="3" fill="#FF7F00" />
-        <circle cx="50" cy="74" r="3" fill="#FF0000" />
-        <circle cx="50" cy="81" r="3" fill="#000000" />
-      </g>
+      
        <text
         fontFamily="Oswald, sans-serif"
         fontSize="14"
