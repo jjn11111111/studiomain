@@ -12,18 +12,21 @@ export default function Logo({ className }: { className?: string }) {
       </defs>
       <g stroke="currentColor" fill="none" strokeWidth="1">
         <circle cx="50" cy="50" r="38" />
-        
+
         <path d="M50 18 C 65 18, 75 50, 75 50 S 65 82, 50 82" />
         <path d="M50 18 C 35 18, 25 50, 25 50 S 35 82, 50 82" />
-        
+
         <path d="M50 18 C 62 18, 70 50, 70 50 S 62 82, 50 82" />
         <path d="M50 18 C 38 18, 30 50, 30 50 S 38 82, 50 82" />
-        
+
         <path d="M50 18 C 59 18, 65 50, 65 50 S 59 82, 50 82" />
         <path d="M50 18 C 41 18, 35 50, 35 50 S 41 82, 50 82" />
-        
+
         <path d="M50 18 C 56 18, 60 50, 60 50 S 56 82, 50 82" />
         <path d="M50 18 C 44 18, 40 50, 40 50 S 44 82, 50 82" />
+
+        <circle cx="50" cy="50" r="10" />
+        <circle cx="50" cy="50" r="15" />
 
       </g>
       <g fill="currentColor" stroke="none">
