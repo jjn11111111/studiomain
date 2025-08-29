@@ -37,7 +37,7 @@ export default function Header() {
               <Link href="/training">Training</Link>
             </Button>
             <Button asChild variant="ghost">
-              <Link href="/journal">Journal</Link>
+              <Link href="/journal">Workout Journal</Link>
             </Button>
             <Button asChild variant="ghost">
               <Link href="/about">About</Link>
@@ -71,7 +71,7 @@ export default function Header() {
                    <DropdownMenuItem asChild>
                     <Link href="/journal">
                       <BookOpen className="mr-2 h-4 w-4" />
-                      <span>My Journal</span>
+                      <span>Workout Journal</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={signOutUser}>

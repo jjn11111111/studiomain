@@ -29,7 +29,7 @@ export default function JournalClient() {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold font-headline text-primary">My Journal</h1>
+        <h1 className="text-3xl font-bold font-headline text-primary">Workout Journal</h1>
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
             <Button>
