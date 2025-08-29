@@ -43,9 +43,12 @@ const allVideos = exerciseData.flatMap(unit =>
 );
 
 const predefinedTags = [
-  'Calm', 'Energized', 'Focused', 'Tingling', 'Floating',
-  'Vivid Colors', 'Geometric Patterns', 'Spiritual Connection', 'Emotional Release'
+  'Astral Projection', 'Brain Fog', 'Calm', 'Clarity', 'Emotional Release',
+  'Energized', 'Floating', 'Focused', 'Geometric Patterns', 'Lucid Dreaming',
+  'Mood Shift', 'Past Life Recall', 'Remote Viewing', 'Spiritual Connection',
+  'Tingling', 'Vivid Colors'
 ];
+
 
 interface JournalFormProps {
   onSave: (data: JournalFormValues) => void;
