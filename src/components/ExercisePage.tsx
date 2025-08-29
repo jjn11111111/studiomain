@@ -45,7 +45,7 @@ export default function ExercisePage({
     if (nextVideoLink) {
       router.push(nextVideoLink);
     } else {
-      router.push('/');
+      router.push('/training');
     }
   };
 
