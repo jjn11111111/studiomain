@@ -12,6 +12,18 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 
+// Helper function to manage the auth token cookie
+const setAuthTokenCookie = (token: string | null) => {
+  if (token) {
+    // Set cookie that expires in 24 hours
+    document.cookie = `firebaseAuthToken=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
+  } else {
+    // Delete cookie
+    document.cookie = 'firebaseAuthToken=; path=/; max-age=-1;';
+  }
+};
+
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -40,8 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // For now, we'll just set the user from auth
         }
         setUser(user);
+        const token = await user.getIdToken();
+        setAuthTokenCookie(token);
       } else {
         setUser(null);
+        setAuthTokenCookie(null);
       }
       setIsLoading(false);
     });

@@ -11,9 +11,8 @@ export function middleware(request: NextRequest) {
 
   if (isProtectedRoute) {
     // Check for the Firebase auth token in cookies
-    // Note: The actual name of the cookie may vary based on your Firebase setup.
-    // 'firebaseIdToken' is a placeholder. You may need to inspect your browser's cookies.
-    const authToken = request.cookies.get('firebaseIdToken')?.value;
+    // This cookie is expected to be set upon user login.
+    const authToken = request.cookies.get('firebaseAuthToken')?.value;
 
     if (!authToken) {
       const loginUrl = new URL('/login', request.url);
