@@ -28,10 +28,10 @@ export default function Logo({ className }: { className?: string }) {
         <circle cx="50" cy="60" r="3" fill="#FFFF00" />
         <circle cx="50" cy="67" r="3" fill="#FF7F00" />
         <circle cx="50" cy="74" r="3" fill="#FF0000" />
-        <circle cx="50" cy="81" r="3" fill="#000000" />
+        <circle cx="50" cy="79" r="3" fill="#000000" />
       </g>
 
-      {/* Rings (the "cage") and center point */}
+      {/* Rings (the "cage") */}
       <g stroke="currentColor" fill="none" strokeWidth="1">
         <circle cx="50" cy="50" r="38" />
 
