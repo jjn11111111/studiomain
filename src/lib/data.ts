@@ -42,7 +42,7 @@ export const exerciseData: Unit[] = [
     title: 'Module 2: Yellow Group',
     description: 'Engage in exercises designed to directly stimulate the pineal gland through specific frequencies and more complex visual patterns.',
     videos: [
-        { id: 'vid-2-1', level: 11, title: 'Module 2(a)ardvark', description: 'A deep humming meditation that creates vibrations resonating with the pineal gland.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' },
+        { id: 'vid-2-1', level: 11, title: 'Module 2(a)ardvark', description: 'A deep humming meditation that creates vibrations resonating with the pineal gland.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/4DBC6A36-6762-421F-AFD0-A4ACDA4A8DBA.mov?alt=media' },
         { id: 'vid-2-2', level: 12, title: 'Module 2(b)oa constrictor', description: 'Focus on a pulsating indigo light to energize and activate.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
         { id: 'vid-2-3', level: 13, title: 'Module 2(c)ockatoo', description: 'Deepen your meditative state by focusing on intricate, evolving mandala patterns.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
         { id: 'vid-2-4', level: 14, title: 'Module 2(d)inosaur', description: 'Working with binaural beats tuned to pineal gland frequencies.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4' },
