@@ -1,6 +1,6 @@
 'use client';
 
-import { BrainCircuit, LogOut, User, BookOpen } from 'lucide-react';
+import { BrainCircuit, LogOut, User, BookOpen, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { useAuth } from '@/hooks/use-auth';
@@ -35,6 +35,9 @@ export default function Header() {
           <nav className="flex items-center gap-4">
             <Button asChild variant="ghost">
               <Link href="/training">Training</Link>
+            </Button>
+             <Button asChild variant="ghost">
+              <Link href="/directions">Directions</Link>
             </Button>
             <Button asChild variant="ghost">
               <Link href="/journal">Workout Journal</Link>
