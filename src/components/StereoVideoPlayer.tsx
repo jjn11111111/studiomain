@@ -33,7 +33,7 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
 
   return (
     <Card 
-      className="aspect-video w-full overflow-hidden shadow-lg border-2 border-primary/20 relative cursor-pointer"
+      className="aspect-video w-full overflow-hidden shadow-lg border-2 border-primary/20 relative cursor-pointer bg-muted"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handlePlayPause}
