@@ -1,29 +1,57 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Loader2 } from 'lucide-react';
 import JournalForm from './JournalForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-
-// Mock data for now
-const mockEntries = [
-  { id: '1', date: '2024-07-30', videoTitle: 'Module 1(a)vocado', intensity: 7, notes: 'Felt a deep sense of calm and saw swirling blue colors.', tags: ['Calm', 'Vivid Colors'] },
-  { id: '2', date: '2024-07-29', videoTitle: 'Module 1(b)anana', intensity: 8, notes: 'Very energizing session. Felt a buzzing sensation in my forehead.', tags: ['Energized', 'Tingling'] },
-];
+import { useAuth } from '@/hooks/use-auth';
+import { addJournalEntry, getJournalEntries, JournalEntry } from '@/lib/firestore';
+import { exerciseData } from '@/lib/data';
 
 export default function JournalClient() {
-  const [entries, setEntries] = useState(mockEntries);
+  const { user } = useAuth();
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  // This function will eventually save to Firestore
-  const handleSaveEntry = (entry: any) => {
-    console.log('Saving entry:', entry);
-    // Add to mock data for now
-    const newEntry = { ...entry, id: Date.now().toString(), date: new Date().toISOString().split('T')[0] };
-    setEntries(prev => [newEntry, ...prev]);
-    setIsFormOpen(false); // Close the dialog on save
+  useEffect(() => {
+    if (user) {
+      const fetchEntries = async () => {
+        setIsLoading(true);
+        const userEntries = await getJournalEntries(user.uid);
+        setEntries(userEntries);
+        setIsLoading(false);
+      };
+      fetchEntries();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  const handleSaveEntry = async (formData: { videoId: string; notes: string; intensity: number; tags: string[] }) => {
+    if (!user) return;
+    
+    const allVideos = exerciseData.flatMap(unit => unit.videos);
+    const video = allVideos.find(v => v.id === formData.videoId);
+
+    if (!video) return;
+
+    const newEntryData = { 
+      ...formData,
+      userId: user.uid,
+      videoTitle: video.title,
+      date: new Date().toISOString(),
+    };
+
+    try {
+      const newEntry = await addJournalEntry(newEntryData);
+      setEntries(prev => [newEntry, ...prev]);
+      setIsFormOpen(false); // Close the dialog on save
+    } catch (error) {
+        console.error("Failed to save journal entry:", error);
+    }
   };
 
   return (
@@ -47,7 +75,11 @@ export default function JournalClient() {
       </div>
 
       <div className="space-y-6">
-        {entries.length === 0 ? (
+        {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        ) : entries.length === 0 ? (
           <p className="text-muted-foreground text-center py-12">You have no journal entries yet. Click "New Entry" to add one!</p>
         ) : (
           entries.map(entry => (
@@ -60,11 +92,13 @@ export default function JournalClient() {
               </CardHeader>
               <CardContent>
                 <p className="mb-4">{entry.notes}</p>
-                <div className="flex flex-wrap gap-2">
-                  {entry.tags.map(tag => (
-                    <span key={tag} className="px-2 py-1 bg-accent text-accent-foreground text-xs rounded-full">{tag}</span>
-                  ))}
-                </div>
+                {entry.tags && entry.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {entry.tags.map(tag => (
+                      <span key={tag} className="px-2 py-1 bg-accent text-accent-foreground text-xs rounded-full">{tag}</span>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))

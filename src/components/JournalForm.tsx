@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { exerciseData } from '@/lib/data';
-import { cn } from '@/lib/utils';
 
 const journalSchema = z.object({
   videoId: z.string().min(1, { message: 'Please select an exercise.' }),
@@ -131,7 +130,7 @@ export default function JournalForm({ onSave, onCancel }: JournalFormProps) {
           name="intensity"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Intensity Rating: {field.value}</FormLabel>
+              <FormLabel>Intensity Rating: {form.watch('intensity')}</FormLabel>
               <FormControl>
                 <Slider
                   min={1}
