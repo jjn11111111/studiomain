@@ -1,6 +1,6 @@
 import Header from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BrainCircuit, Dna, Eye } from 'lucide-react';
+import { BrainCircuit, Dna, Eye, Waves, Lightbulb, Zap } from 'lucide-react';
 
 export default function AboutPage() {
   return (
@@ -25,7 +25,43 @@ export default function AboutPage() {
             </p>
           </div>
           <div>
-            <img src="https://placehold.co/600x400" alt="Abstract representation of brain activity" className="rounded-lg shadow-lg" data-ai-hint="abstract brain" />
+            <img src="https://picsum.photos/600/400" alt="Abstract representation of brain activity" className="rounded-lg shadow-lg" data-ai-hint="abstract brain" />
+          </div>
+        </div>
+
+        <div className="my-16">
+          <h2 className="text-3xl font-bold font-headline text-center mb-8 text-accent">The Experience: Background, Explanation, and Effects</h2>
+          <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
+             <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb /> Background
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>The human brain possesses an incredible capacity for neuroplasticity. The techniques used in these exercises are inspired by ancient meditative practices and modern understanding of neuroscience. By presenting the eyes with specific geometric patterns and stereoscopic video, we aim to induce unique states of brainwave activity.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap /> Explanation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+               <p>The "magic eye" effect (stereopsis) requires the brain to merge two separate images. This process bypasses ordinary, habitual ways of seeing and encourages a more holistic mode of perception. The patterns and movements are designed to be rhythmically coherent, potentially leading to brainwave entrainment, a state associated with deep focus and meditation.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Waves /> Potential Effects
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+               <p>Users may experience a range of effects, from a sense of deep calm and mental clarity to heightened sensory perception and vivid internal visualizations. The goal is to train the mind to access different states of consciousness, which may enhance creativity, intuition, and a feeling of connectedness.</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
