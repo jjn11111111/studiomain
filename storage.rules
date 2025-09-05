@@ -1,12 +1,11 @@
 rules_version = '2';
-
 service firebase.storage {
   match /b/{bucket}/o {
-    // WARNING: These rules are insecure and should not be used in production.
-    // They are intended for initial development and content setup.
-    // We should revisit these to secure your application before launch.
     match /{allPaths=**} {
-      allow read, write: if true;
+      // Allow public read access so anyone can stream videos
+      allow read;
+      // Only allow writes if the user is authenticated
+      allow write: if request.auth != null;
     }
   }
 }
