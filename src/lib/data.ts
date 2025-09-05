@@ -34,7 +34,7 @@ export const exerciseData: Unit[] = [
       { id: 'vid-1-7', level: 7, title: 'Module 1(g)uava', description: 'Grounding exercise: connect with the energy of the Earth.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/E0EC785D-9098-43D4-A5E1-A1A797828BA7.MOV?alt=media' },
       { id: 'vid-1-8', level: 8, title: 'Module 1(h)oneydew', description: 'Explore color visualization for emotional balance.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4' },
       { id: 'vid-1-9', level: 9, title: 'Module 1(i)caco', description: 'A meditation on releasing tension and stress.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/059BA0B9-E6E3-41BE-80FC-8188C39C1DC2%203.MOV?alt=media' },
-      { id: 'vid-1-10', level: 10, title: 'Module 1(j)uniper Berry', description: 'Introduction to feeling your bio-energetic field (aura).', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' },
+      { id: 'vid-1-10', level: 10, title: 'Module 1(j)uniper Berry', description: 'Introduction to feeling your bio-energetic field (aura).', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/Video%2010.MP4?alt=media' },
     ],
   },
   {
