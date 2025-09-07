@@ -52,22 +52,16 @@ export default function AuthForm() {
   });
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
-    try {
-      await signIn(values.email, values.password);
-      router.push(redirectTo);
-    } catch (e) {
-      // Error is already set in the useAuth hook
-      console.error("Login failed:", e);
+    const result = await signIn(values.email, values.password);
+    if (result) {
+      router.replace(redirectTo);
     }
   };
 
   const handleRegister = async (values: z.infer<typeof registerSchema>) => {
-    try {
-      await signUp(values.email, values.password);
-      router.push(redirectTo);
-    } catch (e) {
-      // Error is already set in the useAuth hook
-      console.error("Registration failed:", e);
+    const result = await signUp(values.email, values.password);
+    if (result) {
+        router.replace(redirectTo);
     }
   };
 
