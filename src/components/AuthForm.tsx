@@ -55,8 +55,9 @@ export default function AuthForm() {
       // Hard redirect to ensure the new cookie is sent.
       window.location.href = '/training';
     } catch (e) {
-       // error is set in the hook
-       setIsSubmitting(false);
+       // error is set in the hook, which is then displayed
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -67,8 +68,9 @@ export default function AuthForm() {
        // Hard redirect to ensure the new cookie is sent.
       window.location.href = '/training';
     } catch (e) {
-       // error is set in the hook
-       setIsSubmitting(false);
+       // error is set in the hook, which is then displayed
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
