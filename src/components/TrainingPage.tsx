@@ -73,7 +73,7 @@ export default function TrainingPage() {
            </SidebarHeader>
            <SidebarContent>
             {exerciseData.map(unit => (
-               <div key={unit.id} className="p-2">
+               <div key={unit.id} className={cn("p-2", getThemeClass(unit))}>
                  <h3 className="text-sm font-semibold text-muted-foreground px-2 font-headline">
                    <ColoredGroupTitle title={unit.title} />
                  </h3>
@@ -89,7 +89,7 @@ export default function TrainingPage() {
                            tooltip={`${video.level}: ${video.title}`}
                            className={cn(
                                "justify-start w-full",
-                               isActive && "font-bold bg-accent/10 text-accent-foreground",
+                               isActive && "font-bold bg-accent text-accent-foreground",
                            )}
                          >
                            {isCompleted ? (
