@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const authToken = request.cookies.get('firebaseAuthToken')?.value;

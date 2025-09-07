@@ -13,6 +13,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { app, db as getDb } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 import { setAuthCookie, clearAuthCookie } from '@/app/auth/actions';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -31,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const auth = getAuth(app);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -83,9 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       await signOut(auth);
-      window.location.href = '/login';
+      router.push('/login');
     } catch (e: any) {
       setError(e.message);
+      throw e;
     }
   };
 

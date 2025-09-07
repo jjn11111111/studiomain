@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -30,12 +31,19 @@ const registerSchema = z.object({
 
 export default function AuthForm() {
   const [activeTab, setActiveTab] = useState('login');
-  const { signUp, signIn, error, setError } = useAuth();
+  const { user, signUp, signIn, error, setError } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setError(null);
   }, [activeTab, setError]);
+
+  useEffect(() => {
+    if (user) {
+      router.replace('/training');
+    }
+  }, [user, router]);
   
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -51,8 +59,7 @@ export default function AuthForm() {
     setIsSubmitting(true);
     try {
       await signIn(values.email, values.password);
-      // Hard redirect to ensure the new cookie is sent.
-      window.location.href = '/training';
+      // The useEffect will handle redirection
     } catch (e) {
        // error is set in the hook, which is then displayed
     } finally {
@@ -64,8 +71,7 @@ export default function AuthForm() {
     setIsSubmitting(true);
     try {
       await signUp(values.email, values.password);
-       // Hard redirect to ensure the new cookie is sent.
-      window.location.href = '/training';
+      // The useEffect will handle redirection
     } catch (e) {
        // error is set in the hook, which is then displayed
     } finally {
