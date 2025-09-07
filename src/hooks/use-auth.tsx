@@ -17,7 +17,7 @@ import { Loader2 } from 'lucide-react';
 const setAuthTokenCookie = async (user: User | null) => {
   if (typeof document === 'undefined') return;
   if (user) {
-    const token = await user.getIdToken(true);
+    const token = await user.getIdToken();
     document.cookie = `firebaseAuthToken=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
   } else {
     document.cookie = 'firebaseAuthToken=; path=/; max-age=-1;';
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError,
   };
 
-  if (isLoading && !user) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
