@@ -11,7 +11,7 @@ import {
   getDoc,
   DocumentReference,
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { db as getDb } from './firebase';
 
 export interface JournalEntry {
   id: string;
@@ -36,6 +36,7 @@ export interface JournalEntryData {
 
 // Add a new journal entry to Firestore
 export async function addJournalEntry(entryData: JournalEntryData): Promise<JournalEntry> {
+  const db = getDb();
   const docRef = await addDoc(collection(db, 'journalEntries'), {
     ...entryData,
     createdAt: Timestamp.now(),
@@ -48,6 +49,7 @@ export async function addJournalEntry(entryData: JournalEntryData): Promise<Jour
 
 // Get all journal entries for a specific user
 export async function getJournalEntries(userId: string): Promise<JournalEntry[]> {
+  const db = getDb();
   const entries: JournalEntry[] = [];
   const q = query(
     collection(db, 'journalEntries'),

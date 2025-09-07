@@ -16,8 +16,17 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase for client-side and server-side
-const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth: Auth = getAuth(app);
-const db: Firestore = getFirestore(app);
+const getAppInstance = (): FirebaseApp => {
+    return !getApps().length ? initializeApp(firebaseConfig) : getApp();
+}
 
-export { app, auth, db };
+const getAuthInstance = (): Auth => {
+    return getAuth(getAppInstance());
+}
+
+const getDbInstance = (): Firestore => {
+    return getFirestore(getAppInstance());
+}
+
+
+export { getAppInstance as app, getAuthInstance as auth, getDbInstance as db };

@@ -9,7 +9,7 @@ import {
   User,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { auth as getAuth, db as getDb } from '@/lib/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 // Helper function to manage the auth token cookie
@@ -46,6 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   useEffect(() => {
+    const auth = getAuth();
+    const db = getDb();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // Here you could fetch additional user data from Firestore
@@ -72,6 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
+      const auth = getAuth();
+      const db = getDb();
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       // Create a document for the new user in Firestore
@@ -94,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
+      const auth = getAuth();
       await signInWithEmailAndPassword(auth, email, password);
       router.push(redirectTo);
     } catch (e: any) {
@@ -107,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
+      const auth = getAuth();
       await signOut(auth);
       router.push('/');
     } catch (e: any) {
