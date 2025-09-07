@@ -9,7 +9,6 @@ import {
   signInWithEmailAndPassword,
   User,
   getAuth,
-  UserCredential,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { app, db as getDb } from '@/lib/firebase';
@@ -28,8 +27,8 @@ const setAuthTokenCookie = (token: string | null) => {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  signIn: (email: string, pass: string) => Promise<UserCredential | null>;
-  signUp: (email: string, pass: string) => Promise<UserCredential | null>;
+  signIn: (email: string, pass: string) => Promise<void>;
+  signUp: (email: string, pass: string) => Promise<void>;
   signOutUser: () => Promise<void>;
   error: string | null;
   setError: (error: string | null) => void;
@@ -68,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     setError(null);
+    setIsLoading(true);
     try {
       const auth = getAuth(app);
       const db = getDb();
@@ -80,37 +80,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           status: 'free',
         },
       });
-      // The onAuthStateChanged listener will handle setting the user, the cookie,
-      // and the useEffect above will handle the redirect.
-      return userCredential;
+      // The onAuthStateChanged listener will handle setting the user, cookie, and redirect.
     } catch (e: any) {
       setError(e.message);
-      return null;
+    } finally {
+        setIsLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     setError(null);
+    setIsLoading(true);
     try {
       const auth = getAuth(app);
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-       // The onAuthStateChanged listener will handle setting the user, the cookie,
-      // and the useEffect above will handle the redirect.
-      return userCredential;
+      await signInWithEmailAndPassword(auth, email, password);
+      // The onAuthStateChanged listener will handle setting the user, cookie, and redirect.
     } catch (e: any) {
       setError(e.message);
-      return null;
+    } finally {
+        setIsLoading(false);
     }
   };
 
   const signOutUser = async (): Promise<void> => {
     setError(null);
+    setIsLoading(true);
     try {
       const auth = getAuth(app);
       await signOut(auth);
       router.push('/');
     } catch (e: any) {
       setError(e.message);
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -124,7 +126,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError,
   };
 
-  if (isLoading) {
+  // This outer isLoading check is for the initial load of the app
+  // before Firebase has determined if a user is logged in or not.
+  if (isLoading && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
