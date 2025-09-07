@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -24,11 +25,8 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
     const video = videoRef.current;
     if (!video) return;
     
+    // Only play/pause. Replay is handled by its own button.
     if (video.paused) {
-      if (hasEnded) {
-        setHasEnded(false);
-        video.currentTime = 0;
-      }
       video.play().catch(console.error);
     } else {
       video.pause();
@@ -36,7 +34,7 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
   };
 
   const handleReplay = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent the main click handler from firing
     const video = videoRef.current;
     if (video) {
         setHasEnded(false);
@@ -88,7 +86,7 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
         videoRef.current.play().then(() => {
             setIsPlaying(true);
         }).catch(err => {
-            console.error("Video play failed:", err);
+            // Autoplay was blocked, user will need to click play.
             setIsPlaying(false);
         });
     }
