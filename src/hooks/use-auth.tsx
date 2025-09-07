@@ -10,10 +10,11 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // Helper function to manage the auth token cookie
 const setAuthTokenCookie = (token: string | null) => {
+  if (typeof window === 'undefined') return;
   if (token) {
     // Set cookie that expires in 24 hours
     document.cookie = `firebaseAuthToken=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
@@ -40,6 +41,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect_to') || '/training';
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -78,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           status: 'free', // 'free' or 'paid'
         },
       });
-      router.push('/training');
+      router.push(redirectTo);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -91,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/training');
+      router.push(redirectTo);
     } catch (e: any) {
       setError(e.message);
     } finally {
