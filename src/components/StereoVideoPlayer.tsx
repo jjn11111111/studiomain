@@ -25,8 +25,12 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
     const video = videoRef.current;
     if (!video) return;
     
-    // Only play/pause. Replay is handled by its own button.
     if (video.paused) {
+      if (hasEnded) {
+        // If ended, replay instead of just playing
+        setHasEnded(false);
+        video.currentTime = 0;
+      }
       video.play().catch(console.error);
     } else {
       video.pause();
