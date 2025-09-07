@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -15,9 +14,10 @@ import { app, db as getDb } from '@/lib/firebase';
 import { useRouter, usePathname } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-const setAuthTokenCookie = (token: string | null) => {
+const setAuthTokenCookie = async (user: User | null) => {
   if (typeof document === 'undefined') return;
-  if (token) {
+  if (user) {
+    const token = await user.getIdToken(true);
     document.cookie = `firebaseAuthToken=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
   } else {
     document.cookie = 'firebaseAuthToken=; path=/; max-age=-1;';
@@ -47,12 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      if (user) {
-        const token = await user.getIdToken();
-        setAuthTokenCookie(token);
-      } else {
-        setAuthTokenCookie(null);
-      }
+      await setAuthTokenCookie(user);
       setIsLoading(false);
     });
     return () => unsubscribe();
@@ -60,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     if (!isLoading && user && pathname === '/login') {
-       router.replace('/training');
+       router.replace('/waiting');
     }
   }, [user, isLoading, router, pathname]);
 
@@ -104,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError,
   };
 
-  if (isLoading) {
+  if (isLoading && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
