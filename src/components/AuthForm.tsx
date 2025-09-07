@@ -56,7 +56,7 @@ export default function AuthForm() {
     defaultValues: { email: '', password: '' },
   });
 
-  const handleLogin = async (values: z.infer<typeof login.tsx>) => {
+  const handleLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsSubmitting(true);
     await signIn(values.email, values.password);
     setIsSubmitting(false);
