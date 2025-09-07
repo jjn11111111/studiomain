@@ -44,10 +44,16 @@ export default function TrainingPage() {
           description: `You've completed "${selectedVideo.video.title}".`,
         });
       }
-      if (nextVideo) {
+      
+      const currentUnit = selectedVideo.unit;
+      const isLastVideoInUnit = currentUnit.videos[currentUnit.videos.length - 1].id === selectedVideo.video.id;
+
+      if (isLastVideoInUnit) {
+        setSelectedVideo(null); // Go back to curriculum page
+      } else if (nextVideo) {
         setSelectedVideo(nextVideo);
       } else {
-        setSelectedVideo(null); // Go back to curriculum
+        setSelectedVideo(null); // Fallback for the very last video
       }
     }
   };
@@ -97,7 +103,7 @@ export default function TrainingPage() {
                            ) : (
                              <BrainCircuit className="h-4 w-4 text-muted-foreground" />
                            )}
-                           <span className={cn(isActive ? "text-accent-foreground" : "text-primary-foreground")}>
+                           <span className={cn(isActive ? "text-accent-foreground" : "")}>
                              {video.level}. {video.title}
                            </span>
                          </SidebarMenuButton>
@@ -160,13 +166,14 @@ export default function TrainingPage() {
 
               <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-1">
                 {exerciseData.map((unit) => (
-                  <UnitCard 
-                    key={unit.id} 
-                    unit={unit} 
-                    completedVideos={completedVideos} 
-                    isInitialized={true}
-                    onSelectVideo={(video) => handleSelectVideo(unit, video)}
-                  />
+                   <div key={unit.id} className={getThemeClass(unit)}>
+                    <UnitCard 
+                      unit={unit} 
+                      completedVideos={completedVideos} 
+                      isInitialized={true}
+                      onSelectVideo={(video) => handleSelectVideo(unit, video)}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
