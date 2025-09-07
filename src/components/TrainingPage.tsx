@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -85,7 +86,7 @@ export default function TrainingPage() {
                          <SidebarMenuButton
                            onClick={() => handleSelectVideo(unit, video)}
                            isActive={isActive}
-                           tooltip={video.title}
+                           tooltip={`${video.level}: ${video.title}`}
                            className={cn(
                                "justify-start w-full",
                                isActive && "font-bold bg-accent/10 text-accent-foreground",
@@ -96,7 +97,9 @@ export default function TrainingPage() {
                            ) : (
                              <BrainCircuit className="h-4 w-4 text-muted-foreground" />
                            )}
-                           <span>{video.title}</span>
+                           <span className={cn("text-primary", isActive && "text-accent-foreground")}>
+                             {video.level}. {video.title}
+                           </span>
                          </SidebarMenuButton>
                        </SidebarMenuItem>
                     );
@@ -110,10 +113,10 @@ export default function TrainingPage() {
           {selectedVideo ? (
              <div className="flex flex-col p-4 md:p-8 h-full">
               <header className="mb-6">
-                <div className="text-sm font-medium text-accent font-headline">
-                  <ColoredGroupTitle title={selectedVideo.unit.title} /> - Level {selectedVideo.video.level}
+                 <div className="text-sm font-medium text-accent font-headline">
+                  <ColoredGroupTitle title={selectedVideo.unit.title} />
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">{selectedVideo.video.title}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">{selectedVideo.video.level}. {selectedVideo.video.title}</h1>
                 <p className="mt-2 text-muted-foreground">{selectedVideo.video.description}</p>
               </header>
 
