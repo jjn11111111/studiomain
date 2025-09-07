@@ -1,6 +1,5 @@
 'use client';
-import Link from 'next/link';
-import type { Unit } from '@/lib/data';
+import type { Unit, Video } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
@@ -13,16 +12,16 @@ interface UnitCardProps {
   unit: Unit;
   completedVideos: Set<string>;
   isInitialized: boolean;
+  onSelectVideo: (video: Video) => void;
 }
 
-export default function UnitCard({ unit, completedVideos, isInitialized }: UnitCardProps) {
+export default function UnitCard({ unit, completedVideos, isInitialized, onSelectVideo }: UnitCardProps) {
   const completedInUnit = unit.videos.filter(v => completedVideos.has(v.id)).length;
   const totalInUnit = unit.videos.length;
   const progress = totalInUnit > 0 ? (completedInUnit / totalInUnit) * 100 : 0;
 
-  const firstUncompletedVideo = unit.videos.find(v => !completedVideos.has(v.id));
-  const startLink = firstUncompletedVideo ? `/exercise/${unit.id}/${firstUncompletedVideo.id}` : `/exercise/${unit.id}/${unit.videos[0].id}`;
-
+  const firstUncompletedVideo = unit.videos.find(v => !completedVideos.has(v.id)) || unit.videos[0];
+  
   const isLocked = false; // Future logic for unlocking units can go here.
 
   if (!isInitialized) {
@@ -57,11 +56,9 @@ export default function UnitCard({ unit, completedVideos, isInitialized }: UnitC
           {completedInUnit} / {totalInUnit} COMPLETED
         </div>
         <Progress value={progress} aria-label={`${progress.toFixed(0)}% complete`} />
-        <Button asChild disabled={isLocked} className="bg-accent hover:bg-accent/90">
-          <Link href={isLocked ? '#' : startLink}>
+        <Button onClick={() => onSelectVideo(firstUncompletedVideo)} disabled={isLocked} className="bg-accent hover:bg-accent/90">
             {isLocked ? <Lock /> : (progress === 100 ? <ArrowRight/> : <PlayCircle />)}
             <span className="ml-2">{isLocked ? 'Locked' : (progress < 100 ? 'Start' : 'Review')}</span>
-          </Link>
         </Button>
       </CardContent>
     </Card>
