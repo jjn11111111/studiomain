@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -9,7 +8,6 @@ import {
   signInWithEmailAndPassword,
   User,
   getAuth,
-  IdTokenResult,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { app, db as getDb } from '@/lib/firebase';
@@ -52,60 +50,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [auth]);
 
-  const signUp = (email: string, password: string): Promise<void> => {
-    return new Promise(async (resolve, reject) => {
-        setError(null);
-        try {
-            const db = getDb();
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const newUser = userCredential.user;
-            await setDoc(doc(db, 'users', newUser.uid), {
-                email: newUser.email,
-                createdAt: new Date(),
-                subscription: { status: 'free' },
-            });
-            // The onAuthStateChanged listener will handle the cookie. 
-            // We resolve once we're sure the user object is set.
-            const unsub = onAuthStateChanged(auth, (authUser) => {
-                if (authUser && authUser.uid === newUser.uid) {
-                    unsub(); // Unsubscribe to avoid memory leaks
-                    resolve();
-                }
-            });
-        } catch (e: any) {
-            const errorCode = e.code || 'An unknown error occurred';
-            setError(errorCode.replace('auth/', '').replace(/-/g, ' '));
-            reject(e);
-        }
-    });
+  const signUp = async (email: string, password: string): Promise<void> => {
+    setError(null);
+    try {
+        const db = getDb();
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const newUser = userCredential.user;
+        await setDoc(doc(db, 'users', newUser.uid), {
+            email: newUser.email,
+            createdAt: new Date(),
+            subscription: { status: 'free' },
+        });
+    } catch (e: any) {
+        const errorCode = e.code || 'An unknown error occurred';
+        setError(errorCode.replace('auth/', '').replace(/-/g, ' '));
+        throw e;
+    }
   };
 
-  const signIn = (email: string, password: string): Promise<void> => {
-    return new Promise(async (resolve, reject) => {
-        setError(null);
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            // The onAuthStateChanged listener will handle the cookie. 
-            // We resolve once we're sure the user object is set.
-            const unsub = onAuthStateChanged(auth, (authUser) => {
-                if (authUser && authUser.uid === userCredential.user.uid) {
-                    unsub(); // Unsubscribe to avoid memory leaks
-                    resolve();
-                }
-            });
-        } catch (e: any) {
-            const errorCode = e.code || 'An unknown error occurred';
-            setError(errorCode.replace('auth/', '').replace(/-/g, ' '));
-            reject(e);
-        }
-    });
+  const signIn = async (email: string, password: string): Promise<void> => {
+    setError(null);
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (e: any) {
+        const errorCode = e.code || 'An unknown error occurred';
+        setError(errorCode.replace('auth/', '').replace(/-/g, ' '));
+        throw e;
+    }
   };
 
   const signOutUser = async (): Promise<void> => {
     setError(null);
     try {
       await signOut(auth);
-      window.location.assign('/login');
+      window.location.href = '/login';
     } catch (e: any) {
       setError(e.message);
     }
