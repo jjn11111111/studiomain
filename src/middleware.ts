@@ -3,6 +3,9 @@ import type {NextRequest} from 'next/server';
 import {getAuth} from 'firebase-admin/auth';
 import {getFirebaseAdminApp} from './lib/firebase-admin';
 
+// This is the fix: explicitly set the runtime to Node.js
+export const runtime = 'nodejs';
+
 async function verifySessionCookie(cookie: string | undefined) {
   if (!cookie) return null;
   try {
@@ -10,7 +13,7 @@ async function verifySessionCookie(cookie: string | undefined) {
     const decodedClaims = await getAuth(app).verifySessionCookie(cookie, true);
     return decodedClaims;
   } catch (error) {
-    console.error('Error verifying session cookie:', error);
+    // Session cookie is invalid or expired.
     return null;
   }
 }
@@ -23,7 +26,7 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = pathname === '/login';
 
   if (decodedToken) {
-    // If logged in, redirect away from login page
+    // If logged in, redirect away from login page to the training page
     if (isAuthPage) {
       return NextResponse.redirect(new URL('/training', request.url));
     }
