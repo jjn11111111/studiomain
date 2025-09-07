@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -32,7 +32,8 @@ const registerSchema = z.object({
 export default function AuthForm() {
   const [activeTab, setActiveTab] = useState('login');
   const { signUp, signIn, isLoading, error, setError } = useAuth();
-  
+  const searchParams = useSearchParams();
+
   useEffect(() => {
     setError(null);
   }, [activeTab, setError]);
@@ -48,13 +49,19 @@ export default function AuthForm() {
   });
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
-    await signIn(values.email, values.password);
-    // Redirect is now handled by the AuthProvider
+    const result = await signIn(values.email, values.password);
+    if (result) {
+      const redirectTo = searchParams.get('redirect_to') || '/training';
+      window.location.assign(redirectTo);
+    }
   };
 
   const handleRegister = async (values: z.infer<typeof registerSchema>) => {
-    await signUp(values.email, values.password);
-    // Redirect is now handled by the AuthProvider
+    const result = await signUp(values.email, values.password);
+    if (result) {
+       const redirectTo = searchParams.get('redirect_to') || '/training';
+       window.location.assign(redirectTo);
+    }
   };
 
   return (
