@@ -7,9 +7,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   User,
-  UserCredential,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { auth as getAuth, db as getDb } from '@/lib/firebase';
 import { useRouter, usePathname } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -26,8 +25,8 @@ const setAuthTokenCookie = (token: string | null) => {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  signIn: (email: string, pass: string) => Promise<UserCredential | null>;
-  signUp: (email: string, pass: string) => Promise<UserCredential | null>;
+  signIn: (email: string, pass: string) => Promise<boolean>;
+  signUp: (email: string, pass: string) => Promise<boolean>;
   signOutUser: () => Promise<void>;
   error: string | null;
   setError: (error: string | null) => void;
@@ -40,30 +39,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setUser(user);
-        const token = await user.getIdToken();
-        setAuthTokenCookie(token);
-      } else {
-        setUser(null);
-        setAuthTokenCookie(null);
-      }
+      setUser(user);
       setIsLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!isLoading && user && pathname === '/login') {
-        router.replace('/training');
-    }
-  }, [user, isLoading, pathname, router]);
 
   const signUp = async (email: string, password: string) => {
     setIsLoading(true);
@@ -80,10 +66,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           status: 'free',
         },
       });
-      return userCredential;
+      const token = await user.getIdToken(true);
+      setAuthTokenCookie(token);
+      return true;
     } catch (e: any) {
       setError(e.message);
-      return null;
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -94,10 +82,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const auth = getAuth();
-      return await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken(true);
+      setAuthTokenCookie(token);
+      return true;
     } catch (e: any) {
       setError(e.message);
-      return null;
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const auth = getAuth();
       await signOut(auth);
+      setAuthTokenCookie(null);
       router.push('/');
     } catch (e: any) {
       setError(e.message);

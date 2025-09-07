@@ -49,13 +49,17 @@ export default function AuthForm() {
   });
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
-    await signIn(values.email, values.password);
-    // The redirect is now handled by the AuthProvider
+    const success = await signIn(values.email, values.password);
+    if (success) {
+      window.location.assign('/training');
+    }
   };
 
   const handleRegister = async (values: z.infer<typeof registerSchema>) => {
-    await signUp(values.email, values.password);
-    // The redirect is now handled by the AuthProvider
+    const success = await signUp(values.email, values.password);
+    if (success) {
+        window.location.assign('/training');
+    }
   };
 
   return (
@@ -90,7 +94,7 @@ export default function AuthForm() {
                     <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
                   <FormMessage />
-                </FormItem>
+                </Item>
               )}
             />
             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
@@ -127,7 +131,7 @@ export default function AuthForm() {
                     <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
                   <FormMessage />
-                </FormItem>
+                </Item>
               )}
             />
             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
