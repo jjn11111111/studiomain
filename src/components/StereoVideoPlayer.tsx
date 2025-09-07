@@ -27,7 +27,6 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
     
     if (video.paused) {
       if (hasEnded) {
-        // If ended, replay instead of just playing
         setHasEnded(false);
         video.currentTime = 0;
       }
@@ -87,12 +86,14 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
     setIsPlaying(false);
     setHasEnded(false);
     if (videoRef.current) {
-        videoRef.current.play().then(() => {
-            setIsPlaying(true);
-        }).catch(err => {
-            // Autoplay was blocked, user will need to click play.
-            setIsPlaying(false);
-        });
+      // Attempt to autoplay, but handle browser restrictions gracefully
+      videoRef.current.play().then(() => {
+          setIsPlaying(true);
+      }).catch(err => {
+          // Autoplay was blocked, user will need to click play.
+          console.log("Autoplay prevented:", err);
+          setIsPlaying(false);
+      });
     }
   }, [videoUrl]);
 
