@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -8,21 +9,11 @@ import {
   signInWithEmailAndPassword,
   User,
   getAuth,
-  IdTokenResult,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { app, db as getDb } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-
-const setAuthTokenCookie = (token: string | null) => {
-  if (typeof document === 'undefined') return;
-  if (token) {
-    document.cookie = `firebaseAuthToken=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
-  } else {
-    document.cookie = 'firebaseAuthToken=; path=/; max-age=-1;';
-  }
-};
+import { setAuthCookie, clearAuthCookie } from '@/app/auth/actions';
 
 interface AuthContextType {
   user: User | null;
@@ -40,7 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
   const auth = getAuth(app);
 
   useEffect(() => {
@@ -48,9 +38,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(user);
       if (user) {
         const token = await user.getIdToken();
-        setAuthTokenCookie(token);
+        await setAuthCookie(token);
       } else {
-        setAuthTokenCookie(null);
+        await clearAuthCookie();
       }
       setIsLoading(false);
     });
@@ -71,7 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       });
     } catch (e: any) {
-        setError(e.message);
+        const errorCode = e.code || 'An unknown error occurred';
+        setError(errorCode.replace('auth/', '').replace(/-/g, ' '));
         throw e;
     }
   };
@@ -81,7 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (e: any) {
-        setError(e.message);
+        const errorCode = e.code || 'An unknown error occurred';
+        setError(errorCode.replace('auth/', '').replace(/-/g, ' '));
         throw e;
     }
   };
@@ -90,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       await signOut(auth);
-      router.push('/login');
+      window.location.assign('/login');
     } catch (e: any) {
       setError(e.message);
     }

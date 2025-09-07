@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -17,7 +18,6 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -33,7 +33,6 @@ export default function AuthForm() {
   const [activeTab, setActiveTab] = useState('login');
   const { signUp, signIn, error, setError } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     setError(null);
@@ -53,10 +52,9 @@ export default function AuthForm() {
     setIsSubmitting(true);
     try {
       await signIn(values.email, values.password);
-      const redirectTo = searchParams.get('redirect_to') || '/training';
-      window.location.assign(redirectTo);
+      window.location.assign('/training');
     } catch (e) {
-      // error is handled by the hook
+      // error is set in the hook
     } finally {
       setIsSubmitting(false);
     }
@@ -66,10 +64,9 @@ export default function AuthForm() {
     setIsSubmitting(true);
     try {
       await signUp(values.email, values.password);
-      const redirectTo = searchParams.get('redirect_to') || '/training';
-      window.location.assign(redirectTo);
+      window.location.assign('/training');
     } catch (e) {
-      // error is handled by the hook
+       // error is set in the hook
     } finally {
       setIsSubmitting(false);
     }
