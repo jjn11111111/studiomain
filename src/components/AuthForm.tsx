@@ -48,17 +48,13 @@ export default function AuthForm() {
   });
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
-    const success = await signIn(values.email, values.password);
-    if (success) {
-      window.location.assign('/training');
-    }
+    await signIn(values.email, values.password);
+    // Redirection is handled by the AuthProvider
   };
 
   const handleRegister = async (values: z.infer<typeof registerSchema>) => {
-    const success = await signUp(values.email, values.password);
-    if (success) {
-      window.location.assign('/training');
-    }
+    await signUp(values.email, values.password);
+    // Redirection is handled by the AuthProvider
   };
 
   return (

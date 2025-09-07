@@ -46,10 +46,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      if (user) {
+        const token = await user.getIdToken(true);
+        setAuthTokenCookie(token);
+      } else {
+        setAuthTokenCookie(null);
+      }
       setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
+  
+  useEffect(() => {
+    if (user && !isLoading) {
+       router.replace('/training');
+    }
+  }, [user, isLoading, router]);
 
   const signUp = async (email: string, password: string) => {
     setIsLoading(true);
@@ -66,8 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           status: 'free',
         },
       });
-      const token = await user.getIdToken(true);
-      setAuthTokenCookie(token);
+      // The onAuthStateChanged listener will handle the user state and cookie
       return true;
     } catch (e: any) {
       setError(e.message);
@@ -82,9 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const auth = getAuth(app);
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken(true);
-      setAuthTokenCookie(token);
+      await signInWithEmailAndPassword(auth, email, password);
+      // The onAuthStateChanged listener will handle the user state and cookie
       return true;
     } catch (e: any) {
       setError(e.message);
@@ -100,7 +110,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const auth = getAuth(app);
       await signOut(auth);
-      setAuthTokenCookie(null);
       router.push('/');
     } catch (e: any) {
       setError(e.message);
