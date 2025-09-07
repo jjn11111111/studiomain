@@ -8,7 +8,6 @@ import {
   signInWithEmailAndPassword,
   User,
   getAuth,
-  IdTokenResult,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { app, db as getDb } from '@/lib/firebase';
@@ -67,8 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           status: 'free',
         },
       });
-      const token = await user.getIdToken();
-      setAuthTokenCookie(token);
+    } catch (e: any) {
+        setError(e.message);
     } finally {
       setIsLoading(false);
     }
@@ -78,9 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     setIsLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken();
-      setAuthTokenCookie(token);
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (e: any) {
+        setError(e.message);
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +89,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       await signOut(auth);
-      setAuthTokenCookie(null);
       router.push('/');
     } catch (e: any) {
       setError(e.message);
@@ -107,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError,
   };
 
-  if (isLoading) {
+  if (isLoading && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
