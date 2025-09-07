@@ -16,12 +16,20 @@ export function ColoredGroupTitle({ title, className }: ColoredGroupTitleProps) 
     'Blue': 'text-blue-500',
   };
 
+  let activeColorClass = '';
+
   return (
     <span className={cn(className)}>
       {parts.map((part, index) => {
         const colorClass = colorMap[part];
         if (colorClass) {
+          activeColorClass = colorClass;
           return <span key={index} className={cn(colorClass, 'font-bold')}>{part}</span>;
+        }
+        if (part === 'Group' && activeColorClass) {
+            const classToApply = activeColorClass;
+            activeColorClass = ''; // Reset after applying
+            return <span key={index} className={cn(classToApply, 'font-bold')}> {part} </span>;
         }
         return <span key={index}> {part} </span>;
       })}
