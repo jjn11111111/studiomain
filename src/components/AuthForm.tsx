@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -33,6 +33,7 @@ export default function AuthForm() {
   const [activeTab, setActiveTab] = useState('login');
   const { signUp, signIn, error, setError } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setError(null);
@@ -48,10 +49,17 @@ export default function AuthForm() {
     defaultValues: { email: '', password: '' },
   });
 
+  const handleRedirect = () => {
+    const redirectTo = searchParams.get('redirect_to') || '/training';
+    // Use window.location.assign for a hard refresh, ensuring middleware has the cookie.
+    window.location.assign(redirectTo);
+  }
+
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsSubmitting(true);
     try {
       await signIn(values.email, values.password);
+      handleRedirect();
     } catch (e) {
       // error is handled by the hook
     } finally {
@@ -63,6 +71,7 @@ export default function AuthForm() {
     setIsSubmitting(true);
     try {
       await signUp(values.email, values.password);
+      handleRedirect();
     } catch (e) {
       // error is handled by the hook
     } finally {

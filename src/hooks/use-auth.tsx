@@ -11,7 +11,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { app, db as getDb } from '@/lib/firebase';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 const setAuthTokenCookie = (token: string | null) => {
@@ -40,27 +40,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const pathname = usePathname();
   const auth = getAuth(app);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      const token = user ? await user.getIdToken() : null;
-      setAuthTokenCookie(token);
       setIsLoading(false);
     });
     return () => unsubscribe();
   }, [auth]);
 
-  useEffect(() => {
-    if (!isLoading && user && pathname === '/login') {
-      router.replace('/training');
-    }
-  }, [user, isLoading, router, pathname]);
-
   const signUp = async (email: string, password: string) => {
     setError(null);
+    setIsLoading(true);
     try {
       const db = getDb();
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -72,19 +64,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           status: 'free',
         },
       });
+      const token = await user.getIdToken();
+      setAuthTokenCookie(token);
     } catch (e: any) {
         setError(e.message);
         throw e;
+    } finally {
+        setIsLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     setError(null);
+    setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
+      setAuthTokenCookie(token);
     } catch (e: any) {
         setError(e.message);
         throw e;
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -92,7 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       await signOut(auth);
-      router.push('/');
+      setAuthTokenCookie(null);
+      window.location.href = '/';
     } catch (e: any) {
       setError(e.message);
     }
