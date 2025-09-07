@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -31,8 +32,8 @@ const registerSchema = z.object({
 export default function AuthForm() {
   const [activeTab, setActiveTab] = useState('login');
   const { signUp, signIn, isLoading, error, setError } = useAuth();
+  const searchParams = useSearchParams();
 
-  // Clear errors when tab changes
   useEffect(() => {
     setError(null);
   }, [activeTab, setError]);
@@ -48,13 +49,21 @@ export default function AuthForm() {
   });
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
-    await signIn(values.email, values.password);
-    // Redirect is now handled by AuthProvider
+    const userCredential = await signIn(values.email, values.password);
+    if (userCredential) {
+      const redirectTo = searchParams.get('redirect_to') || '/training';
+      // Force a full page reload to ensure middleware gets the cookie.
+      window.location.href = redirectTo;
+    }
   };
 
   const handleRegister = async (values: z.infer<typeof registerSchema>) => {
-    await signUp(values.email, values.password);
-    // Redirect is now handled by AuthProvider
+    const userCredential = await signUp(values.email, values.password);
+    if (userCredential) {
+        const redirectTo = searchParams.get('redirect_to') || '/training';
+        // Force a full page reload to ensure middleware gets the cookie.
+        window.location.href = redirectTo;
+    }
   };
 
   return (
