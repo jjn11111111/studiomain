@@ -65,11 +65,7 @@ export default function AuthForm() {
       setError(result.error);
       setIsSubmitting(false);
     } else {
-      // On successful login, the useAuth hook's onAuthStateChanged will
-      // trigger, setting the user and causing a redirect.
-      // We can also force a refresh to ensure all server state is up-to-date.
-      router.push('/training');
-      router.refresh();
+      router.push('/about');
     }
   };
   

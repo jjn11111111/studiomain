@@ -1,6 +1,8 @@
 import Header from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BrainCircuit, Dna, Eye, Waves, Lightbulb, Zap } from 'lucide-react';
+import { BrainCircuit, Dna, Eye, Waves, Lightbulb, Zap, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function AboutPage() {
   return (
@@ -100,6 +102,16 @@ export default function AboutPage() {
             </Card>
           </div>
         </div>
+
+        <div className="flex justify-between items-center mt-8 border-t pt-8">
+            <Button asChild variant="outline">
+              <Link href="/training">Skip to Training</Link>
+            </Button>
+            <Button asChild size="lg">
+              <Link href="/directions">Next: How to Use <ArrowRight className="ml-2" /></Link>
+            </Button>
+        </div>
+
       </div>
     </div>
   );

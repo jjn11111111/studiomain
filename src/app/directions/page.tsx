@@ -1,6 +1,8 @@
 import Header from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HelpCircle, Target, Eye, View } from 'lucide-react';
+import { HelpCircle, Target, Eye, View, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function DirectionsPage() {
   return (
@@ -70,10 +72,17 @@ export default function DirectionsPage() {
               </CardHeader>
               <CardContent>
                 Once the 3D image is clear, try to hold your focus there. Observe the depth, the movement, and any sensations you feel. Let your mind be still.
-              </cardContent>
+              </CardContent>
             </Card>
           </div>
         </div>
+        
+        <div className="flex justify-end items-center mt-8 border-t pt-8">
+            <Button asChild size="lg">
+              <Link href="/training">Start Training <ArrowRight className="ml-2" /></Link>
+            </Button>
+        </div>
+
       </div>
     </div>
   );
