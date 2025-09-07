@@ -11,7 +11,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { app, db as getDb } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 const setAuthTokenCookie = (token: string | null) => {
@@ -40,19 +40,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const auth = getAuth(app);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      if (user) {
+        const token = await user.getIdToken();
+        setAuthTokenCookie(token);
+      } else {
+        setAuthTokenCookie(null);
+      }
       setIsLoading(false);
     });
     return () => unsubscribe();
   }, [auth]);
 
+  useEffect(() => {
+    if (!isLoading && user && pathname === '/login') {
+        const redirectTo = searchParams.get('redirect_to') || '/training';
+        router.replace(redirectTo);
+    }
+  }, [user, isLoading, pathname, router, searchParams]);
+
   const signUp = async (email: string, password: string) => {
     setError(null);
-    setIsLoading(true);
     try {
       const db = getDb();
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -64,28 +78,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           status: 'free',
         },
       });
-      const token = await user.getIdToken();
-      setAuthTokenCookie(token);
     } catch (e: any) {
         setError(e.message);
         throw e;
-    } finally {
-        setIsLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     setError(null);
-    setIsLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken();
-      setAuthTokenCookie(token);
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (e: any) {
         setError(e.message);
         throw e;
-    } finally {
-        setIsLoading(false);
     }
   };
 
@@ -93,8 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       await signOut(auth);
-      setAuthTokenCookie(null);
-      window.location.href = '/';
+      router.push('/login');
     } catch (e: any) {
       setError(e.message);
     }
