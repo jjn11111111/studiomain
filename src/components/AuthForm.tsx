@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -52,7 +51,7 @@ export default function AuthForm() {
     setIsSubmitting(true);
     try {
       await signIn(values.email, values.password);
-      // The AuthProvider will handle redirection now.
+      window.location.assign('/training');
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -64,7 +63,7 @@ export default function AuthForm() {
     setIsSubmitting(true);
     try {
       await signUp(values.email, values.password);
-      // The AuthProvider will handle redirection now.
+      window.location.assign('/training');
     } catch (e: any) {
       setError(e.message);
     } finally {

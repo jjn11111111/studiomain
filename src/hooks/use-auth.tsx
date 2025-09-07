@@ -8,16 +8,16 @@ import {
   signInWithEmailAndPassword,
   User,
   getAuth,
+  IdTokenResult,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { app, db as getDb } from '@/lib/firebase';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-const setAuthTokenCookie = async (user: User | null) => {
+const setAuthTokenCookie = (token: string | null) => {
   if (typeof document === 'undefined') return;
-  if (user) {
-    const token = await user.getIdToken();
+  if (token) {
     document.cookie = `firebaseAuthToken=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
   } else {
     document.cookie = 'firebaseAuthToken=; path=/; max-age=-1;';
@@ -27,8 +27,8 @@ const setAuthTokenCookie = async (user: User | null) => {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  signIn: (email: string, pass: string) => Promise<any>;
-  signUp: (email: string, pass: string) => Promise<any>;
+  signIn: (email: string, pass: string) => Promise<void>;
+  signUp: (email: string, pass: string) => Promise<void>;
   signOutUser: () => Promise<void>;
   error: string | null;
   setError: (error: string | null) => void;
@@ -41,48 +41,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const pathname = usePathname();
   const auth = getAuth(app);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      await setAuthTokenCookie(user);
+      const token = user ? await user.getIdToken() : null;
+      setAuthTokenCookie(token);
       setIsLoading(false);
     });
     return () => unsubscribe();
   }, [auth]);
-  
-  useEffect(() => {
-    if (!isLoading && user && pathname === '/login') {
-       router.replace('/waiting');
-    }
-  }, [user, isLoading, router, pathname]);
 
   const signUp = async (email: string, password: string) => {
     setError(null);
-    const db = getDb();
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    await setDoc(doc(db, 'users', user.uid), {
-      email: user.email,
-      createdAt: new Date(),
-      subscription: {
-        status: 'free',
-      },
-    });
-    return userCredential;
+    setIsLoading(true);
+    try {
+      const db = getDb();
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      await setDoc(doc(db, 'users', user.uid), {
+        email: user.email,
+        createdAt: new Date(),
+        subscription: {
+          status: 'free',
+        },
+      });
+      const token = await user.getIdToken();
+      setAuthTokenCookie(token);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const signIn = async (email: string, password: string) => {
     setError(null);
-    return signInWithEmailAndPassword(auth, email, password);
+    setIsLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
+      setAuthTokenCookie(token);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const signOutUser = async (): Promise<void> => {
     setError(null);
     try {
       await signOut(auth);
+      setAuthTokenCookie(null);
       router.push('/');
     } catch (e: any) {
       setError(e.message);
