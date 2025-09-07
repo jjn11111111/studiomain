@@ -46,7 +46,7 @@ export default function UnitCard({ unit, completedVideos, isInitialized, onSelec
   return (
     <Card className={cn("flex flex-col md:flex-row items-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 overflow-hidden", themeClass)}>
       <CardHeader className="w-full md:w-2/3">
-        <CardTitle className="font-headline text-2xl text-primary">
+        <CardTitle className={cn("font-headline text-2xl text-primary", themeClass)}>
            <ColoredGroupTitle title={unit.title} />
         </CardTitle>
         <CardDescription>{unit.description}</CardDescription>

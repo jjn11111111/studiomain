@@ -151,7 +151,7 @@ export default function TrainingPage() {
               <div className="text-center mb-12">
                 <h2 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-2 flex items-center justify-center gap-4">
                   <BrainCircuit className="w-12 h-12" />
-                  Training Curriculum
+                  CrossTraining Modules
                 </h2>
                 <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
                   Select an exercise from the sidebar to begin your training. The visual exercises combine features of visual optics, spatial depth, super symmetry, and directions of rotation or spin to stimulate structures of the brain and visual cortex.
