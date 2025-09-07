@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card } from './ui/card';
 import { Play, Pause } from 'lucide-react';
 import { Button } from './ui/button';
@@ -15,14 +15,27 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
+  useEffect(() => {
+    // We start playing the video programmatically to have better control
+    // and to sync the state.
+    if (videoRef.current) {
+        videoRef.current.play().then(() => {
+            setIsPlaying(true);
+        }).catch(err => {
+            console.error("Video play failed:", err);
+            setIsPlaying(false); // Ensure state is correct if play fails
+        });
+    }
+  }, [videoUrl]); // Re-run when the video source changes
+
   const handlePlayPause = () => {
-    const nextIsPlaying = !isPlaying;
-    setIsPlaying(nextIsPlaying);
+    const video = videoRef.current;
+    if (!video) return;
     
-    if (nextIsPlaying) {
-      videoRef.current?.play().catch(console.error);
+    if (video.paused) {
+      video.play().catch(console.error);
     } else {
-      videoRef.current?.pause();
+      video.pause();
     }
   };
 
@@ -46,6 +59,7 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
           loop
           playsInline
           muted
+          autoPlay
           className="w-full h-full object-cover"
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
