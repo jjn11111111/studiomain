@@ -33,6 +33,7 @@ export function AuthProvider({children}: {children: ReactNode}) {
     try {
       await auth.signOut();
       await clearSessionCookie();
+      // Use router push and refresh to ensure state is cleared everywhere
       router.push('/login');
       router.refresh();
     } catch (e: any) {

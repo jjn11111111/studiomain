@@ -28,14 +28,14 @@ export default function AuthForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
     // If user is already logged in, redirect to training
-    if (user) {
+    if (!isLoading && user) {
       router.replace('/training');
     }
-  }, [user, router]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
     setError(null);
@@ -63,14 +63,21 @@ export default function AuthForm() {
     
     if (result.error) {
       setError(result.error);
+      setIsSubmitting(false);
     } else {
+      // On successful login, the useAuth hook's onAuthStateChanged will
+      // trigger, setting the user and causing a redirect.
+      // We can also force a refresh to ensure all server state is up-to-date.
       router.push('/training');
-      router.refresh(); // Force a refresh to update server-side state
+      router.refresh();
     }
-    
-    setIsSubmitting(false);
   };
   
+  // If loading or user is already present, don't show the form
+  if (isLoading || user) {
+    return <div className="flex justify-center items-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+  }
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-2">

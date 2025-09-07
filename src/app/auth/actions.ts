@@ -6,11 +6,12 @@ import {getFirebaseAdminApp} from '@/lib/firebase-admin';
 import {signInWithEmailAndPassword} from 'firebase/auth';
 import {getAuth as getClientAuth} from 'firebase/auth';
 import {app as clientApp} from '@/lib/firebase';
-import {doc, setDoc} from 'firebase/firestore';
-import {db as getDb} from '@/lib/firebase';
+import {doc, setDoc, getFirestore} from 'firebase/firestore';
+import {getFirestore as getAdminFirestore} from 'firebase-admin/firestore';
 
 const app = getFirebaseAdminApp();
 const auth = getAuth(app);
+const adminDb = getAdminFirestore(app);
 
 export async function createSessionCookie(idToken: string) {
   const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
@@ -43,8 +44,7 @@ export async function signUpWithEmail(formData: FormData) {
     });
     
     // Also create a user document in Firestore
-    const db = getDb();
-    await setDoc(doc(db, 'users', userRecord.uid), {
+    await adminDb.collection('users').doc(userRecord.uid).set({
         email: userRecord.email,
         createdAt: new Date(),
         subscription: { status: 'free' },
