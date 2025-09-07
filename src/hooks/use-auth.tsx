@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -7,10 +8,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   User,
+  getAuth,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth as getAuth, db as getDb } from '@/lib/firebase';
-import { useRouter, usePathname } from 'next/navigation';
+import { app, db as getDb } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 const setAuthTokenCookie = (token: string | null) => {
@@ -41,21 +43,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const auth = getAuth();
+    const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setIsLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
-
 
   const signUp = async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const auth = getAuth();
+      const auth = getAuth(app);
       const db = getDb();
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const auth = getAuth();
+      const auth = getAuth(app);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken(true);
       setAuthTokenCookie(token);
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const auth = getAuth();
+      const auth = getAuth(app);
       await signOut(auth);
       setAuthTokenCookie(null);
       router.push('/');
@@ -121,10 +121,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <Loader2 className="w-8 h-8 animate-spin" />
-        </div>
-    )
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,3 +1,4 @@
+
 'use client';
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
@@ -15,18 +16,11 @@ const firebaseConfig = {
   messagingSenderId: "590588534644"
 };
 
-// Initialize Firebase for client-side and server-side
-const getAppInstance = (): FirebaseApp => {
-    return !getApps().length ? initializeApp(firebaseConfig) : getApp();
-}
-
-const getAuthInstance = (): Auth => {
-    return getAuth(getAppInstance());
-}
+// Initialize Firebase
+const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const getDbInstance = (): Firestore => {
-    return getFirestore(getAppInstance());
+    return getFirestore(app);
 }
 
-
-export { getAppInstance as app, getAuthInstance as auth, getDbInstance as db };
+export { app, getDbInstance as db };
