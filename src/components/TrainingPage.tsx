@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useProgress } from '@/hooks/use-progress';
 import StereoVideoPlayer from './StereoVideoPlayer';
-import AffirmationGenerator from './AffirmationGenerator';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ColoredGroupTitle } from './ColoredGroupTitle';
@@ -126,8 +125,7 @@ export default function TrainingPage() {
                 <p className="mt-2 text-muted-foreground">{selectedVideo.video.description}</p>
               </header>
 
-              <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 flex flex-col gap-6">
+              <div className="flex-grow flex flex-col gap-6">
                   <StereoVideoPlayer thumbnailUrl={selectedVideo.video.thumbnailUrl} videoUrl={selectedVideo.video.videoUrl} />
                   <div className="flex justify-between items-center mt-auto pt-4">
                     {previousVideo ? (
@@ -145,11 +143,6 @@ export default function TrainingPage() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
-                </div>
-
-                <div className="lg:col-span-1">
-                  <AffirmationGenerator unit={selectedVideo.unit} video={selectedVideo.video} />
-                </div>
               </div>
             </div>
           ) : (
