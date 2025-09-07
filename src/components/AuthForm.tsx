@@ -49,9 +49,10 @@ export default function AuthForm() {
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsSubmitting(true);
+    setError(null);
     try {
       await signIn(values.email, values.password);
-      window.location.assign('/training');
+      // Redirection is handled by the useAuth hook
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -61,9 +62,10 @@ export default function AuthForm() {
 
   const handleRegister = async (values: z.infer<typeof registerSchema>) => {
     setIsSubmitting(true);
+    setError(null);
     try {
       await signUp(values.email, values.password);
-      window.location.assign('/training');
+      // Redirection is handled by the useAuth hook
     } catch (e: any) {
       setError(e.message);
     } finally {
