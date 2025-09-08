@@ -10,7 +10,7 @@ export default function AboutPage() {
       <Header />
       <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold font-headline text-primary">About 3rd Eye CrossTraining</h1>
+          <h1 className="text-5xl font-bold font-headline text-black dark:text-white">About 3rd Eye CrossTraining</h1>
           <p className="mt-4 text-xl text-muted-foreground max-w-3xl mx-auto">
             Unlocking human potential through the focused application of visual and sensory stimulation.
           </p>
@@ -18,7 +18,7 @@ export default function AboutPage() {
 
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold font-headline text-accent">The Philosophy</h2>
+            <h2 className="text-3xl font-bold font-headline text-black dark:text-white">The Philosophy</h2>
             <p className="text-lg text-muted-foreground">
               These visual exercises emerge from years of personal reflection and study. The exercises combine features of visual optics, spatial depth, super symmetry, and directions of rotation or spin. 
             </p>
@@ -32,7 +32,7 @@ export default function AboutPage() {
         </div>
 
         <div className="my-16">
-          <h2 className="text-3xl font-bold font-headline text-center mb-8 text-accent">The Experience: Background, Explanation, and Effects</h2>
+          <h2 className="text-3xl font-bold font-headline text-center mb-8 text-black dark:text-white">The Experience: Background, Explanation, and Effects</h2>
           <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
              <Card>
               <CardHeader>
@@ -68,7 +68,7 @@ export default function AboutPage() {
         </div>
 
         <div className="my-16">
-          <h2 className="text-3xl font-bold font-headline text-center mb-8 text-accent">Core Principles</h2>
+          <h2 className="text-3xl font-bold font-headline text-center mb-8 text-black dark:text-white">Core Principles</h2>
           <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
             <Card>
               <CardHeader>
