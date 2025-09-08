@@ -12,8 +12,16 @@ function initializeAdminApp() {
 
   // Try to use the environment variable.
   const envServiceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
   if (envServiceAccountKey) {
      try {
+        // Ensure the key is not an empty string before parsing.
+        if (envServiceAccountKey.trim() === '') {
+            throw new Error(
+              'The FIREBASE_SERVICE_ACCOUNT_KEY is empty. ' +
+              'Please paste your Firebase Service Account JSON key into the .env file.'
+            );
+        }
         const serviceAccount = JSON.parse(envServiceAccountKey);
         return initializeApp({
           credential: cert(serviceAccount),
