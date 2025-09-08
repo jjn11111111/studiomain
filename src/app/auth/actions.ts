@@ -2,7 +2,7 @@
 'use server';
 
 import {cookies} from 'next/headers';
-import {getAuth} from 'firebase-admin/auth';
+import {getAuth as getAdminAuthSdk} from 'firebase-admin/auth';
 import {getFirebaseAdminApp} from '@/lib/firebase-admin';
 import {signInWithEmailAndPassword} from 'firebase/auth';
 import {getAuth as getClientAuth} from 'firebase/auth';
@@ -14,14 +14,13 @@ function getAdminAuth() {
   if (!app) {
     return { auth: null, adminDb: null };
   }
-  return { auth: getAuth(app), adminDb: getAdminFirestore(app) };
+  return { auth: getAdminAuthSdk(app), adminDb: getAdminFirestore(app) };
 }
 
 export async function createSessionCookie(idToken: string) {
   const { auth } = getAdminAuth();
   if (!auth) {
       console.error("Failed to create session cookie: Firebase Admin App not initialized.");
-      // This is a server error, but we can't do much without the admin SDK
       return;
   }
   const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
@@ -106,7 +105,7 @@ export async function signInWithEmail(formData: FormData) {
     return {success: true};
   } catch (error: any) {
     // Catch specific Firebase auth errors for client-side sign-in
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+    if (error.code === 'auth/invalid-credential') {
         return {error: 'Invalid email or password.'};
     }
     console.error("Sign in error:", error);
