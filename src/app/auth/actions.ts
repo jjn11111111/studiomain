@@ -10,19 +10,12 @@ import {app as clientApp} from '@/lib/firebase';
 import {getFirestore as getAdminFirestore} from 'firebase-admin/firestore';
 
 function getAdminAuth() {
-  try {
-    const app = getFirebaseAdminApp();
-    return { auth: getAuth(app), adminDb: getAdminFirestore(app) };
-  } catch (error) {
-    console.error("Failed to get Firebase Admin instance:", error);
-    return { auth: null, adminDb: null };
-  }
+  const app = getFirebaseAdminApp();
+  return { auth: getAuth(app), adminDb: getAdminFirestore(app) };
 }
 
 export async function createSessionCookie(idToken: string) {
   const { auth } = getAdminAuth();
-  if (!auth) return;
-
   const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
   const sessionCookie = await auth.createSessionCookie(idToken, {expiresIn});
   cookies().set('__session', sessionCookie, {
@@ -48,16 +41,12 @@ export async function signUpWithEmail(formData: FormData) {
   
   try {
     const { auth, adminDb } = getAdminAuth();
-    if (!auth || !adminDb) {
-      return {error: 'Server configuration error. Please try again later.'};
-    }
-
+    
     const userRecord = await auth.createUser({
       email,
       password,
     });
     
-    // Also create a user document in Firestore
     await adminDb.collection('users').doc(userRecord.uid).set({
         email: userRecord.email,
         createdAt: new Date(),
@@ -88,7 +77,6 @@ export async function signInWithEmail(formData: FormData) {
   }
 
   try {
-    // We still use client SDK to sign in to get the ID token.
     const clientAuth = getClientAuth(clientApp);
     const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
     const idToken = await userCredential.user.getIdToken();
@@ -97,8 +85,6 @@ export async function signInWithEmail(formData: FormData) {
 
     return {success: true};
   } catch (error: any) {
-    // Firebase's client-side SDK has more generic error messages for security
-    // This is a reasonable default for a failed login attempt.
     return {error: 'Invalid email or password.'};
   }
 }

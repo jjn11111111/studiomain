@@ -1,68 +1,41 @@
 
 import { getApp, getApps, initializeApp, cert, App } from 'firebase-admin/app';
 
-// This function safely parses the service account key from the environment variable.
-function parseServiceAccount(): object | null {
-  const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-  if (!serviceAccountKey) {
-    console.error(
-      'CRITICAL: FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set. Firebase Admin SDK cannot be initialized. Server-side authentication actions will fail.'
-    );
-    return null;
-  }
+const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+let serviceAccount: object;
+
+if (serviceAccountString) {
   try {
-    // The key might be base64 encoded or a direct string. Let's handle both.
-    const decodedKey = Buffer.from(serviceAccountKey, 'base64').toString('utf-8');
-    return JSON.parse(decodedKey);
-  } catch (e1) {
-    // If base64 decoding fails, try to parse it directly.
+    // First attempt to parse after base64 decoding
+    const decodedKey = Buffer.from(serviceAccountString, 'base64').toString('utf-8');
+    serviceAccount = JSON.parse(decodedKey);
+  } catch (e) {
     try {
-      return JSON.parse(serviceAccountKey);
-    } catch (e2) {
-      console.error(
-        'CRITICAL: Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY. It is not a valid JSON string or base64 encoded JSON.',
-        e2
-      );
-      return null;
+      // If base64 fails, try to parse directly as JSON
+      serviceAccount = JSON.parse(serviceAccountString);
+    } catch (error) {
+      console.error('CRITICAL: FIREBASE_SERVICE_ACCOUNT_KEY is not a valid JSON string or base64-encoded JSON.', error);
+      throw new Error('Failed to parse Firebase service account key.');
     }
   }
+} else {
+    console.error('CRITICAL: FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set. Firebase Admin SDK cannot be initialized. Server-side authentication actions will fail.');
+    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set.');
 }
 
-const serviceAccount = parseServiceAccount();
-
-const ADMIN_APP_NAME = 'firebase-admin-app';
-
-let adminApp: App | null = null;
-
-function initializeAdminApp(): App {
-  if (getApps().some((app) => app.name === ADMIN_APP_NAME)) {
-    adminApp = getApp(ADMIN_APP_NAME);
-    return adminApp;
-  }
-
-  if (!serviceAccount) {
-    throw new Error('Firebase Admin App initialization failed: Service account credentials are not available or invalid. Check server logs for details.');
-  }
-
-  try {
-    adminApp = initializeApp({
-      credential: cert(serviceAccount),
-    }, ADMIN_APP_NAME);
-    return adminApp;
-  } catch (error: any) {
-    console.error('CRITICAL: Firebase Admin App initialization failed with error:', error.message);
-    throw new Error(`Firebase Admin App initialization failed: ${error.message}. Check server logs.`);
-  }
-}
+const ADMIN_APP_NAME = 'firebase-admin-app-singleton';
 
 /**
  * Retrieves the singleton instance of the Firebase Admin App.
- * If the app is not initialized, it will attempt to initialize it.
- * Throws an error if initialization fails.
+ * If the app is not initialized, it will initialize it.
  */
 export function getFirebaseAdminApp(): App {
-    if (!adminApp) {
-        return initializeAdminApp();
+    if (getApps().find((app) => app.name === ADMIN_APP_NAME)) {
+        return getApp(ADMIN_APP_NAME);
     }
-    return adminApp;
+
+    return initializeApp({
+        credential: cert(serviceAccount),
+    }, ADMIN_APP_NAME);
 }
