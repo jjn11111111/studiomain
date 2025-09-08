@@ -13,53 +13,18 @@ import { useProgress } from '@/hooks/use-progress';
 import StereoVideoPlayer from './StereoVideoPlayer';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ColoredGroupTitle } from './ColoredGroupTitle';
+import { useRouter } from 'next/navigation';
 
 export default function TrainingPage() {
-  const [selectedVideo, setSelectedVideo] = useState<{ unit: Unit; video: Video } | null>(null);
   const { completedVideos, markAsComplete, isComplete } = useProgress();
   const { toast } = useToast();
+  const router = useRouter();
+
 
   const handleSelectVideo = (unit: Unit, video: Video) => {
-    setSelectedVideo({ unit, video });
+    router.push(`/exercise/${unit.id}/${video.id}`);
   };
 
-  const allVideos: { unit: Unit; video: Video }[] = exerciseData.flatMap(u => u.videos.map(v => ({ unit: u, video: v })));
-  
-  let currentIndex = -1;
-  if(selectedVideo) {
-    currentIndex = allVideos.findIndex(item => item.video.id === selectedVideo.video.id);
-  }
-
-  const previousVideo = currentIndex > 0 ? allVideos[currentIndex - 1] : null;
-  const nextVideo = currentIndex < allVideos.length - 1 ? allVideos[currentIndex + 1] : null;
-
-  const handleComplete = () => {
-    if (selectedVideo) {
-      if (!isComplete(selectedVideo.video.id)) {
-        markAsComplete(selectedVideo.video.id);
-        toast({
-          title: "Exercise Complete!",
-          description: `You've completed "${selectedVideo.video.title}".`,
-        });
-      }
-      
-      const currentUnit = selectedVideo.unit;
-      const isLastVideoInUnit = currentUnit.videos[currentUnit.videos.length - 1].id === selectedVideo.video.id;
-
-      if (isLastVideoInUnit) {
-        setSelectedVideo(null); // Go back to curriculum page
-      } else if (nextVideo) {
-        setSelectedVideo(nextVideo);
-      } else {
-        setSelectedVideo(null); // Fallback for the very last video
-      }
-    }
-  };
-  
-  const handleBackToTraining = () => {
-    setSelectedVideo(null);
-  };
 
   const getThemeClass = (unit: Unit | undefined) => {
     if (!unit) return '';
@@ -68,7 +33,7 @@ export default function TrainingPage() {
 
   return (
     <SidebarProvider>
-      <div className={cn("flex h-full", getThemeClass(selectedVideo?.unit))}>
+      <div className={cn("flex h-full")}>
         <Sidebar collapsible="icon">
            <SidebarHeader>
               <Link href="/" className="flex items-center gap-2">
@@ -80,21 +45,18 @@ export default function TrainingPage() {
             {exerciseData.map(unit => (
                <div key={unit.id} className={cn("p-2", getThemeClass(unit))}>
                  <h3 className="text-sm font-semibold text-muted-foreground px-2 font-headline">
-                   <ColoredGroupTitle title={unit.title} />
+                   {unit.title}
                  </h3>
                  <SidebarMenu>
                   {unit.videos.map((video) => {
                     const isCompleted = completedVideos.has(video.id);
-                    const isActive = selectedVideo?.video.id === video.id;
                     return (
                        <SidebarMenuItem key={video.id}>
                          <SidebarMenuButton
                            onClick={() => handleSelectVideo(unit, video)}
-                           isActive={isActive}
                            tooltip={`${video.level}: ${video.title}`}
                            className={cn(
                                "justify-start w-full",
-                               isActive && "font-bold bg-accent text-accent-foreground",
                            )}
                          >
                            {isCompleted ? (
@@ -102,7 +64,7 @@ export default function TrainingPage() {
                            ) : (
                              <BrainCircuit className="h-4 w-4 text-muted-foreground" />
                            )}
-                           <span className={cn(isActive ? "text-accent-foreground" : "")}>
+                           <span>
                              {video.level}. {video.title}
                            </span>
                          </SidebarMenuButton>
@@ -115,37 +77,6 @@ export default function TrainingPage() {
            </SidebarContent>
         </Sidebar>
         <SidebarInset>
-          {selectedVideo ? (
-             <div className="flex flex-col p-4 md:p-8 h-full">
-              <header className="mb-6">
-                 <div className="text-sm font-medium text-accent font-headline">
-                  <ColoredGroupTitle title={selectedVideo.unit.title} />
-                </div>
-                <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">{selectedVideo.video.level}. {selectedVideo.video.title}</h1>
-                <p className="mt-2 text-muted-foreground">{selectedVideo.video.description}</p>
-              </header>
-
-              <div className="flex-grow flex flex-col gap-6">
-                  <StereoVideoPlayer thumbnailUrl={selectedVideo.video.thumbnailUrl} videoUrl={selectedVideo.video.videoUrl} />
-                  <div className="flex justify-between items-center mt-auto pt-4">
-                    {previousVideo ? (
-                      <Button variant="outline" onClick={() => setSelectedVideo(previousVideo)}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Previous
-                      </Button>
-                    ) :  (
-                       <Button variant="outline" onClick={handleBackToTraining}>
-                          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Training
-                        </Button>
-                    )}
-                    <Button onClick={handleComplete} size="lg" className="bg-primary hover:bg-primary/90">
-                      <CheckCircle className="mr-2 h-5 w-5" />
-                      {isComplete(selectedVideo.video.id) ? 'Next Exercise' : 'Mark as Complete & Next'}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-              </div>
-            </div>
-          ) : (
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
               <div className="text-center mb-12">
                 <h2 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-2 flex items-center justify-center gap-4">
@@ -170,9 +101,10 @@ export default function TrainingPage() {
                 ))}
               </div>
             </div>
-          )}
         </SidebarInset>
       </div>
     </SidebarProvider>
   );
 }
+
+    
