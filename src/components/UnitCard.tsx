@@ -46,7 +46,7 @@ export default function UnitCard({ unit, completedVideos, isInitialized, onSelec
     <div className={themeClass}>
       <Card className="flex flex-col md:flex-row items-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 overflow-hidden">
         <CardHeader className="w-full md:w-2/3">
-          <CardTitle className="font-headline text-2xl">{unit.title}</CardTitle>
+          <CardTitle className="font-headline text-2xl text-primary">{unit.title}</CardTitle>
           <CardDescription>{unit.description}</CardDescription>
         </CardHeader>
         <CardContent className="w-full md:w-1/3 p-6 flex flex-col items-center justify-center gap-4 bg-muted/50 h-full">
