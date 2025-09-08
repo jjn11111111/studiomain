@@ -17,10 +17,7 @@ export default function DirectionsPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-                <Image src="https://picsum.photos/600/400" alt="Abstract representation of vision" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="abstract vision" />
-            </div>
+        <div className="grid md:grid-cols-1 gap-8 items-center">
           <div className="space-y-6">
             <h2 className="text-3xl font-bold font-headline text-accent flex items-center gap-2"><HelpCircle/> The Technique</h2>
             <p className="text-lg text-muted-foreground">
@@ -36,6 +33,13 @@ export default function DirectionsPage() {
               Practice by viewing the stereoscopic images below and use the directions above as a guide. When you achieve clarity with the 3rd image in the middle, hold it for at least 30 seconds.
             </p>
           </div>
+        </div>
+
+        <div className="my-16 space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Image src="https://i.imgur.com/gJt0S1j.jpeg" alt="Stereogram of two spheres on a checkerboard" className="rounded-lg shadow-lg w-full" width={600} height={400} data-ai-hint="stereogram checkerboard" />
+                <Image src="https://i.imgur.com/H144k2C.jpeg" alt="Stereogram of a shark" className="rounded-lg shadow-lg w-full" width={600} height={400} data-ai-hint="stereogram shark" />
+            </div>
         </div>
 
         <div className="my-16">
