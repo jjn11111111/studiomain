@@ -13,6 +13,7 @@ export interface Video {
 export interface Unit {
   id: string;
   title: string;
+  groupName: string;
   description: string;
   videos: Video[];
 }
@@ -20,7 +21,8 @@ export interface Unit {
 export const exerciseData: Unit[] = [
   {
     id: 'module-1',
-    title: 'Module 1: Red Group',
+    title: 'Module 1',
+    groupName: 'Red Group',
     description: 'Begin your journey by gently awakening your senses and preparing your mind for deeper exploration. These exercises focus on basic relaxation and visualization.',
     videos: [
       { id: 'vid-1-1', title: 'Avocado', description: 'A guided breathing exercise to calm the nervous system and center your awareness.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/Untitled%20design(12).MP4?alt=media' },
@@ -37,7 +39,8 @@ export const exerciseData: Unit[] = [
   },
   {
     id: 'module-2',
-    title: 'Module 2: Yellow Group',
+    title: 'Module 2',
+    groupName: 'Yellow Group',
     description: 'Engage in exercises designed to directly stimulate the pineal gland through specific frequencies and more complex visual patterns.',
     videos: [
         { id: 'vid-2-1', title: 'Aardvark', description: 'A deep humming meditation that creates vibrations resonating with the pineal gland.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/4DBC6A36-6762-421F-AFD0-A4ACDA4A8DBA.mov?alt=media' },
@@ -54,7 +57,8 @@ export const exerciseData: Unit[] = [
   },
   {
     id: 'module-3',
-    title: 'Module 3: Blue Group',
+    title: 'Module 3',
+    groupName: 'Blue Group',
     description: 'Journey beyond the self with advanced techniques that aim to open pathways to higher states of awareness and intuitive insight.',
     videos: [
         { id: 'vid-3-1', title: 'Aspen', description: 'An immersive journey through stars and galaxies to expand your sense of self.', thumbnailUrl: 'https://placehold.co/800x450', videoUrl: 'https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/Video%206.MP4?alt=media' },

@@ -90,7 +90,7 @@ export default function ExercisePage() {
           <div className="flex flex-col p-4 md:p-8 h-full">
             <header className="mb-6">
               <div className="text-sm font-medium text-accent font-headline">
-                {unit.title}
+                {unit.title}: <span className="text-primary">{unit.groupName}</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">
                 <ColoredLetterTitle title={video.title} />

@@ -50,7 +50,7 @@ export default function UnitCard({ unit, completedVideos, isInitialized, onSelec
     )}>
       <CardHeader className="w-full md:w-2/3">
           <CardTitle className="font-headline text-2xl">
-            <span className="text-primary">{unit.title}</span>
+            {unit.title}: <span className="text-primary">{unit.groupName}</span>
           </CardTitle>
           <CardDescription>{unit.description}</CardDescription>
       </CardHeader>

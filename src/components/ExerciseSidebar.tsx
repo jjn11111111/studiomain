@@ -1,3 +1,4 @@
+
 'use client';
 import type { Unit } from '@/lib/data';
 import Link from 'next/link';
@@ -33,7 +34,7 @@ export default function ExerciseSidebar({ unit, currentVideoId, completedVideos 
       <SidebarContent>
         <div className="p-2">
             <h3 className="text-sm font-semibold text-muted-foreground px-2 font-headline">
-              {unit.title}
+              {unit.title}: <span className="text-primary">{unit.groupName}</span>
             </h3>
         </div>
         <SidebarMenu>

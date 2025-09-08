@@ -41,7 +41,7 @@ export default function TrainingPage() {
             {exerciseData.map(unit => (
                <div key={unit.id} className={cn("p-2", getThemeClass(unit))}>
                  <h3 className="text-sm font-semibold text-muted-foreground px-2 font-headline">
-                   {unit.title}
+                   {unit.title}: <span className="text-primary">{unit.groupName}</span>
                  </h3>
                  <SidebarMenu>
                   {unit.videos.map((video) => {
