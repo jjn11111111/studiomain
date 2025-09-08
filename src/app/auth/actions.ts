@@ -83,7 +83,7 @@ export async function signUpWithEmail(formData: FormData) {
 
 export async function signInWithEmail(formData: FormData) {
    const email = formData.get('email') as string;
-  const password = formData.get'password') as string;
+   const password = formData.get('password') as string;
 
   if (!email || !password) {
     return {error: 'Email and password are required.'};
