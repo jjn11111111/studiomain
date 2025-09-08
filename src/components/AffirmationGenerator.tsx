@@ -70,10 +70,10 @@ export default function AffirmationGenerator({ unit, video }: AffirmationGenerat
       </CardContent>
       <CardFooter>
         <form action={formAction} ref={formRef} className="w-full">
-          <input type="hidden" name="unit" value={unit.title} />
-          <input type="hidden" name="videoTitle" value={video.title} />
-          <input type="hidden" name="videoDescription" value={video.description} />
-          <Button type="submit" disabled={isPending} className="w-full bg-accent hover:bg-accent/90">
+          <input type="hidden" name="unit" value={unit?.title ?? ''} />
+          <input type="hidden" name="videoTitle" value={video?.title ?? ''} />
+          <input type="hidden" name="videoDescription" value={video?.description ?? ''} />
+          <Button type="submit" disabled={isPending || !unit || !video} className="w-full bg-accent hover:bg-accent/90">
             {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
