@@ -1,43 +1,56 @@
 
-import { initializeApp, getApps, App, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, App, cert, deleteApp } from 'firebase-admin/app';
 
-let adminApp: App | null = null;
+const ADMIN_APP_NAME = 'firebase-admin-app-workaround';
 
-function initializeAdminApp() {
-  if (getApps().length > 0) {
-    return getApps()[0];
+function initializeAdminApp(serviceAccountKey?: string) {
+  // If a key is provided, always try to create a new app instance or update it.
+  if (serviceAccountKey) {
+    // Check if an app with the specific name already exists and delete it.
+    // This allows re-initialization with a new key if the user pastes a different one.
+    const existingApp = getApps().find(app => app.name === ADMIN_APP_NAME);
+    if (existingApp) {
+      deleteApp(existingApp);
+    }
+    
+    try {
+      const serviceAccount = JSON.parse(serviceAccountKey);
+      return initializeApp({
+        credential: cert(serviceAccount),
+      }, ADMIN_APP_NAME);
+    } catch (error: any) {
+      throw new Error(`Failed to parse provided Service Account Key: ${error.message}`);
+    }
   }
 
-  // NOTE: This is a placeholder for local development.
-  // In a real production environment, you should use a more secure method
-  // for managing your service account key, such as Google Secret Manager.
-  const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+  // If no key is provided, try to use the environment variable.
+  const envServiceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+  if (envServiceAccountKey) {
+     const existingApp = getApps().find(app => app.name === ADMIN_APP_NAME);
+     if (existingApp) {
+      return existingApp;
+     }
+     try {
+        const serviceAccount = JSON.parse(envServiceAccountKey);
+        return initializeApp({
+          credential: cert(serviceAccount),
+        }, ADMIN_APP_NAME);
+     } catch (error: any) {
+        throw new Error(`Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY from environment: ${error.message}`);
+     }
+  }
 
-  if (!serviceAccountKey) {
-    throw new Error(
-      'FIREBASE_SERVICE_ACCOUNT_KEY is not set. ' +
-      'Please set it in your .env file. ' +
-      'Go to Project Settings > Service Accounts in the Firebase console to generate a new private key.'
-    );
-  }
-  
-  try {
-    const serviceAccount = JSON.parse(serviceAccountKey);
-    return initializeApp({
-      credential: cert(serviceAccount),
-    });
-  } catch (error: any) {
-    throw new Error(`Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY or initialize app: ${error.message}`);
-  }
+  // If we reach here, no key is available from any source.
+  throw new Error(
+    'Firebase Service Account Key is missing. ' +
+    'Provide it in the login form or set FIREBASE_SERVICE_ACCOUNT_KEY in your environment.'
+  );
 }
 
 /**
  * Retrieves the singleton instance of the Firebase Admin App.
- * Throws an error if the app could not be initialized.
+ * Can be initialized with a key string directly.
  */
-export function getFirebaseAdminApp(): App {
-  if (!adminApp) {
-    adminApp = initializeAdminApp();
-  }
-  return adminApp;
+export function getFirebaseAdminApp(serviceAccountKey?: string): App {
+  return initializeAdminApp(serviceAccountKey);
 }

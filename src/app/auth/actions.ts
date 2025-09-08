@@ -8,20 +8,30 @@ import {signInWithEmailAndPassword} from 'firebase/auth';
 import {getAuth as getClientAuth} from 'firebase/auth';
 import {app as clientApp} from '@/lib/firebase';
 import {getFirestore as getAdminFirestore} from 'firebase-admin/firestore';
+import type { App } from 'firebase-admin/app';
 
-function getAdminAuth() {
-  const app = getFirebaseAdminApp();
-  if (!app) {
-    return { auth: null, adminDb: null };
+function getAdminAuth(serviceAccountKey?: string) {
+  let app: App;
+  try {
+    app = getFirebaseAdminApp(serviceAccountKey);
+  } catch (error: any) {
+    console.error("Failed to get Firebase Admin App:", error.message);
+    // Return nulls if initialization fails
+    return { auth: null, adminDb: null, error: error.message };
   }
-  return { auth: getAdminAuthSdk(app), adminDb: getAdminFirestore(app) };
+  
+  if (!app) {
+    return { auth: null, adminDb: null, error: 'Firebase Admin App not available.' };
+  }
+  return { auth: getAdminAuthSdk(app), adminDb: getAdminFirestore(app), error: null };
 }
 
-export async function createSessionCookie(idToken: string) {
-  const { auth } = getAdminAuth();
-  if (!auth) {
-      console.error("Failed to create session cookie: Firebase Admin App not initialized.");
-      return;
+export async function createSessionCookie(idToken: string, serviceAccountKey?: string) {
+  const { auth, error } = getAdminAuth(serviceAccountKey);
+  if (error || !auth) {
+      console.error("Failed to create session cookie: Firebase Admin App not initialized.", error);
+      // It's crucial to return the error here so the calling function knows about the failure.
+      return { error: "Failed to create session cookie: " + (error || "Firebase Admin App not initialized.") };
   }
   const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
   const sessionCookie = await auth.createSessionCookie(idToken, {expiresIn});
@@ -32,6 +42,7 @@ export async function createSessionCookie(idToken: string) {
     path: '/',
     sameSite: 'lax',
   });
+  return { error: null };
 }
 
 export async function clearSessionCookie() {
@@ -41,15 +52,16 @@ export async function clearSessionCookie() {
 export async function signUpWithEmail(formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
+  const serviceAccountKey = formData.get('serviceAccountKey') as string;
 
   if (!email || !password) {
     return {error: 'Email and password are required.'};
   }
   
-  const { auth, adminDb } = getAdminAuth();
+  const { auth, adminDb, error: adminError } = getAdminAuth(serviceAccountKey);
   
-  if (!auth || !adminDb) {
-      return { error: 'Server is not configured for authentication. Please contact support.' };
+  if (adminError || !auth || !adminDb) {
+      return { error: adminError || 'Server is not configured for authentication. Please contact support.' };
   }
   
   try {
@@ -69,7 +81,10 @@ export async function signUpWithEmail(formData: FormData) {
     const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
     const idToken = await userCredential.user.getIdToken();
 
-    await createSessionCookie(idToken);
+    const sessionResult = await createSessionCookie(idToken, serviceAccountKey);
+    if (sessionResult.error) {
+        return { error: sessionResult.error };
+    }
     return {success: true};
   } catch (error: any) {
     if (error.code === 'auth/email-already-exists') {
@@ -83,14 +98,15 @@ export async function signUpWithEmail(formData: FormData) {
 export async function signInWithEmail(formData: FormData) {
    const email = formData.get('email') as string;
    const password = formData.get('password') as string;
+   const serviceAccountKey = formData.get('serviceAccountKey') as string;
 
   if (!email || !password) {
     return {error: 'Email and password are required.'};
   }
   
-  const { auth } = getAdminAuth();
-  if (!auth) {
-      return { error: 'Server is not configured for authentication. Please contact support.' };
+  const { auth, error: adminError } = getAdminAuth(serviceAccountKey);
+  if (adminError || !auth) {
+      return { error: adminError || 'Server is not configured for authentication. Please contact support.' };
   }
 
   try {
@@ -100,7 +116,10 @@ export async function signInWithEmail(formData: FormData) {
     const idToken = await userCredential.user.getIdToken();
 
     // The ID token can now be used to create a session cookie on the server.
-    await createSessionCookie(idToken);
+    const sessionResult = await createSessionCookie(idToken, serviceAccountKey);
+    if (sessionResult.error) {
+        return { error: sessionResult.error };
+    }
 
     return {success: true};
   } catch (error: any) {
