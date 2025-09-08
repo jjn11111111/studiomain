@@ -15,7 +15,7 @@ export default function ColoredLetterTitle({ title, className }: ColoredLetterTi
 
   return (
     <span className={cn(className)}>
-      <span className="text-accent font-bold">({firstLetter})</span>
+      <span className="text-primary font-bold">({firstLetter})</span>
       {restOfTitle}
     </span>
   );
