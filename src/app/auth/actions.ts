@@ -10,10 +10,11 @@ import {app as clientApp} from '@/lib/firebase';
 import {getFirestore as getAdminFirestore} from 'firebase-admin/firestore';
 import type { App } from 'firebase-admin/app';
 
-function getAdminAuth(serviceAccountKey?: string) {
+function getAdminAuth() {
   let app: App;
   try {
-    app = getFirebaseAdminApp(serviceAccountKey);
+    // The service account key is now read from the environment variable in firebase-admin.ts
+    app = getFirebaseAdminApp();
   } catch (error: any) {
     console.error("Failed to get Firebase Admin App:", error.message);
     // Return nulls if initialization fails
@@ -26,8 +27,8 @@ function getAdminAuth(serviceAccountKey?: string) {
   return { auth: getAdminAuthSdk(app), adminDb: getAdminFirestore(app), error: null };
 }
 
-export async function createSessionCookie(idToken: string, serviceAccountKey?: string) {
-  const { auth, error } = getAdminAuth(serviceAccountKey);
+export async function createSessionCookie(idToken: string) {
+  const { auth, error } = getAdminAuth();
   if (error || !auth) {
       console.error("Failed to create session cookie: Firebase Admin App not initialized.", error);
       // It's crucial to return the error here so the calling function knows about the failure.
