@@ -66,7 +66,7 @@ export default function TrainingPage() {
                              <Circle className="h-4 w-4 text-muted-foreground" />
                            )}
                            <span>
-                             <ColoredLetterTitle title={video.title} />
+                             <ColoredLetterTitle title={video.title} unitId={unit.id} />
                            </span>
                          </SidebarMenuButton>
                        </SidebarMenuItem>

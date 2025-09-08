@@ -99,7 +99,7 @@ export default function ExercisePage() {
                 {unit.title}: <span className={cn("font-bold", getColorClass(unit))}>{unit.groupName}</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">
-                <ColoredLetterTitle title={video.title} />
+                <ColoredLetterTitle title={video.title} unitId={unit.id} />
               </h1>
               <p className="mt-2 text-muted-foreground">{video.description}</p>
             </header>

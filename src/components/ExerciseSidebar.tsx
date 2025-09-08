@@ -63,7 +63,7 @@ export default function ExerciseSidebar({ unit, currentVideoId, completedVideos 
                     ) : (
                       <Circle className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span><ColoredLetterTitle title={video.title}/></span>
+                    <span><ColoredLetterTitle title={video.title} unitId={unit.id} /></span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
