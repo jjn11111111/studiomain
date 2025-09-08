@@ -36,9 +36,9 @@ export default function DirectionsPage() {
         </div>
 
         <div className="my-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Image src="https://i.imgur.com/gJt0S1j.jpeg" alt="Stereogram of two spheres on a checkerboard" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram checkerboard" />
-            <Image src="https://i.imgur.com/H144k2C.jpeg" alt="Stereogram of a shark" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram shark" />
-            <Image src="https://i.imgur.com/kYq4n1f.jpeg" alt="Stereogram of a jet" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram jet" />
+            <Image src="https://www.londonstereo.com/wp-content/uploads/2022/01/br-classic-card-web.jpg" alt="Stereogram of Brian May" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram portrait" />
+            <Image src="https://www.londonstereo.com/wp-content/uploads/2021/04/starmap-sq-for-web.jpg" alt="Stereogram of a star map" className="rounded-lg shadow-lg" width={600} height={600} data-ai-hint="stereogram space" />
+            <Image src="https://www.londonstereo.com/wp-content/uploads/2021/03/diableries-skelly-sq-for-web.jpg" alt="Stereogram of skeletons" className="rounded-lg shadow-lg" width={600} height={600} data-ai-hint="stereogram skeleton" />
         </div>
 
         <div className="my-16">
