@@ -14,7 +14,7 @@ import ColoredLetterTitle from './ColoredLetterTitle';
 
 
 export default function TrainingPage() {
-  const { completedVideos } = useProgress();
+  const { completedVideos, isInitialized } = useProgress();
   const router = useRouter();
 
 
@@ -27,6 +27,11 @@ export default function TrainingPage() {
     if (!unit) return '';
     return `unit-${unit.id.split('-')[1]}-theme`;
   };
+
+  const getColorClass = (unit: Unit | undefined) => {
+    if (!unit) return '';
+    return `text-unit-${unit.id.split('-')[1]}`;
+  }
 
   return (
     <SidebarProvider>
@@ -41,7 +46,7 @@ export default function TrainingPage() {
             {exerciseData.map(unit => (
                <div key={unit.id} className={cn("p-2", getThemeClass(unit))}>
                  <h3 className="text-sm font-semibold text-muted-foreground px-2 font-headline">
-                   {unit.title}: <span className="text-primary">{unit.groupName}</span>
+                   {unit.title}: <span className={cn("font-bold", getColorClass(unit))}>{unit.groupName}</span>
                  </h3>
                  <SidebarMenu>
                   {unit.videos.map((video) => {
@@ -85,14 +90,13 @@ export default function TrainingPage() {
 
               <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-1">
                 {exerciseData.map((unit) => (
-                  <div key={unit.id} className={getThemeClass(unit)}>
                     <UnitCard 
+                      key={unit.id}
                       unit={unit} 
                       completedVideos={completedVideos} 
-                      isInitialized={true}
+                      isInitialized={isInitialized}
                       onSelectVideo={(video) => handleSelectVideo(unit, video)}
                     />
-                  </div>
                 ))}
               </div>
             </div>
