@@ -70,7 +70,11 @@ export async function signUpWithEmail(formData: FormData) {
     await createSessionCookie(idToken);
     return {success: true};
   } catch (error: any) {
-    return {error: error.message || 'An unknown error occurred.'};
+    if (error.code === 'auth/email-already-exists') {
+        return { error: 'This email address is already in use. Please log in or use a different email.' };
+    }
+    console.error("Sign up error:", error);
+    return {error: 'An unknown error occurred during sign up. Please try again.'};
   }
 }
 
