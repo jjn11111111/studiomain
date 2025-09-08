@@ -1,3 +1,4 @@
+
 'use client';
 
 import {useState, useEffect} from 'react';
@@ -8,24 +9,19 @@ import * as z from 'zod';
 import {Button} from '@/components/ui/button';
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
-import {Textarea} from '@/components/ui/textarea';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
 import {Loader2} from 'lucide-react';
 import {signInWithEmail, signUpWithEmail} from '@/app/auth/actions';
 import {useAuth} from '@/hooks/use-auth';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { Terminal } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email({message: 'Invalid email address.'}),
   password: z.string().min(1, {message: 'Password is required.'}),
-  serviceAccountKey: z.string().optional(),
 });
 
 const registerSchema = z.object({
   email: z.string().email({message: 'Invalid email address.'}),
   password: z.string().min(6, {message: 'Password must be at least 6 characters.'}),
-  serviceAccountKey: z.string().optional(),
 });
 
 export default function AuthForm() {
@@ -54,12 +50,12 @@ export default function AuthForm() {
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {email: '', password: '', serviceAccountKey: ''},
+    defaultValues: {email: '', password: ''},
   });
 
   const registerForm = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {email: '', password: '', serviceAccountKey: ''},
+    defaultValues: {email: '', password: ''},
   });
 
   const handleLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
@@ -69,9 +65,6 @@ export default function AuthForm() {
     const formData = new FormData();
     formData.append('email', values.email);
     formData.append('password', values.password);
-    if (values.serviceAccountKey) {
-      formData.append('serviceAccountKey', values.serviceAccountKey);
-    }
 
     const result = await signInWithEmail(formData);
     
@@ -91,9 +84,6 @@ export default function AuthForm() {
     const formData = new FormData();
     formData.append('email', values.email);
     formData.append('password', values.password);
-    if (values.serviceAccountKey) {
-        formData.append('serviceAccountKey', values.serviceAccountKey);
-    }
 
     const result = await signUpWithEmail(formData);
     
@@ -110,31 +100,6 @@ export default function AuthForm() {
     return <div className="flex justify-center items-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 
-  const ServiceAccountKeyField = ({form}: {form: any}) => (
-    <>
-      <Alert className="mt-4">
-        <Terminal className="h-4 w-4" />
-        <AlertTitle>Server Authentication</AlertTitle>
-        <AlertDescription>
-          If you are seeing a server error, paste your Firebase Service Account Key here. You can get this from your Firebase Project Settings under "Service accounts".
-        </AlertDescription>
-      </Alert>
-      <FormField
-        control={form.control}
-        name="serviceAccountKey"
-        render={({field}) => (
-          <FormItem>
-            <FormLabel>Firebase Service Account Key (JSON)</FormLabel>
-            <FormControl>
-              <Textarea placeholder='Paste the entire content of your downloaded JSON key file here...' {...field} rows={3} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </>
-  );
-
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-2">
@@ -144,6 +109,7 @@ export default function AuthForm() {
       <TabsContent value="login">
         <Form {...loginForm}>
           <form onSubmit={loginForm.handleSubmit(handleLoginSubmit)} className="space-y-4 mt-4">
+            {loginError && <p className="text-sm font-medium text-destructive">{loginError}</p>}
             <FormField
               control={loginForm.control}
               name="email"
@@ -170,8 +136,6 @@ export default function AuthForm() {
                 </FormItem>
               )}
             />
-            {loginError && <p className="text-sm font-medium text-destructive">{loginError}</p>}
-            <ServiceAccountKeyField form={loginForm} />
             <Button type="submit" className="w-full" disabled={isLoginSubmitting}>
               {isLoginSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Login
@@ -182,6 +146,7 @@ export default function AuthForm() {
       <TabsContent value="register">
         <Form {...registerForm}>
           <form onSubmit={registerForm.handleSubmit(handleRegisterSubmit)} className="space-y-4 mt-4">
+            {registerError && <p className="text-sm font-medium text-destructive">{registerError}</p>}
             <FormField
               control={registerForm.control}
               name="email"
@@ -205,11 +170,9 @@ export default function AuthForm() {
                     <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
                   <FormMessage />
-                </FormItem>
+                </Item>
               )}
             />
-            {registerError && <p className="text-sm font-medium text-destructive">{registerError}</p>}
-            <ServiceAccountKeyField form={registerForm} />
             <Button type="submit" className="w-full" disabled={isRegisterSubmitting}>
               {isRegisterSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Account

@@ -52,13 +52,12 @@ export async function clearSessionCookie() {
 export async function signUpWithEmail(formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const serviceAccountKey = formData.get('serviceAccountKey') as string;
-
+  
   if (!email || !password) {
     return {error: 'Email and password are required.'};
   }
   
-  const { auth, adminDb, error: adminError } = getAdminAuth(serviceAccountKey);
+  const { auth, adminDb, error: adminError } = getAdminAuth();
   
   if (adminError || !auth || !adminDb) {
       return { error: adminError || 'Server is not configured for authentication. Please contact support.' };
@@ -81,7 +80,7 @@ export async function signUpWithEmail(formData: FormData) {
     const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
     const idToken = await userCredential.user.getIdToken();
 
-    const sessionResult = await createSessionCookie(idToken, serviceAccountKey);
+    const sessionResult = await createSessionCookie(idToken);
     if (sessionResult.error) {
         return { error: sessionResult.error };
     }
@@ -98,13 +97,12 @@ export async function signUpWithEmail(formData: FormData) {
 export async function signInWithEmail(formData: FormData) {
    const email = formData.get('email') as string;
    const password = formData.get('password') as string;
-   const serviceAccountKey = formData.get('serviceAccountKey') as string;
 
   if (!email || !password) {
     return {error: 'Email and password are required.'};
   }
   
-  const { auth, error: adminError } = getAdminAuth(serviceAccountKey);
+  const { auth, error: adminError } = getAdminAuth();
   if (adminError || !auth) {
       return { error: adminError || 'Server is not configured for authentication. Please contact support.' };
   }
@@ -116,7 +114,7 @@ export async function signInWithEmail(formData: FormData) {
     const idToken = await userCredential.user.getIdToken();
 
     // The ID token can now be used to create a session cookie on the server.
-    const sessionResult = await createSessionCookie(idToken, serviceAccountKey);
+    const sessionResult = await createSessionCookie(idToken);
     if (sessionResult.error) {
         return { error: sessionResult.error };
     }
