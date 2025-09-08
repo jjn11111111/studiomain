@@ -34,16 +34,16 @@ export default function Header() {
           </Link>
           <nav className="flex items-center gap-4">
             <Button asChild variant="ghost">
-              <Link href="/training">Training</Link>
+              <Link href="/about">About</Link>
             </Button>
-             <Button asChild variant="ghost">
+            <Button asChild variant="ghost">
               <Link href="/directions">Directions</Link>
             </Button>
             <Button asChild variant="ghost">
-              <Link href="/journal">Workout Journal</Link>
+              <Link href="/training">Training</Link>
             </Button>
             <Button asChild variant="ghost">
-              <Link href="/about">About</Link>
+              <Link href="/journal">Journal</Link>
             </Button>
 
             {user ? (
@@ -79,7 +79,7 @@ export default function Header() {
                      <DropdownMenuItem asChild>
                       <Link href="/journal">
                         <BookOpen className="mr-2 h-4 w-4" />
-                        <span>Workout Journal</span>
+                        <span>Journal</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={signOutUser}>
