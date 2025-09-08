@@ -87,14 +87,13 @@ export default function TrainingPage() {
 
               <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-1">
                 {exerciseData.map((unit) => (
-                   <div key={unit.id} className={getThemeClass(unit)}>
                     <UnitCard 
+                      key={unit.id}
                       unit={unit} 
                       completedVideos={completedVideos} 
                       isInitialized={true}
                       onSelectVideo={(video) => handleSelectVideo(unit, video)}
                     />
-                  </div>
                 ))}
               </div>
             </div>
