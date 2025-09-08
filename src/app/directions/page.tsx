@@ -35,8 +35,10 @@ export default function DirectionsPage() {
           </div>
         </div>
 
-        <div className="my-16 flex justify-center">
+        <div className="my-16 grid grid-cols-1 md:grid-cols-3 gap-8">
             <Image src="https://i.imgur.com/gJt0S1j.jpeg" alt="Stereogram of two spheres on a checkerboard" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram checkerboard" />
+            <Image src="https://i.imgur.com/H144k2C.jpeg" alt="Stereogram of a shark" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram shark" />
+            <Image src="https://i.imgur.com/8cM2aV6.jpeg" alt="Stereogram of geometric shapes" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram geometric" />
         </div>
 
         <div className="my-16">
