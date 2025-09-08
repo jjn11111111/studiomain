@@ -1,64 +1,43 @@
 
-import { getApp, getApps, initializeApp, cert, App } from 'firebase-admin/app';
-
-// =================================================================================================
-// IMPORTANT SECURITY NOTICE / HOW TO USE THIS FILE
-// =================================================================================================
-// Because you are in a constrained development environment (iPad) that does not easily support
-// environment variables, we are placing the service account key directly in the code.
-//
-// THIS IS NOT A SECURE PRACTICE FOR PRODUCTION.
-// This key grants administrative access to your Firebase project.
-// Do not share this code publicly or commit it to a public Git repository.
-//
-// TO MAKE THIS WORK:
-// 1. Go to your Firebase Project Settings > Service Accounts.
-// 2. Click "Generate new private key" to download the JSON file.
-// 3. Open the downloaded file and copy its ENTIRE content.
-// 4. Paste the content you copied to replace the `null` value for the
-//    `serviceAccountJSON` variable below.
-//
-// Example:
-// const serviceAccountJSON = { "type": "service_account", "project_id": "...", ... };
-// =================================================================================================
-
-const serviceAccountJSON = null;
-
+import { initializeApp, getApps, App, cert } from 'firebase-admin/app';
 
 let adminApp: App | null = null;
 
-if (!getApps().length) {
-  if (!serviceAccountJSON) {
-    console.error(
-      'CRITICAL: Firebase service account key is not pasted into src/lib/firebase-admin.ts. ' +
-      'Server-side authentication actions will fail. ' +
-      'Please follow the instructions in the file to add your key.'
-    );
-  } else {
-    try {
-      // The type assertion is safe here because we've already checked if it's null.
-      const serviceAccount = serviceAccountJSON as any;
-
-      adminApp = initializeApp({
-        credential: cert(serviceAccount),
-      });
-
-    } catch (error: any) {
-      console.error(
-        'CRITICAL: Failed to initialize Firebase Admin SDK. ' +
-        'The service account key in src/lib/firebase-admin.ts may be invalid. ' +
-        `Error: ${error.message}`
-      );
-    }
+function initializeAdminApp() {
+  if (getApps().length > 0) {
+    return getApps()[0];
   }
-} else {
-    adminApp = getApp();
+
+  // NOTE: This is a placeholder for local development.
+  // In a real production environment, you should use a more secure method
+  // for managing your service account key, such as Google Secret Manager.
+  const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+  if (!serviceAccountKey) {
+    throw new Error(
+      'FIREBASE_SERVICE_ACCOUNT_KEY is not set. ' +
+      'Please set it in your .env file. ' +
+      'Go to Project Settings > Service Accounts in the Firebase console to generate a new private key.'
+    );
+  }
+  
+  try {
+    const serviceAccount = JSON.parse(serviceAccountKey);
+    return initializeApp({
+      credential: cert(serviceAccount),
+    });
+  } catch (error: any) {
+    throw new Error(`Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY or initialize app: ${error.message}`);
+  }
 }
 
 /**
  * Retrieves the singleton instance of the Firebase Admin App.
- * Returns null if the app could not be initialized.
+ * Throws an error if the app could not be initialized.
  */
-export function getFirebaseAdminApp(): App | null {
-    return adminApp;
+export function getFirebaseAdminApp(): App {
+  if (!adminApp) {
+    adminApp = initializeAdminApp();
+  }
+  return adminApp;
 }
