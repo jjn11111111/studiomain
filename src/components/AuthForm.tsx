@@ -25,8 +25,13 @@ const registerSchema = z.object({
 
 export default function AuthForm() {
   const [activeTab, setActiveTab] = useState('login');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  
+  const [isLoginSubmitting, setIsLoginSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  const [isRegisterSubmitting, setIsRegisterSubmitting] = useState(false);
+  const [registerError, setRegisterError] = useState<string | null>(null);
+
   const router = useRouter();
   const { user, isLoading } = useAuth();
 
@@ -38,7 +43,8 @@ export default function AuthForm() {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    setError(null);
+    setLoginError(null);
+    setRegisterError(null);
   }, [activeTab]);
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
@@ -51,22 +57,42 @@ export default function AuthForm() {
     defaultValues: {email: '', password: ''},
   });
 
-  const handleAction = async (action: (formData: FormData) => Promise<any>, values: any) => {
-    setIsSubmitting(true);
-    setError(null);
+  const handleLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
+    setIsLoginSubmitting(true);
+    setLoginError(null);
     
     const formData = new FormData();
     formData.append('email', values.email);
     formData.append('password', values.password);
 
-    const result = await action(formData);
+    const result = await signInWithEmail(formData);
     
     if (result.error) {
-      setError(result.error);
-      setIsSubmitting(false);
+      setLoginError(result.error);
     } else {
       router.push('/about');
+      router.refresh();
     }
+    setIsLoginSubmitting(false);
+  };
+  
+  const handleRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {
+    setIsRegisterSubmitting(true);
+    setRegisterError(null);
+    
+    const formData = new FormData();
+    formData.append('email', values.email);
+    formData.append('password', values.password);
+
+    const result = await signUpWithEmail(formData);
+    
+    if (result.error) {
+      setRegisterError(result.error);
+    } else {
+      router.push('/about');
+      router.refresh();
+    }
+    setIsRegisterSubmitting(false);
   };
   
   // If loading or user is already present, don't show the form
@@ -82,7 +108,7 @@ export default function AuthForm() {
       </TabsList>
       <TabsContent value="login">
         <Form {...loginForm}>
-          <form onSubmit={loginForm.handleSubmit((values) => handleAction(signInWithEmail, values))} className="space-y-4 mt-4">
+          <form onSubmit={loginForm.handleSubmit(handleLoginSubmit)} className="space-y-4 mt-4">
             <FormField
               control={loginForm.control}
               name="email"
@@ -109,9 +135,9 @@ export default function AuthForm() {
                 </FormItem>
               )}
             />
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loginError && <p className="text-sm font-medium text-destructive">{loginError}</p>}
+            <Button type="submit" className="w-full" disabled={isLoginSubmitting}>
+              {isLoginSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Login
             </Button>
           </form>
@@ -119,7 +145,7 @@ export default function AuthForm() {
       </TabsContent>
       <TabsContent value="register">
         <Form {...registerForm}>
-          <form onSubmit={registerForm.handleSubmit((values) => handleAction(signUpWithEmail, values))} className="space-y-4 mt-4">
+          <form onSubmit={registerForm.handleSubmit(handleRegisterSubmit)} className="space-y-4 mt-4">
             <FormField
               control={registerForm.control}
               name="email"
@@ -146,9 +172,9 @@ export default function AuthForm() {
                 </FormItem>
               )}
             />
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {registerError && <p className="text-sm font-medium text-destructive">{registerError}</p>}
+            <Button type="submit" className="w-full" disabled={isRegisterSubmitting}>
+              {isRegisterSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Account
             </Button>
           </form>
