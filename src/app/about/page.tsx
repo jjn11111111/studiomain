@@ -41,7 +41,7 @@ export default function AboutPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p>The human brain possesses an incredible capacity for neuroplasticity. The techniques used in these exercises are inspired by ancient meditative practices and modern understanding of neuroscience. By presenting the eyes with specific geometric patterns and stereoscopic video, we aim to induce unique states of brainwave activity.</p>
+                <p>The human brain possesses an incredible capacity for neuroplasticity. The techniques used in these exercises are inspired by ancient meditative practices and modern understanding of neuroscience. By presenting the eyes with specific geometric patterns and stereoscopic video, the aim is to induce unique states of brainwave activity.</p>
               </CardContent>
             </Card>
             <Card>
@@ -77,7 +77,7 @@ export default function AboutPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                Our exercises are built on principles of stereoscopic vision, depth perception, and geometric patterns designed to engage specific neural pathways.
+                The exercises are built on principles of stereoscopic vision, depth perception, and geometric patterns designed to engage specific neural pathways.
               </CardContent>
             </Card>
             <Card>
