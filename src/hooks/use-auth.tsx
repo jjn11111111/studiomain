@@ -1,6 +1,7 @@
+
 'use client';
 
-import {createContext, useContext, useEffect, useState, ReactNode} from 'react';
+import React, {createContext, useContext, useEffect, useState, ReactNode} from 'react';
 import {onAuthStateChanged, User, getAuth} from 'firebase/auth';
 import {app} from '@/lib/firebase';
 import {Loader2} from 'lucide-react';
