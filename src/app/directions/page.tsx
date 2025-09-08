@@ -24,10 +24,16 @@ export default function DirectionsPage() {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold font-headline text-accent flex items-center gap-2"><HelpCircle/> The Technique</h2>
             <p className="text-lg text-muted-foreground">
-              The goal is to look "through" the screen, as if you are focusing on a point far behind it. This technique, often called "magic eye" or stereoscopic viewing, allows your brain to merge the two slightly different video streams into a single, three-dimensional image.
+              Each exercise is designed to be viewed with stereoscopic vision. Users may be familiar with dot matrix prints which seem abstract until one allows their vision focus to lapse the slightest bit at which point, a hologram figure develops and emerges.
             </p>
             <p className="text-lg text-muted-foreground">
-              This process can take practice. Be patient with yourself, relax, and let the image come to you. Avoid straining your eyes.
+              The distance between two human eyes is about 2 inches. Thus, this retinal disparity helps the brain to process and assess a sense of distance. The brain utilises all these spatial components of information in tandem to bring about precise depth information in an expanded format know as stereoscopic vision.
+            </p>
+             <p className="text-lg text-muted-foreground">
+              Answersingenesis.com says, "To see a stereo image, you need to cross your eyes(that's opposite of how it works normanlly, but it's easier to do) stare at the photos and cross your eyes until one photo overlaps the other. Three images will appear. When you see them, focus on the middle one, and it will appear to have depth."
+            </p>
+            <p className="text-lg text-muted-foreground">
+              Practice by viewing the stereoscopic images below and use the directions above as a guide. When you achieve clarity with the 3rd image in the middle, hold it for at least 30 seconds.
             </p>
           </div>
         </div>
