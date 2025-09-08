@@ -10,6 +10,8 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useProgress } from '@/hooks/use-progress';
 import { useRouter } from 'next/navigation';
+import ColoredLetterTitle from './ColoredLetterTitle';
+
 
 export default function TrainingPage() {
   const { completedVideos } = useProgress();
@@ -49,7 +51,7 @@ export default function TrainingPage() {
                        <SidebarMenuItem key={video.id}>
                          <SidebarMenuButton
                            onClick={() => handleSelectVideo(unit, video)}
-                           tooltip={`${video.level}: ${video.title}`}
+                           tooltip={video.title}
                            className={cn(
                                "justify-start w-full",
                            )}
@@ -60,7 +62,7 @@ export default function TrainingPage() {
                              <BrainCircuit className="h-4 w-4 text-muted-foreground" />
                            )}
                            <span>
-                             {video.level}. {video.title}
+                             <ColoredLetterTitle title={video.title} />
                            </span>
                          </SidebarMenuButton>
                        </SidebarMenuItem>

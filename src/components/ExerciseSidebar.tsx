@@ -11,6 +11,7 @@ import {
 } from './ui/sidebar';
 import { CheckCircle, Circle, BrainCircuit } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ColoredLetterTitle from './ColoredLetterTitle';
 
 interface ExerciseSidebarProps {
   unit: Unit;
@@ -57,7 +58,7 @@ export default function ExerciseSidebar({ unit, currentVideoId, completedVideos 
                     ) : (
                       <Circle className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span>{video.level}. {video.title}</span>
+                    <span><ColoredLetterTitle title={video.title}/></span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

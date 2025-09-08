@@ -14,6 +14,7 @@ import AffirmationGenerator from '@/components/AffirmationGenerator';
 import { cn } from '@/lib/utils';
 import ExerciseSidebar from '@/components/ExerciseSidebar';
 import { Sidebar, SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import ColoredLetterTitle from '@/components/ColoredLetterTitle';
 
 export default function ExercisePage() {
   const params = useParams();
@@ -92,7 +93,7 @@ export default function ExercisePage() {
                 {unit.title}
               </div>
               <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">
-                {video.level}. {video.title}
+                <ColoredLetterTitle title={video.title} />
               </h1>
               <p className="mt-2 text-muted-foreground">{video.description}</p>
             </header>
