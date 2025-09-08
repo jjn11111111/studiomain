@@ -70,7 +70,7 @@ export default function AuthForm() {
     if (result.error) {
       setLoginError(result.error);
     } else {
-      router.push('/about');
+      router.push('/training');
       router.refresh();
     }
     setIsLoginSubmitting(false);
@@ -89,7 +89,7 @@ export default function AuthForm() {
     if (result.error) {
       setRegisterError(result.error);
     } else {
-      router.push('/about');
+      router.push('/training');
       router.refresh();
     }
     setIsRegisterSubmitting(false);
