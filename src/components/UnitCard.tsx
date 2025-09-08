@@ -25,6 +25,7 @@ export default function UnitCard({ unit, completedVideos, isInitialized, onSelec
   const isLocked = false; // Future logic for unlocking units can go here.
   
   const themeClass = `unit-${unit.id.split('-')[1]}-theme`;
+  const colorClass = `text-unit-${unit.id.split('-')[1]}`;
 
   if (!isInitialized) {
     return (
@@ -50,7 +51,7 @@ export default function UnitCard({ unit, completedVideos, isInitialized, onSelec
     )}>
       <CardHeader className="w-full md:w-2/3">
           <CardTitle className="font-headline text-2xl">
-            {unit.title}: <span className="text-primary">{unit.groupName}</span>
+            {unit.title}: <span className={cn("font-bold", colorClass)}>{unit.groupName}</span>
           </CardTitle>
           <CardDescription>{unit.description}</CardDescription>
       </CardHeader>

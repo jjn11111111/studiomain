@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useParams } from 'next/navigation';
@@ -61,6 +62,11 @@ export default function ExercisePage() {
     if (!unit) return '';
     return `unit-${unit.id.split('-')[1]}-theme`;
   };
+
+  const getColorClass = (unit: Unit | undefined) => {
+    if (!unit) return '';
+    return `text-unit-${unit.id.split('-')[1]}`;
+  }
   
   if (!unit || !video) {
     return (
@@ -89,8 +95,8 @@ export default function ExercisePage() {
         <SidebarInset>
           <div className="flex flex-col p-4 md:p-8 h-full">
             <header className="mb-6">
-              <div className="text-sm font-medium text-accent font-headline">
-                {unit.title}: <span className="text-primary">{unit.groupName}</span>
+              <div className="text-sm font-medium text-muted-foreground font-headline">
+                {unit.title}: <span className={cn("font-bold", getColorClass(unit))}>{unit.groupName}</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">
                 <ColoredLetterTitle title={video.title} />

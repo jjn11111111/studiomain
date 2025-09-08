@@ -21,6 +21,11 @@ interface ExerciseSidebarProps {
 }
 
 export default function ExerciseSidebar({ unit, currentVideoId, completedVideos }: ExerciseSidebarProps) {
+  const getColorClass = (unit: Unit | undefined) => {
+    if (!unit) return '';
+    return `text-unit-${unit.id.split('-')[1]}`;
+  }
+
   return (
     <>
       <SidebarHeader>
@@ -34,7 +39,7 @@ export default function ExerciseSidebar({ unit, currentVideoId, completedVideos 
       <SidebarContent>
         <div className="p-2">
             <h3 className="text-sm font-semibold text-muted-foreground px-2 font-headline">
-              {unit.title}: <span className="text-primary">{unit.groupName}</span>
+              {unit.title}: <span className={cn("font-bold", getColorClass(unit))}>{unit.groupName}</span>
             </h3>
         </div>
         <SidebarMenu>
