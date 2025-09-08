@@ -14,9 +14,11 @@ if (!serviceAccountString) {
     try {
         let serviceAccount: object;
         try {
+            // Check if the key is base64 encoded
             const decodedKey = Buffer.from(serviceAccountString, 'base64').toString('utf-8');
             serviceAccount = JSON.parse(decodedKey);
         } catch (e) {
+            // Assume it's a plain JSON string if base64 decoding fails
             serviceAccount = JSON.parse(serviceAccountString);
         }
 

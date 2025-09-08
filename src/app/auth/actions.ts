@@ -65,9 +65,7 @@ export async function signUpWithEmail(formData: FormData) {
         subscription: { status: 'free' },
     });
 
-    // We can't sign in the user on the server side easily after creation
-    // So we'll rely on the client to sign in after successful registration
-    // For now, let's just create the session cookie directly
+    // Sign in the user on the client to get an ID token, then create the session cookie.
     const clientAuth = getClientAuth(clientApp);
     const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
     const idToken = await userCredential.user.getIdToken();
@@ -85,7 +83,7 @@ export async function signUpWithEmail(formData: FormData) {
 
 export async function signInWithEmail(formData: FormData) {
    const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
+  const password = formData.get'password') as string;
 
   if (!email || !password) {
     return {error: 'Email and password are required.'};
@@ -97,14 +95,21 @@ export async function signInWithEmail(formData: FormData) {
   }
 
   try {
+    // We must use the client SDK to sign in and get an ID token.
     const clientAuth = getClientAuth(clientApp);
     const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
     const idToken = await userCredential.user.getIdToken();
 
+    // The ID token can now be used to create a session cookie on the server.
     await createSessionCookie(idToken);
 
     return {success: true};
   } catch (error: any) {
-    return {error: 'Invalid email or password.'};
+    // Catch specific Firebase auth errors for client-side sign-in
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        return {error: 'Invalid email or password.'};
+    }
+    console.error("Sign in error:", error);
+    return {error: 'An unknown error occurred during sign in.'};
   }
 }
