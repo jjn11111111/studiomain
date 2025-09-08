@@ -69,7 +69,7 @@ export default function DirectionsPage() {
                 <CardTitle className="flex items-center gap-2">
                   <View /> 3. Find the Image
                 </CardTitle>
-              </CardHeader>
+              </Header>
               <CardContent>
                 As you look through the screen, you'll notice the patterns start to overlap. A third, 3D image will begin to appear in the middle.
               </CardContent>
