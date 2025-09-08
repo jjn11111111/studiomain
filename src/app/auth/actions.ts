@@ -1,3 +1,4 @@
+
 'use server';
 
 import {cookies} from 'next/headers';
@@ -63,6 +64,10 @@ export async function signUpWithEmail(formData: FormData) {
         subscription: { status: 'free' },
     });
 
+    // We can't get an ID token from the admin SDK user record directly.
+    // We need to sign in the user on the client to get it.
+    // This is a bit of a workaround, but it's a common pattern.
+    // For this to work, we have to sign in with the client SDK
     const clientAuth = getClientAuth(clientApp);
     const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
     const idToken = await userCredential.user.getIdToken();
@@ -74,6 +79,7 @@ export async function signUpWithEmail(formData: FormData) {
         return { error: 'This email address is already in use. Please log in or use a different email.' };
     }
     console.error("Sign up error:", error);
+    // Provide a more generic error for other cases
     return {error: 'An unknown error occurred during sign up. Please try again.'};
   }
 }
