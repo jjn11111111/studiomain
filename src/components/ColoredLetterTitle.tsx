@@ -10,13 +10,9 @@ interface ColoredLetterTitleProps {
 export default function ColoredLetterTitle({ title, className }: ColoredLetterTitleProps) {
   if (!title) return null;
 
-  const firstLetter = title.charAt(0);
-  const restOfTitle = title.slice(1);
-
   return (
     <span className={cn(className)}>
-      <span className="text-primary font-bold">({firstLetter})</span>
-      {restOfTitle}
+      {title}
     </span>
   );
 }

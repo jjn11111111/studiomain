@@ -18,7 +18,7 @@ interface UnitCardProps {
 export default function UnitCard({ unit, completedVideos, isInitialized, onSelectVideo }: UnitCardProps) {
   const completedInUnit = unit.videos.filter(v => completedVideos.has(v.id)).length;
   const totalInUnit = unit.videos.length;
-  const progress = totalInUnit > 0 ? (completedInUnit / totalInUnit) * 100 : 0;
+  const progress = totalIn-unit > 0 ? (completedInUnit / totalInUnit) * 100 : 0;
 
   const firstUncompletedVideo = unit.videos.find(v => !completedVideos.has(v.id)) || unit.videos[0];
   
