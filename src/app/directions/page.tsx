@@ -42,6 +42,14 @@ export default function DirectionsPage() {
             <Image src="https://www.londonstereo.com/media/images/lsc_blog_images/LSC_Blog_Stereoscopy-for-Beginners_Brian_May_Queen_London_Stereoscopic_Company_5_large.jpg" alt="Stereogram of a museum display" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram museum" />
         </div>
 
+        <div className="text-center text-muted-foreground text-sm my-8">
+            <p>
+                The stereoscopic images above are provided courtesy of the <Link href="https://www.londonstereo.com/stereoscopy-beginners.html" target="_blank" className="underline hover:text-primary">London Stereoscopic Company's blog</Link>.
+            </p>
+            <p>We thank them for making these excellent examples available for practice.</p>
+        </div>
+
+
         <div className="my-16">
           <h2 className="text-3xl font-bold font-headline text-center mb-8 text-accent">Step-by-Step Guide</h2>
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
