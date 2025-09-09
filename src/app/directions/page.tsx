@@ -36,6 +36,33 @@ export default function DirectionsPage() {
           </div>
         </div>
 
+        <div className="my-12">
+          <div className="flex flex-col items-center gap-8">
+              <Image
+                src="/stereogram-balloons.png"
+                alt="Hot air balloon stereogram"
+                width={800}
+                height={450}
+                className="rounded-lg shadow-lg"
+              />
+               <Image
+                src="/stereogram-cd-stars.png"
+                alt="CD and stars stereogram"
+                width={800}
+                height={450}
+                className="rounded-lg shadow-lg"
+              />
+               <Image
+                src="/stereogram-astronaut.png"
+                alt="Astronaut stereogram"
+                width={800}
+                height={450}
+                className="rounded-lg shadow-lg"
+              />
+          </div>
+        </div>
+
+
         <div className="my-16">
           <h2 className="text-3xl font-bold font-headline text-center mb-8 text-accent">Step-by-Step Guide</h2>
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

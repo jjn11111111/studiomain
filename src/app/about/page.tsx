@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dna, Eye, Waves, Lightbulb, Zap, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AboutPage() {
   return (
@@ -27,7 +28,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div>
-            <img src="https://picsum.photos/600/400" alt="Abstract representation of brain activity" className="rounded-lg shadow-lg" data-ai-hint="abstract brain" />
+            <Image src="https://picsum.photos/600/400" alt="Abstract representation of brain activity" className="rounded-lg shadow-lg" data-ai-hint="abstract brain" width={600} height={400} />
           </div>
         </div>
 
