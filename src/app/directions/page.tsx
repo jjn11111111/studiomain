@@ -4,7 +4,6 @@ import { HelpCircle, Target, Eye, View, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { exerciseData } from '@/lib/data';
 
 export default function DirectionsPage() {
   return (
@@ -36,24 +35,28 @@ export default function DirectionsPage() {
           </div>
         </div>
         
-        <div className="my-12 space-y-12">
-          {exerciseData.map(unit => unit.stereogramUrls && unit.stereogramUrls.length > 0 && (
-            <div key={unit.id} className="text-center">
-               <h3 className="text-2xl font-bold font-headline text-foreground mb-4">{unit.title}: {unit.groupName}</h3>
-               <div className="flex flex-col items-center gap-8">
-                  {unit.stereogramUrls.map((url, index) => (
-                     <Image
-                        key={index}
-                        src={url}
-                        alt={`${unit.title} stereogram ${index + 1}`}
-                        width={800}
-                        height={450}
-                        className="rounded-lg shadow-lg"
-                      />
-                  ))}
-               </div>
-            </div>
-          ))}
+        <div className="my-12 space-y-8 flex flex-col items-center">
+          <Image
+              src="/stereogram-balloons.png"
+              alt="Practice Stereogram 1"
+              width={800}
+              height={450}
+              className="rounded-lg shadow-lg"
+            />
+          <Image
+              src="/stereogram-cd-stars.png"
+              alt="Practice Stereogram 2"
+              width={800}
+              height={450}
+              className="rounded-lg shadow-lg"
+            />
+          <Image
+              src="/stereogram-astronaut.png"
+              alt="Practice Stereogram 3"
+              width={800}
+              height={450}
+              className="rounded-lg shadow-lg"
+            />
         </div>
 
         <div className="my-16">

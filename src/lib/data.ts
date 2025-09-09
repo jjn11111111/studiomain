@@ -1,4 +1,3 @@
-
 // IMPORTANT: For proprietary videos, the videoUrl properties below should not be public URLs.
 // A secure solution using Firebase Storage and Authentication is recommended to protect your content.
 // The current URLs are placeholders for development.
