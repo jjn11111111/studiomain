@@ -1,3 +1,4 @@
+
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -17,7 +18,17 @@ export default function ColoredLetterTitle({ title, className, unitId }: Colored
   const getColorClass = (id: string | undefined) => {
     if (!id) return 'text-primary';
     const unitNumber = id.split('-')[1];
-    return `text-unit-${unitNumber}`;
+    
+    switch (unitNumber) {
+      case '1':
+        return 'text-red-600';
+      case '2':
+        return 'text-yellow-500';
+      case '3':
+        return 'text-blue-600';
+      default:
+        return 'text-primary';
+    }
   }
 
   return (
