@@ -78,7 +78,7 @@ export default function TrainingPage() {
             <SidebarInset>
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 overflow-auto h-full">
                   <div className="text-center mb-12">
-                    <h2 className="text-4xl md:text-5xl font-bold font-headline text-black dark:text-white mb-2 flex items-center justify-center gap-4">
+                    <h2 className="text-4xl md:text-5xl font-bold font-headline text-foreground mb-2 flex items-center justify-center gap-4">
                       CrossTraining Modules
                     </h2>
                     <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">

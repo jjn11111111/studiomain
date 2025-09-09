@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { HelpCircle, Target, Eye, View, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function DirectionsPage() {
   return (
@@ -11,7 +12,7 @@ export default function DirectionsPage() {
       <Header />
       <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold font-headline text-black dark:text-white">How to Use the Exercises</h1>
+          <h1 className="text-5xl font-bold font-headline text-foreground">How to Use the Exercises</h1>
           <p className="mt-4 text-xl text-muted-foreground max-w-3xl mx-auto">
             Follow these steps to unlock the 3D stereoscopic images and engage your third eye.
           </p>

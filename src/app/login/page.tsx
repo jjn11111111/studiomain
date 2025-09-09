@@ -9,7 +9,7 @@ export default function LoginPage() {
        <div className="flex-grow flex items-center justify-center bg-muted">
         <Card className="w-full max-w-md">
             <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold font-headline text-black dark:text-white">Unlock Your Vision</CardTitle>
+            <CardTitle className="text-2xl font-bold font-headline text-foreground">Unlock Your Vision</CardTitle>
             <CardDescription>Sign in or create an account to begin.</CardDescription>
             </CardHeader>
             <CardContent>
