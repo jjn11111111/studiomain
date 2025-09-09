@@ -39,12 +39,12 @@ export default function DirectionsPage() {
         <div className="my-16 grid grid-cols-1 md:grid-cols-3 gap-8">
             <Image src="https://www.londonstereo.com/media/images/lsc_blog_images/LSC_Blog_Stereoscopy-for-Beginners_Brian_May_Queen_London_Stereoscopic_Company_2_large.jpg" alt="Stereogram of Brian May" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram person" />
             <Image src="https://www.londonstereo.com/media/images/lsc_blog_images/LSC_Blog_Stereoscopy-for-Beginners_Brian_May_Queen_London_Stereoscopic_Company_4_large.jpg" alt="Stereogram of a garden" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram garden" />
-            <Image src="https://www.londonstereo.com/media/images/lsc_blog_images/LSC_Blog_Stereoscopy-for-Beginners_Brian_May_Queen_London_Stereoscopic_Company_5_large.jpg" alt="Stereogram of a museum display" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram museum" />
+            <Image src="/stereogram-user.jpg" alt="User created stereogram" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram abstract" />
         </div>
 
         <div className="text-center text-muted-foreground text-sm my-8">
             <p>
-                The stereoscopic images above are provided courtesy of the <Link href="https://www.londonstereo.com/stereoscopy-beginners.html" target="_blank" className="underline hover:text-primary">London Stereoscopic Company's blog</Link>.
+                Two of the stereoscopic images above are provided courtesy of the <Link href="https://www.londonstereo.com/stereoscopy-beginners.html" target="_blank" className="underline hover:text-primary">London Stereoscopic Company's blog</Link>.
             </p>
             <p>We thank them for making these excellent examples available for practice.</p>
         </div>
