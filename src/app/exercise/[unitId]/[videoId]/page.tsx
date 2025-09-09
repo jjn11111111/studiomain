@@ -10,7 +10,6 @@ import { CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useProgress } from '@/hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import AffirmationGenerator from '@/components/AffirmationGenerator';
 import { cn } from '@/lib/utils';
 import ExerciseSidebar from '@/components/ExerciseSidebar';
 import { Sidebar, SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
@@ -101,12 +100,9 @@ export default function ExercisePage() {
                   <p className="mt-2 text-muted-foreground">{video.description}</p>
                 </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow">
-                  <div className="lg:col-span-2 flex flex-col gap-4">
+                <div className="grid grid-cols-1 gap-6 flex-grow">
+                  <div className="col-span-1 flex flex-col gap-4">
                     <StereoVideoPlayer thumbnailUrl={video.thumbnailUrl} videoUrl={video.videoUrl} />
-                  </div>
-                  <div className="lg:col-span-1">
-                    <AffirmationGenerator unit={unit} video={video} />
                   </div>
                 </div>
 
