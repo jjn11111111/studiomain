@@ -38,7 +38,7 @@ export default function DirectionsPage() {
 
         <div className="my-16 grid grid-cols-1 md:grid-cols-3 gap-8">
             <Image src="https://www.londonstereo.com/media/images/lsc_blog_images/LSC_Blog_Stereoscopy-for-Beginners_Brian_May_Queen_London_Stereoscopic_Company_2_large.jpg" alt="Stereogram of Brian May" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram person" />
-            <Image src="https://www.londonstereo.com/media/images/lsc_blog_images/LSC_Blog_Stereoscopy-for-Beginners_Brian_May_Queen_London_Stereoscopic_Company_3_large.jpg" alt="Stereogram of a garden" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram garden" />
+            <Image src="https://i.imgur.com/sdz2J9T.png" alt="Stereogram of a CD and stars" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram abstract" />
             <Image src="https://www.londonstereo.com/media/images/lsc_blog_images/LSC_Blog_Stereoscopy-for-Beginners_Brian_May_Queen_London_Stereoscopic_Company_5_large.jpg" alt="Stereogram of a museum display" className="rounded-lg shadow-lg" width={600} height={400} data-ai-hint="stereogram museum" />
         </div>
 
