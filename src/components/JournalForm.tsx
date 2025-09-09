@@ -1,6 +1,6 @@
+
 'use client';
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,15 +21,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
 import { exerciseData } from '@/lib/data';
 
 const journalSchema = z.object({
   videoId: z.string().min(1, { message: 'Please select an exercise.' }),
-  notes: z.string().min(10, { message: 'Please enter a description of at least 10 characters.' }),
-  intensity: z.number().min(1).max(10),
-  usefulness: z.number().min(1).max(5),
-  tags: z.array(z.string()).optional(),
+  notes: z.string().min(1, { message: 'Please enter your comments.' }),
 });
 
 type JournalFormValues = z.infer<typeof journalSchema>;
@@ -42,40 +37,19 @@ const allVideos = exerciseData.flatMap(unit =>
   }))
 );
 
-const predefinedTags = [
-  'Astral Projection', 'Brain Fog', 'Calm', 'Clarity', 'Emotional Release',
-  'Energized', 'Floating', 'Focused', 'Geometric Patterns', 'Lucid Dreaming',
-  'Mood Shift', 'Past Life Recall', 'Remote Viewing', 'Spiritual Connection',
-  'Tingling', 'Vivid Colors'
-];
-
-
 interface JournalFormProps {
   onSave: (data: JournalFormValues) => void;
   onCancel: () => void;
 }
 
 export default function JournalForm({ onSave, onCancel }: JournalFormProps) {
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
   const form = useForm<JournalFormValues>({
     resolver: zodResolver(journalSchema),
     defaultValues: {
       videoId: '',
       notes: '',
-      intensity: 5,
-      usefulness: 3,
-      tags: [],
     },
   });
-
-  const toggleTag = (tag: string) => {
-    const newTags = selectedTags.includes(tag)
-      ? selectedTags.filter(t => t !== tag)
-      : [...selectedTags, tag];
-    setSelectedTags(newTags);
-    form.setValue('tags', newTags);
-  };
 
   const onSubmit = (data: JournalFormValues) => {
     onSave(data);
@@ -114,7 +88,7 @@ export default function JournalForm({ onSave, onCancel }: JournalFormProps) {
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Observations</FormLabel>
+              <FormLabel>Comments</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Describe your physical, emotional, and visual sensations..."
@@ -126,65 +100,6 @@ export default function JournalForm({ onSave, onCancel }: JournalFormProps) {
             </FormItem>
           )}
         />
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="intensity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Intensity: {form.watch('intensity')}/10</FormLabel>
-                <FormControl>
-                  <Slider
-                    min={1}
-                    max={10}
-                    step={1}
-                    defaultValue={[field.value]}
-                    onValueChange={(value) => field.onChange(value[0])}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="usefulness"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Usefulness: {form.watch('usefulness')}/5</FormLabel>
-                 <FormDescription className="text-xs">(1=Good, 5=Poor)</FormDescription>
-                <FormControl>
-                  <Slider
-                    min={1}
-                    max={5}
-                    step={1}
-                    defaultValue={[field.value]}
-                    onValueChange={(value) => field.onChange(value[0])}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <FormItem>
-            <FormLabel>Tags</FormLabel>
-            <FormDescription>Select tags that describe your experience.</FormDescription>
-            <div className="flex flex-wrap gap-2 pt-2">
-                {predefinedTags.map(tag => (
-                    <Button
-                        key={tag}
-                        type="button"
-                        variant={selectedTags.includes(tag) ? 'default' : 'outline'}
-                        onClick={() => toggleTag(tag)}
-                        size="sm"
-                    >
-                        {tag}
-                    </Button>
-                ))}
-            </div>
-        </FormItem>
 
         <div className="flex justify-end gap-4 pt-4">
           <Button type="button" variant="ghost" onClick={onCancel}>

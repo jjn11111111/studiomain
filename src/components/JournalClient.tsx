@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -31,7 +32,7 @@ export default function JournalClient() {
     }
   }, [user]);
 
-  const handleSaveEntry = async (formData: { videoId: string; notes: string; intensity: number; usefulness: number; tags: string[] }) => {
+  const handleSaveEntry = async (formData: { videoId: string; notes: string; }) => {
     if (!user) return;
     
     const allVideos = exerciseData.flatMap(unit => unit.videos);
@@ -48,7 +49,7 @@ export default function JournalClient() {
 
     try {
       const newEntry = await addJournalEntry(newEntryData);
-      setEntries(prev => [newEntry, ...prev]);
+      setEntries(prev => [newEntry, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
       setIsFormOpen(false); // Close the dialog on save
     } catch (error) {
         console.error("Failed to save journal entry:", error);
@@ -83,7 +84,7 @@ export default function JournalClient() {
                   <TableRow>
                     <TableHead className="w-[250px]">Module & Exercise</TableHead>
                     <TableHead>Observations</TableHead>
-                    <TableHead className="text-center w-[120px]">Usefulness (1-5)</TableHead>
+                    <TableHead className="text-right w-[180px]">Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -93,6 +94,12 @@ export default function JournalClient() {
                            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
                         </TableCell>
                       </TableRow>
+                  ) : !user ? (
+                     <TableRow>
+                      <TableCell colSpan={3} className="h-24 text-center">
+                        Please log in to view and create journal entries.
+                      </TableCell>
+                    </TableRow>
                   ) : entries.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={3} className="h-24 text-center">
@@ -105,21 +112,13 @@ export default function JournalClient() {
                         <TableCell>
                           <div className="font-medium">{entry.videoTitle}</div>
                           <div className="text-sm text-muted-foreground">{entry.module}</div>
-                           <div className="text-xs text-muted-foreground mt-1">
-                            {new Date(entry.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                           </div>
                         </TableCell>
                         <TableCell>
-                          <p className="mb-2">{entry.notes}</p>
-                           {entry.tags && entry.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {entry.tags.map(tag => (
-                                <span key={tag} className="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">{tag}</span>
-                              ))}
-                            </div>
-                          )}
+                          <p>{entry.notes}</p>
                         </TableCell>
-                        <TableCell className="text-center font-medium">{entry.usefulness}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">
+                           {new Date(entry.date).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                        </TableCell>
                       </TableRow>
                     ))
                   )}

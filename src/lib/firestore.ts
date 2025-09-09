@@ -1,3 +1,4 @@
+
 'use client';
 import {
   collection,
@@ -16,11 +17,8 @@ export interface JournalEntry {
   userId: string;
   videoId: string;
   videoTitle: string;
-  notes: string;
-  intensity: number;
-  usefulness: number; // 1 (good) to 5 (poor)
-  tags: string[];
-  date: string;
+  notes: string; // This field holds the "comments"
+  date: string; // ISO string format
   module: string;
 }
 
@@ -29,18 +27,16 @@ export interface JournalEntryData {
   videoId: string;
   videoTitle: string;
   notes: string;
-  intensity: number;
-  usefulness: number;
-  tags: string[];
   date: string;
 }
 
 // Add a new journal entry to Firestore
 export async function addJournalEntry(entryData: JournalEntryData): Promise<JournalEntry> {
   const db = getDb();
+  // The 'createdAt' field automatically includes date and time.
   const docRef = await addDoc(collection(db, 'journalEntries'), {
     ...entryData,
-    createdAt: Timestamp.now(),
+    createdAt: Timestamp.now(), 
   });
 
   const allVideos = exerciseData.flatMap(unit => unit.videos.map(v => ({...v, module: unit.title})));
@@ -69,15 +65,15 @@ export async function getJournalEntries(userId: string): Promise<JournalEntry[]>
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     const video = allVideos.find(v => v.id === data.videoId);
+    
+    // The user's profile name/email is linked via the userId but not stored directly in the entry.
+    // The date and time are retrieved from the 'date' field.
     entries.push({
       id: doc.id,
       userId: data.userId,
       videoId: data.videoId,
       videoTitle: data.videoTitle,
-      notes: data.notes,
-      intensity: data.intensity,
-      usefulness: data.usefulness ?? 3, // Default to neutral if not present
-      tags: data.tags || [],
+      notes: data.notes, // "notes" are the user's comments
       date: data.date,
       module: video?.module ?? 'Unknown Module'
     });
