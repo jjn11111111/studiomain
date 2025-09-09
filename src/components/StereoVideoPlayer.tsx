@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Card } from './ui/card';
 import { Play, Pause, RefreshCw, Expand, Shrink } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
@@ -37,7 +36,7 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
   };
 
   const handleReplay = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent the main click handler from firing
+    e.stopPropagation(); 
     const video = videoRef.current;
     if (video) {
         setHasEnded(false);
@@ -82,47 +81,42 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
   }, [onFullscreenChange]);
 
   useEffect(() => {
-    // Reset state when video source changes
     setIsPlaying(false);
     setHasEnded(false);
     if (videoRef.current) {
-      // Attempt to autoplay, but handle browser restrictions gracefully
       videoRef.current.play().then(() => {
           setIsPlaying(true);
       }).catch(err => {
-          // Autoplay was blocked, user will need to click play.
           console.log("Autoplay prevented:", err);
           setIsPlaying(false);
       });
     }
   }, [videoUrl]);
 
-
   return (
-    <Card 
+    <div 
       ref={containerRef}
-      className="aspect-video w-full overflow-hidden shadow-lg border-2 border-primary/20 relative cursor-pointer bg-muted"
+      className="absolute inset-0 w-full h-full overflow-hidden cursor-pointer bg-black"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handlePlayPause}
     >
-      <div className="h-full w-full bg-black">
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          poster={thumbnailUrl}
-          playsInline
-          muted
-          autoPlay
-          className="w-full h-full object-cover"
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onEnded={onVideoEnded}
-          data-ai-hint="abstract space"
-        />
-      </div>
+      <video
+        ref={videoRef}
+        src={videoUrl}
+        poster={thumbnailUrl}
+        playsInline
+        muted
+        autoPlay
+        loop
+        className="w-full h-full object-cover"
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={onVideoEnded}
+        data-ai-hint="abstract space"
+      />
       <div className={cn(
-          "absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity",
+          "absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity z-10",
           (isHovered || !isPlaying || hasEnded) ? 'opacity-100' : 'opacity-0'
         )}>
         {hasEnded ? (
@@ -130,7 +124,7 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
               variant="ghost"
               size="icon"
               onClick={handleReplay}
-              className="h-20 w-20 text-white hover:bg-white/20 hover:text-white rounded-full backdrop-blur-sm flex flex-col items-center"
+              className="h-20 w-20 text-white hover:bg-white/20 hover:text-white rounded-full backdrop-blur-sm flex flex-col items-center pointer-events-auto"
               aria-label="Replay video"
             >
               <RefreshCw className="h-10 w-10" />
@@ -141,7 +135,7 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
               variant="ghost"
               size="icon"
               onClick={togglePlayButton}
-              className="h-20 w-20 text-white hover:bg-white/20 hover:text-white rounded-full backdrop-blur-sm"
+              className="h-20 w-20 text-white hover:bg-white/20 hover:text-white rounded-full backdrop-blur-sm pointer-events-auto"
               aria-label={isPlaying ? 'Pause video' : 'Play video'}
             >
               {isPlaying ? <Pause className="h-12 w-12" /> : <Play className="h-12 w-12 ml-2" />}
@@ -150,19 +144,19 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
       </div>
 
        <div className={cn(
-            "absolute bottom-2 right-2 transition-opacity",
+            "absolute bottom-4 right-4 z-10 transition-opacity",
             (isHovered || !isPlaying || hasEnded) ? 'opacity-100' : 'opacity-0'
         )}>
             <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleFullscreen}
-                className="h-10 w-10 text-white hover:bg-white/20 hover:text-white rounded-full backdrop-blur-sm"
+                className="h-12 w-12 text-white hover:bg-white/20 hover:text-white rounded-full backdrop-blur-sm pointer-events-auto"
                 aria-label={isFullScreen ? 'Exit fullscreen' : 'Enter fullscreen'}
             >
-                {isFullScreen ? <Shrink className="h-6 w-6" /> : <Expand className="h-6 w-6" />}
+                {isFullScreen ? <Shrink className="h-7 w-7" /> : <Expand className="h-7 w-7" />}
             </Button>
         </div>
-    </Card>
+    </div>
   );
 }

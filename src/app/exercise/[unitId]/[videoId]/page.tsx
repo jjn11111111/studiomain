@@ -6,15 +6,11 @@ import { exerciseData } from '@/lib/data';
 import type { Unit, Video } from '@/lib/data';
 import StereoVideoPlayer from '@/components/StereoVideoPlayer';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowLeft, ArrowRight, List } from 'lucide-react';
 import { useProgress } from '@/hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import ExerciseSidebar from '@/components/ExerciseSidebar';
-import { Sidebar, SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import ColoredLetterTitle from '@/components/ColoredLetterTitle';
-import Header from '@/components/Header';
+import Link from 'next/link';
 
 export default function ExercisePage() {
   const params = useParams();
@@ -52,18 +48,14 @@ export default function ExercisePage() {
       if (nextVideo) {
         router.push(`/exercise/${nextVideo.unit.id}/${nextVideo.video.id}`);
       } else {
-        router.push('/training'); // Go back to curriculum page if it's the last video
+        router.push('/training');
       }
     }
-  };
-
-  const getThemeClass = (unit: Unit) => {
-    return `unit-${unit.id.split('-')[1]}-theme`;
   };
   
   if (!unit || !video) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-background text-foreground">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Exercise not found</h1>
           <p>The exercise you are looking for does not exist.</p>
@@ -76,56 +68,40 @@ export default function ExercisePage() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      <Header />
-      <div className="flex flex-grow overflow-hidden">
-        <SidebarProvider>
-          <div className={cn("flex h-full w-full", getThemeClass(unit))}>
-            <Sidebar collapsible="icon">
-              <ExerciseSidebar 
-                unit={unit} 
-                currentVideoId={video.id} 
-                completedVideos={completedVideos} 
-              />
-            </Sidebar>
-            <SidebarInset>
-              <div className="flex flex-col p-4 md:p-8 h-full overflow-y-auto">
-                <header className="mb-6">
-                  <div className="text-sm font-medium text-muted-foreground font-headline">
-                    {unit.title}: <span className={cn("font-bold", `text-unit-${unit.id.split('-')[1]}`)}>{unit.groupName}</span>
-                  </div>
-                  <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">
-                    <ColoredLetterTitle title={video.title} unitId={unit.id} />
-                  </h1>
-                  <p className="mt-2 text-muted-foreground">{video.description}</p>
-                </header>
+    <div className="relative w-screen h-screen bg-black">
+      <StereoVideoPlayer thumbnailUrl={video.thumbnailUrl} videoUrl={video.videoUrl} />
 
-                <div className="grid grid-cols-1 gap-6 flex-grow">
-                  <div className="col-span-1 flex flex-col gap-4">
-                    <StereoVideoPlayer thumbnailUrl={video.thumbnailUrl} videoUrl={video.videoUrl} />
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center mt-auto pt-6 border-t mt-6">
-                    {previousVideo ? (
-                      <Button variant="outline" onClick={() => router.push(`/exercise/${previousVideo.unit.id}/${previousVideo.video.id}`)}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Previous
-                      </Button>
-                    ) :  (
-                      <Button variant="outline" onClick={() => router.push('/training')}>
-                          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Training
-                        </Button>
-                    )}
-                    <Button onClick={handleComplete} size="lg" className="bg-primary hover:bg-primary/90">
-                      <CheckCircle className="mr-2 h-5 w-5" />
-                      {isComplete(video.id) ? 'Next Exercise' : 'Mark Complete & Next'}
-                      {nextVideo && <ArrowRight className="ml-2 h-4 w-4" />}
-                    </Button>
-                  </div>
-              </div>
-            </SidebarInset>
+      {/* Controls Overlay */}
+      <div className="absolute inset-0 flex flex-col justify-between p-4 md:p-8 pointer-events-none">
+        {/* Top Controls */}
+        <div className="flex justify-between items-start pointer-events-auto">
+          <Button asChild variant="outline" className="bg-black/50 hover:bg-black/70 border-white/20 text-white">
+            <Link href="/training">
+              <List className="mr-2 h-4 w-4" />
+              Back to Training List
+            </Link>
+          </Button>
+          <div className="text-right text-white bg-black/50 p-3 rounded-lg">
+             <h1 className="text-xl md:text-2xl font-bold font-headline">{video.title}</h1>
+             <p className="text-sm md:text-base text-white/80">{unit.title}: {unit.groupName}</p>
           </div>
-        </SidebarProvider>
+        </div>
+
+        {/* Bottom Controls */}
+        <div className="flex justify-between items-end pointer-events-auto">
+            {previousVideo ? (
+              <Button variant="outline" onClick={() => router.push(`/exercise/${previousVideo.unit.id}/${previousVideo.video.id}`)} className="bg-black/50 hover:bg-black/70 border-white/20 text-white">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+              </Button>
+            ) : ( 
+              <div /> // Spacer
+            )}
+            <Button onClick={handleComplete} size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
+              <CheckCircle className="mr-2 h-5 w-5" />
+              {isComplete(video.id) ? 'Next Exercise' : 'Mark Complete & Next'}
+              {nextVideo && <ArrowRight className="ml-2 h-4 w-4" />}
+            </Button>
+        </div>
       </div>
     </div>
   );
