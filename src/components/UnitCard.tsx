@@ -55,11 +55,11 @@ export default function UnitCard({ unit, completedVideos, isInitialized, onSelec
         getThemeClass(unit)
     )}>
       <CardHeader className="w-full md:w-2/3">
-          <CardTitle className="text-foreground">
+          <h2 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
             {unit.title}:{' '}
             <span className={getColorClass(unit)}>{unit.groupName}</span>
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">{unit.description}</CardDescription>
+          </h2>
+          <CardDescription className="text-muted-foreground pt-2">{unit.description}</CardDescription>
       </CardHeader>
       <CardContent className="w-full md:w-1/3 p-6 flex flex-col items-center justify-center gap-4 bg-muted/50 h-full">
           <div className="text-sm font-medium text-muted-foreground">
