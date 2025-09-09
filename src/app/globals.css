@@ -149,8 +149,8 @@ body {
       --ring: hsl(217 91% 60%);
   }
   
-  .text-unit-1 { color: hsl(0 84.2% 60.2%); }
-  .dark .text-unit-1 { color: hsl(0 72.2% 50.6%); }
+  .text-unit-1 { color: red; }
+  .dark .text-unit-1 { color: red; }
   .text-unit-2 { color: hsl(48 96% 53%); }
   .dark .text-unit-2 { color: hsl(48 96% 53%); }
   .text-unit-3 { color: hsl(221 83% 53%); }
