@@ -34,7 +34,9 @@ export default function UnitCard({ unit, completedVideos, isInitialized, onSelec
       case 'red group':
         return 'text-red-600'; // Primary red color
       case 'yellow group':
-        return 'text-yellow-600'; // Primary yellow color
+        return 'text-yellow-500'; // More primary yellow
+      case 'blue group':
+        return 'text-blue-600'; // Primary blue color
       default:
         return 'text-foreground'; // Fallback color
     }
