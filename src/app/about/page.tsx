@@ -166,6 +166,7 @@ export default function AboutPage() {
           <h3 className="text-2xl font-bold font-headline text-foreground mt-8">Conclusion</h3>
           <p>This new model of the meaning of life suggests that physical incarnation is an equal blend of physicality and spirit, expressed through the dynamic interplay of divine masculine and feminine energies. The journey of self-actualization involves resolving inner darkness and embracing the action child within. By moving beyond narratives of scarcity and competition, individuals can focus on unique challenges, discoveries, and reunions with soulmates and spirit family. Understanding the energetic dynamics of centrifugal and centripetal forces, as well as the dance of electricity and magnetism, provides a deeper insight into the nature of existence. Ultimately, the divine trinity, reflected in our DNA, reveals the profound interconnectedness and unity of all life, embodying the essence of the creator.</p>
           <p>By understanding and applying these principles, we can enhance our ability to manifest our desires and create meaningful change in our lives.</p>
+          <p>Ultimately, our divine composition involves full spectrum expression in both heaven and the physical world. This is what is truly meant when the Christ describes bringing heaven to earth. To be whole is to be fully present in both realms</p>
           
           <h3 className="text-2xl font-bold font-headline text-foreground mt-8">References</h3>
           <ul className="list-disc pl-6 space-y-2">
