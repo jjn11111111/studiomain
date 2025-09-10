@@ -20,9 +20,25 @@ export default function DirectionsPage() {
       <Header />
       <main className="flex-grow container mx-auto p-4">
         <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold font-headline">Practice Area</h1>
-            <p className="text-muted-foreground mt-2">Use these videos to practice the viewing technique before starting the modules.</p>
+            <h1 className="text-4xl font-bold font-headline">How to View the Exercises</h1>
+            <p className="text-muted-foreground mt-2">A guide to stereoscopic viewing.</p>
         </div>
+
+        <div className="max-w-4xl mx-auto space-y-6 text-lg text-muted-foreground mb-12">
+            <p>
+                Each exercise is designed to be viewed with stereoscopic vision. Users may be familiar with dot matrix prints which seem abstract until one allows their vision focus to lapse the slightest bit at which point, a hologram figure develops and emerges.
+            </p>
+            <p>
+                The distance between two human eyes is about 2 inches. Thus, this retinal disparity helps the brain to process and assess a sense of distance. The brain utilises all these spatial components of information in tandem to bring about precise depth information in an expanded format know as stereoscopic vision.
+            </p>
+            <blockquote className="border-l-4 pl-4 italic">
+                Answersingenesis.com says, "To see a stereo image, you need to cross your eyes (that's opposite of how it works normanlly, but it's easier to do) stare at the photos and cross your eyes until one photo overlaps the other. Three images will appear. When you see them, focus on the middle one, and it will appear to have depth."
+            </blockquote>
+            <p className="font-semibold text-foreground">
+                Practice by viewing the videos below and use the directions above as a guide. When you achieve clarity with the 3rd image in the middle, hold it for at least 30 seconds.
+            </p>
+        </div>
+
         <div className="flex flex-col items-center gap-8 max-w-4xl mx-auto">
           {/* Videos */}
           {videos.map((url, index) => (
