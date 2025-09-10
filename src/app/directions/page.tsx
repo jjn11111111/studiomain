@@ -8,6 +8,13 @@ export default function DirectionsPage() {
   const thirdVideoUrl = 'https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/Untitled%20design(9).mp4?alt=media';
   const fourthVideoUrl = 'https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/Untitled%20design(11).mp4?alt=media';
 
+  const videos = [
+    correctVideoUrl,
+    secondVideoUrl,
+    thirdVideoUrl,
+    fourthVideoUrl,
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -16,59 +23,24 @@ export default function DirectionsPage() {
             <h1 className="text-4xl font-bold font-headline">Practice Area</h1>
             <p className="text-muted-foreground mt-2">Use these videos to practice the viewing technique before starting the modules.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Video 1 */}
-          <div className="bg-muted border-2 border-dashed border-border rounded-lg aspect-video flex items-center justify-center overflow-hidden">
-            <video
-              src={correctVideoUrl}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-            />
-          </div>
+        <div className="flex flex-col items-center gap-8 max-w-4xl mx-auto">
+          {/* Videos */}
+          {videos.map((url, index) => (
+            <div key={index} className="w-full bg-muted border-2 border-dashed border-border rounded-lg aspect-video flex items-center justify-center overflow-hidden">
+              <video
+                src={url}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ))}
 
-          {/* Video 2 */}
-          <div className="bg-muted border-2 border-dashed border-border rounded-lg aspect-video flex items-center justify-center overflow-hidden">
-            <video
-              src={secondVideoUrl}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          {/* Video 3 */}
-          <div className="bg-muted border-2 border-dashed border-border rounded-lg aspect-video flex items-center justify-center overflow-hidden">
-            <video
-              src={thirdVideoUrl}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Video 4 */}
-          <div className="bg-muted border-2 border-dashed border-border rounded-lg aspect-video flex items-center justify-center overflow-hidden">
-            <video
-              src={fourthVideoUrl}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-
-          {/* 2 Empty Placeholders */}
+          {/* Empty Placeholders */}
           {[...Array(2)].map((_, i) => (
-            <div key={i} className="bg-muted border-2 border-dashed border-border rounded-lg aspect-video flex items-center justify-center">
+            <div key={i} className="w-full bg-muted border-2 border-dashed border-border rounded-lg aspect-video flex items-center justify-center">
               <div className="text-center text-muted-foreground">
                 <PlayCircle className="h-12 w-12 mx-auto" />
                 <p>Video Placeholder</p>
