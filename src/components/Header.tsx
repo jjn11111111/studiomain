@@ -41,6 +41,9 @@ export default function Header() {
             <Button asChild variant="ghost">
               <Link href="/training">Training</Link>
             </Button>
+             <Button asChild variant="ghost">
+              <Link href="/pricing">Pricing</Link>
+            </Button>
             <Button asChild variant="ghost">
               <Link href="/journal">Journal</Link>
             </Button>

@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ProfileClient() {
   const { user, signOutUser, isLoading } = useAuth();
@@ -35,7 +36,9 @@ export default function ProfileClient() {
           <CardDescription>You are currently on the free plan. Upgrade to unlock all features.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button disabled>Upgrade to Pro (Coming Soon)</Button>
+          <Button asChild>
+            <Link href="/pricing">Upgrade to Active</Link>
+          </Button>
         </CardContent>
       </Card>
     </div>
