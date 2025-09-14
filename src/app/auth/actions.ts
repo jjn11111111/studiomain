@@ -12,27 +12,19 @@ import type { App } from 'firebase-admin/app';
 import Stripe from 'stripe';
 
 function getAdminAuth() {
-  let app: App;
   try {
-    // The service account key is now read from the environment variable in firebase-admin.ts
-    app = getFirebaseAdminApp();
+    const app = getFirebaseAdminApp();
+    return { auth: getAdminAuthSdk(app), adminDb: getAdminFirestore(app), error: null };
   } catch (error: any) {
-    console.error("Failed to get Firebase Admin App:", error.message);
-    // Return nulls if initialization fails
+    console.error("Failed to get Firebase Admin services:", error.message);
     return { auth: null, adminDb: null, error: error.message };
   }
-  
-  if (!app) {
-    return { auth: null, adminDb: null, error: 'Firebase Admin App not available.' };
-  }
-  return { auth: getAdminAuthSdk(app), adminDb: getAdminFirestore(app), error: null };
 }
 
 export async function createSessionCookie(idToken: string) {
   const { auth, error } = getAdminAuth();
   if (error || !auth) {
       console.error("Failed to create session cookie: Firebase Admin App not initialized.", error);
-      // It's crucial to return the error here so the calling function knows about the failure.
       return { error: "Failed to create session cookie: " + (error || "Firebase Admin App not initialized.") };
   }
   const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
