@@ -1,9 +1,20 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
 
 const PROGRESS_KEY = 'thirdEyeCrossTrainingProgress';
 
-export function useProgress() {
+interface ProgressContextType {
+    completedVideos: Set<string>;
+    toggleComplete: (videoId: string) => void;
+    isComplete: (videoId: string) => boolean;
+    markAsComplete: (videoId: string) => void;
+    isInitialized: boolean;
+}
+
+const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
+
+
+export function ProgressProvider({children}: {children: ReactNode}) {
   const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set());
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -55,5 +66,15 @@ export function useProgress() {
     return completedVideos.has(videoId);
   }, [completedVideos]);
 
-  return { completedVideos, toggleComplete, isComplete, markAsComplete, isInitialized };
+  const value = { completedVideos, toggleComplete, isComplete, markAsComplete, isInitialized };
+
+  return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
+}
+
+export function useProgress() {
+  const context = useContext(ProgressContext);
+  if (context === undefined) {
+    throw new Error('useProgress must be used within a ProgressProvider');
+  }
+  return context;
 }

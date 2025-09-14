@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -5,6 +6,7 @@ import { cn } from '@/lib/utils';
 import Footer from '@/components/Footer';
 import { AuthProvider } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
+import { ProgressProvider } from '@/hooks/use-progress';
 
 export const metadata: Metadata = {
   title: '3rd Eye CrossTraining',
@@ -25,9 +27,11 @@ export default function RootLayout({
       </head>
       <body className={cn('font-body antialiased min-h-screen flex flex-col bg-background text-foreground')}>
         <AuthProvider>
-          <main className="flex-grow flex flex-col">{children}</main>
-          <Footer />
-          <Toaster />
+          <ProgressProvider>
+            <main className="flex-grow flex flex-col">{children}</main>
+            <Footer />
+            <Toaster />
+          </ProgressProvider>
         </AuthProvider>
       </body>
     </html>
