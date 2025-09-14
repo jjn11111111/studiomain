@@ -10,7 +10,17 @@ export default function HomePage() {
       <Header />
       <main className="flex-grow">
         <section className="relative text-center py-20 md:py-32 lg:py-40 px-4 overflow-hidden">
-          <div className="absolute inset-0 aurora-bg z-0"></div>
+          <div className="absolute inset-0 z-0">
+             <video
+              src="https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/Untitled%20design(6).mp4?alt=media"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/50"></div> {/* Overlay */}
+          </div>
           <div className="relative z-10 container mx-auto flex flex-col items-center">
             <Logo className="w-48 h-48 mb-8 text-foreground animate-fade-in" />
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-headline text-foreground animate-fade-in-down">
