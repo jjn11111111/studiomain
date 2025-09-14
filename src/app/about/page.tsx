@@ -34,7 +34,7 @@ export default function AboutPage() {
                 loop
                 muted
                 playsInline
-                className="rounded-lg shadow-lg"
+                className="rounded-lg shadow-lg w-full h-auto"
               />
           </div>
         </div>

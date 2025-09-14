@@ -1,3 +1,4 @@
+
 'use client';
 import Header from '@/components/Header';
 
@@ -43,14 +44,14 @@ export default function DirectionsPage() {
         <div className="flex flex-col items-center gap-8 max-w-4xl mx-auto">
           {/* Videos */}
           {videos.map((url, index) => (
-            <div key={index} className="w-full bg-muted border-2 border-dashed border-border rounded-lg aspect-video flex items-center justify-center overflow-hidden">
+            <div key={index} className="w-full bg-muted border-2 border-dashed border-border rounded-lg overflow-hidden">
               <video
                 src={url}
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="w-full h-full object-cover"
+                className="w-full h-auto"
               />
             </div>
           ))}
