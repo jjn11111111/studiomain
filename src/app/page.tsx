@@ -1,3 +1,4 @@
+
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -19,7 +20,7 @@ export default function HomePage() {
               playsInline
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/50"></div> {/* Overlay */}
+            <div className="absolute inset-0 bg-black/25"></div> {/* Overlay */}
           </div>
           <div className="relative z-10 container mx-auto flex flex-col items-center">
             <Logo className="w-48 h-48 mb-8 text-foreground animate-fade-in" />
