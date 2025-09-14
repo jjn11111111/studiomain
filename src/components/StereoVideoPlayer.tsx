@@ -108,7 +108,6 @@ export default function StereoVideoPlayer({ thumbnailUrl, videoUrl }: StereoVide
         playsInline
         muted
         autoPlay
-        loop
         className="w-full h-full object-contain"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}

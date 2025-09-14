@@ -48,7 +48,6 @@ export default function DirectionsPage() {
               <video
                 src={url}
                 autoPlay
-                loop
                 muted
                 playsInline
                 className="w-full h-auto"

@@ -31,7 +31,6 @@ export default function AboutPage() {
             <video
                 src="https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/Untitled%20design(16).mp4?alt=media"
                 autoPlay
-                loop
                 muted
                 playsInline
                 className="rounded-lg shadow-lg w-full h-auto"
