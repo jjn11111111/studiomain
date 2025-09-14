@@ -5,13 +5,14 @@ import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { PlusCircle, Loader2, Globe, Lock } from 'lucide-react';
+import { PlusCircle, Loader2, Globe, Lock, ArrowRight } from 'lucide-react';
 import JournalForm from './JournalForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { addJournalEntry, getJournalEntries, getPublicJournalEntries, JournalEntry } from '@/lib/firestore';
 import { exerciseData } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import Link from 'next/link';
 
 function JournalTable({ entries, isLoading, noEntriesText }: { entries: JournalEntry[], isLoading: boolean, noEntriesText: string }) {
   const getAuthorDisplayName = (entry: JournalEntry) => {
@@ -51,10 +52,10 @@ function JournalTable({ entries, isLoading, noEntriesText }: { entries: JournalE
                 entries.map(entry => (
                   <TableRow key={entry.id}>
                     <TableCell>
-                      <div className="font-medium flex items-center gap-2">
+                       <Link href={`/journal/${entry.videoId}`} className="font-medium flex items-center gap-2 hover:underline">
                         {entry.isPublic ? <Globe className="h-4 w-4 text-blue-500" title="Public"/> : <Lock className="h-4 w-4 text-muted-foreground" title="Private"/>}
                         {entry.videoTitle}
-                      </div>
+                       </Link>
                       <div className="text-sm text-muted-foreground ml-6">{entry.module}</div>
                     </TableCell>
                     <TableCell>

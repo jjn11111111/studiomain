@@ -78,6 +78,7 @@ export async function getJournalEntries(userId: string): Promise<JournalEntry[]>
       notes: data.notes,
       date: data.date,
       isPublic: data.isPublic || false,
+      authorEmail: data.authorEmail,
       module: video?.module ?? 'Unknown Module'
     });
   });
@@ -92,6 +93,40 @@ export async function getPublicJournalEntries(): Promise<JournalEntry[]> {
   const q = query(
     collection(db, "journalEntries"),
     where("isPublic", "==", true),
+    orderBy("createdAt", "desc")
+  );
+
+  const querySnapshot = await getDocs(q);
+  const allVideos = exerciseData.flatMap(unit => unit.videos.map(v => ({...v, module: unit.title})));
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    const video = allVideos.find(v => v.id === data.videoId);
+    entries.push({
+      id: doc.id,
+      userId: data.userId,
+      videoId: data.videoId,
+      videoTitle: data.videoTitle,
+      notes: data.notes,
+      date: data.date,
+      isPublic: true,
+      authorEmail: data.authorEmail,
+      module: video?.module ?? "Unknown Module",
+    });
+  });
+
+  return entries;
+}
+
+
+// Get all public journal entries for a specific video
+export async function getPublicJournalEntriesForVideo(videoId: string): Promise<JournalEntry[]> {
+  const db = getDb();
+  const entries: JournalEntry[] = [];
+  const q = query(
+    collection(db, "journalEntries"),
+    where("isPublic", "==", true),
+    where("videoId", "==", videoId),
     orderBy("createdAt", "desc")
   );
 
