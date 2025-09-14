@@ -82,7 +82,7 @@ export default function TrainingPage() {
                       CrossTraining Modules
                     </h2>
                     <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                      Select an exercise from the sidebar to begin your training. The visual exercises combine features of visual optics, spatial depth, super symmetry, and directions of rotation or spin to stimulate structures of the brain and visual cortex.
+                      For best results, complete all exercises in a module without stopping. Make sure you have read the directions page and practiced the stereoscopic vision adjustment. With each exercise, open the video, enlarge to full screen, adjust your vision, and then begin the video. Hold the stereoscopic position in your vision for the duration of the exercise. Please leave comments of your interactions and experience on the Journal page.
                     </p>
                   </div>
 
