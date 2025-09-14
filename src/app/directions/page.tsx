@@ -33,7 +33,7 @@ export default function DirectionsPage() {
                 The distance between two human eyes is about 2 inches. Thus, this retinal disparity helps the brain to process and assess a sense of distance. The brain utilises all these spatial components of information in tandem to bring about precise depth information in an expanded format know as stereoscopic vision.
             </p>
             <blockquote className="border-l-4 pl-4 italic">
-                Answersingenesis.com says, "To see a stereo image, you need to cross your eyes (that's opposite of how it works normanlly, but it's easier to do) stare at the photos and cross your eyes until one photo overlaps the other. Three images will appear. When you see them, focus on the middle one, and it will appear to have depth."
+                Answersingenesis.com says, "To see a stereo image, you need to cross your eyes (that's opposite of how it works normally, but it's easier to do) stare at the photos and cross your eyes until one photo overlaps the other. Three images will appear. When you see them, focus on the middle one, and it will appear to have depth."
             </blockquote>
             <p className="font-semibold text-foreground">
                 Practice by viewing the videos below and use the directions above as a guide. When you achieve clarity with the 3rd image in the middle, hold it for at least 30 seconds.
