@@ -13,7 +13,7 @@ export default function HomePage() {
         <section className="relative text-center py-20 md:py-32 lg:py-40 px-4 overflow-hidden">
           <div className="absolute inset-0 z-0">
              <video
-              src="https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/Untitled%20design(6).mp4?alt=media"
+              src="https://firebasestorage.googleapis.com/v0/b/pinealvision.firebasestorage.app/o/Untitled%20design(7).mp4?alt=media"
               autoPlay
               loop
               muted
