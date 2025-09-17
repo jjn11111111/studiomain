@@ -24,7 +24,7 @@ export default function HomePage() {
           </div>
           <div className="relative z-10 container mx-auto flex flex-col items-center">
             <Logo className="w-48 h-48 mb-8 text-foreground animate-fade-in" />
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-headline animate-fade-in-down" style={{ color: 'black', textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-headline animate-fade-in-down" style={{ color: 'black', textShadow: '1px 1px 3px rgba(0,0,0,0.3)' }}>
               3rd Eye CrossTraining
             </h1>
             <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground animate-fade-in-up delay-200">
