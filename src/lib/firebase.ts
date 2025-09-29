@@ -7,13 +7,12 @@ import { getFirestore, type Firestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  projectId: "pinealvision",
-  appId: "1:590588534644:web:3b4d95c8aa84c355ba9621",
-  storageBucket: "pinealvision.firebasestorage.app",
-  apiKey: "AIzaSyCvoQb8ycCZb-FbaWWS87YPjPDwtrw6Dus",
+  apiKey: "AIzaSyA_3pSSn6f4x531b2NqM5T85rF63g8cY2U",
   authDomain: "pinealvision.firebaseapp.com",
-  measurementId: "G-PLS89S3H00",
-  messagingSenderId: "590588534644"
+  projectId: "pinealvision",
+  storageBucket: "pinealvision.appspot.com",
+  messagingSenderId: "590588534644",
+  appId: "1:590588534644:web:3b4d95c8aa84c355ba9621"
 };
 
 // Initialize Firebase
@@ -24,3 +23,4 @@ const getDbInstance = (): Firestore => {
 }
 
 export { app, getDbInstance as db };
+
