@@ -19,17 +19,25 @@ function initializeAdminApp(): App {
   }
 
   try {
+    // The service account key is a JSON string, so it needs to be parsed.
     const serviceAccount = JSON.parse(serviceAccountKey);
+    
     return initializeApp({
       credential: cert(serviceAccount),
+      // Add your databaseURL here if you are using Realtime Database
+      // databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`,
     }, ADMIN_APP_NAME);
+
   } catch (error: any) {
-    throw new Error(`Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY or initialize app: ${error.message}`);
+    console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY or initialize Firebase Admin app:', error);
+    // Re-throwing the error is important to prevent the app from running with a misconfigured admin SDK.
+    throw new Error(`Failed to initialize Firebase Admin SDK: ${error.message}`);
   }
 }
 
 /**
  * Retrieves the singleton instance of the Firebase Admin App.
+ * This function will throw an error if the admin app cannot be initialized.
  */
 export function getFirebaseAdminApp(): App {
   return initializeAdminApp();
