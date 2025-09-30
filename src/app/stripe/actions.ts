@@ -45,7 +45,7 @@ export async function createCheckoutSession(idToken: string): Promise<{ sessionI
       line_items: [
         {
           // IMPORTANT: Replace this with your actual Price ID from your Stripe dashboard
-          price: 'YOUR_STRIPE_PRICE_ID',
+          price: 'price_1PKOE5RpR9sZT2fSWsUn5E0X',
           quantity: 1,
         },
       ],
