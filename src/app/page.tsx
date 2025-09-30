@@ -27,7 +27,7 @@ export default function HomePage() {
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-headline animate-fade-in-down" style={{ color: 'black', textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
               3rd Eye CrossTraining
             </h1>
-            <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground animate-fade-in-up delay-200">
+            <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl animate-fade-in-up delay-200" style={{ color: 'black', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
               A workout to activate, stimulate, and improve the interface which connects the soul and the physical body.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4 animate-fade-in-up delay-400">
