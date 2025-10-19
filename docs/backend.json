@@ -1,0 +1,133 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the user account was created."
+        },
+        "subscription": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["free", "active"],
+              "description": "The user's subscription status."
+            }
+          }
+        },
+        "stripeCustomerId": {
+          "type": "string",
+          "description": "The user's Stripe customer ID."
+        }
+      },
+      "required": ["email", "createdAt", "subscription"]
+    },
+    "JournalEntry": {
+      "title": "Journal Entry",
+      "description": "A user's journal entry for a specific exercise.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who created the entry."
+        },
+        "videoId": {
+          "type": "string",
+          "description": "The ID of the video exercise."
+        },
+        "videoTitle": {
+          "type": "string",
+          "description": "The title of the video exercise."
+        },
+        "notes": {
+          "type": "string",
+          "description": "The content of the journal entry."
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date the entry was created."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the entry was saved."
+        },
+        "isPublic": {
+          "type": "boolean",
+          "description": "Whether the entry is visible to the public."
+        },
+        "authorEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "The email of the author, for display purposes."
+        },
+        "module": {
+          "type": "string",
+          "description": "The title of the module the video belongs to."
+        }
+      },
+      "required": ["userId", "videoId", "notes", "date", "createdAt", "isPublic"]
+    },
+    "CommunityPost": {
+      "title": "Community Post",
+      "description": "A public post in the community chat.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who created the post."
+        },
+        "content": {
+          "type": "string",
+          "description": "The content of the post."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the post was created."
+        },
+        "authorEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "The email of the author, for display purposes."
+        }
+      },
+      "required": ["userId", "content", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["email"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores user profile information."
+    },
+    "/journalEntries/{entryId}": {
+      "schema": {
+        "$ref": "#/entities/JournalEntry"
+      },
+      "description": "Stores all journal entries from all users."
+    },
+    "/communityPosts/{postId}": {
+      "schema": {
+        "$ref": "#/entities/CommunityPost"
+      },
+      "description": "Stores all public community chat posts."
+    }
+  }
+}
