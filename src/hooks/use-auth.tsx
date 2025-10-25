@@ -5,7 +5,7 @@ import React, {createContext, useContext, useEffect, useState, ReactNode} from '
 import {onAuthStateChanged, User, getAuth} from 'firebase/auth';
 import {app} from '@/lib/firebase';
 import {Loader2} from 'lucide-react';
-import {useRouter} from 'next/navigation';
+import {useRouter, usePathname} from 'next/navigation';
 import {clearSessionCookie} from '@/app/auth/actions';
 import { getUserProfile, UserProfile } from '@/lib/firestore';
 
@@ -19,6 +19,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const PROTECTED_ROUTES = ['/profile', '/journal', '/exercise'];
+
 export function AuthProvider({children}: {children: ReactNode}) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -26,6 +28,7 @@ export function AuthProvider({children}: {children: ReactNode}) {
   const [isLoading, setIsLoading] = useState(true);
   const auth = getAuth(app);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -38,11 +41,15 @@ export function AuthProvider({children}: {children: ReactNode}) {
       } else {
         setIdToken(null);
         setUserProfile(null);
+        // If the user is not logged in, check if they are on a protected route
+        if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
+          router.push('/login');
+        }
       }
       setIsLoading(false);
     });
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth, pathname, router]);
   
   const signOutUser = async (): Promise<void> => {
     try {
