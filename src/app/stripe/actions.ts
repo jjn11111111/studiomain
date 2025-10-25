@@ -65,3 +65,48 @@ export async function createCheckoutSession(idToken: string): Promise<{ sessionI
     return { error: e.message };
   }
 }
+
+export async function createBillingPortalSession(idToken: string): Promise<{ url?: string; error?: string }> {
+    try {
+        const adminApp = getFirebaseAdminApp();
+        const auth = getAuth(adminApp);
+        const db = getFirestore(adminApp);
+
+        if (!idToken) {
+            return { error: 'Unauthorized: No token provided.' };
+        }
+
+        const decodedToken = await auth.verifyIdToken(idToken);
+        const uid = decodedToken.uid;
+
+        if (!uid) {
+            return { error: 'Unauthorized: User not found.' };
+        }
+
+        const userDoc = await db.collection('users').doc(uid).get();
+        if (!userDoc.exists) {
+            return { error: 'User not found in database.' };
+        }
+        const userData = userDoc.data();
+        const stripeCustomerId = userData?.stripeCustomerId;
+
+        if (!stripeCustomerId) {
+            return { error: 'Stripe customer ID not found.' };
+        }
+
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+            apiVersion: '2024-04-10',
+        });
+        
+        const portalSession = await stripe.billingPortal.sessions.create({
+            customer: stripeCustomerId,
+            return_url: `${headers().get('origin')}/profile`,
+        });
+
+        return { url: portalSession.url };
+
+    } catch (e: any) {
+        console.error('Error creating billing portal session:', e);
+        return { error: e.message };
+    }
+}

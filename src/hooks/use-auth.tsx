@@ -7,9 +7,11 @@ import {app} from '@/lib/firebase';
 import {Loader2} from 'lucide-react';
 import {useRouter} from 'next/navigation';
 import {clearSessionCookie} from '@/app/auth/actions';
+import { getUserProfile, UserProfile } from '@/lib/firestore';
 
 interface AuthContextType {
   user: User | null;
+  userProfile: UserProfile | null;
   idToken: string | null;
   isLoading: boolean;
   signOutUser: () => Promise<void>;
@@ -19,6 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({children}: {children: ReactNode}) {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [idToken, setIdToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const auth = getAuth(app);
@@ -30,8 +33,11 @@ export function AuthProvider({children}: {children: ReactNode}) {
       if (user) {
         const token = await user.getIdToken();
         setIdToken(token);
+        const profile = await getUserProfile(user.uid);
+        setUserProfile(profile);
       } else {
         setIdToken(null);
+        setUserProfile(null);
       }
       setIsLoading(false);
     });
@@ -52,6 +58,7 @@ export function AuthProvider({children}: {children: ReactNode}) {
 
   const value = {
     user,
+    userProfile,
     idToken,
     isLoading,
     signOutUser,

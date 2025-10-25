@@ -14,6 +14,15 @@ import {
 import { db as getDb } from './firebase';
 import { exerciseData } from './data';
 
+export interface UserProfile {
+  email: string;
+  createdAt: string;
+  subscription?: {
+    status: 'free' | 'active';
+  };
+  stripeCustomerId?: string;
+}
+
 export interface JournalEntry {
   id: string;
   userId: string;
@@ -51,6 +60,28 @@ export interface CommunityPostData {
     createdAt: string;
     authorEmail?: string;
 }
+
+
+// Get a user's profile from Firestore
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  const db = getDb();
+  const userDocRef = doc(db, 'users', userId);
+  const userDocSnap = await getDoc(userDocRef);
+
+  if (userDocSnap.exists()) {
+    const data = userDocSnap.data();
+    const createdAtTimestamp = data.createdAt as Timestamp;
+    return {
+      email: data.email,
+      createdAt: createdAtTimestamp.toDate().toISOString(),
+      subscription: data.subscription,
+      stripeCustomerId: data.stripeCustomerId,
+    };
+  } else {
+    return null;
+  }
+}
+
 
 // Add a new community post to Firestore
 export async function addCommunityPost(postData: CommunityPostData): Promise<CommunityPost> {
