@@ -20,7 +20,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const PROTECTED_ROUTES = ['/profile', '/journal', '/exercise'];
-const PUBLIC_ROUTES = ['/', '/about', '/directions', '/training', '/pricing', '/login'];
+// Note: '/training' can be accessed by non-logged in users to see the modules.
 
 export function AuthProvider({children}: {children: ReactNode}) {
   const [user, setUser] = useState<User | null>(null);
@@ -33,18 +33,26 @@ export function AuthProvider({children}: {children: ReactNode}) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setIsLoading(true);
       setUser(user);
       if (user) {
         const token = await user.getIdToken();
         setIdToken(token);
         const profile = await getUserProfile(user.uid);
         setUserProfile(profile);
+
+        // If a logged-in user is on the login page, redirect them.
+        if (pathname === '/login') {
+          router.replace('/training');
+        }
       } else {
         setIdToken(null);
         setUserProfile(null);
-        // If the user is not logged in, check if they are on a protected route
-        if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
-          router.push('/login');
+        
+        // If a logged-out user is on a protected route, redirect them.
+        const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
+        if (isProtectedRoute) {
+          router.replace('/login');
         }
       }
       setIsLoading(false);
@@ -59,7 +67,7 @@ export function AuthProvider({children}: {children: ReactNode}) {
       // Use router push and refresh to ensure state is cleared everywhere
       router.push('/login');
       router.refresh();
-    } catch (e: any) {
+    } catch (e: any)      {
       console.error('Sign out error', e);
     }
   };
