@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "pinealvision"
-  }
+    "default": "pinealvision",
+    "third_eye_crosstrainer": "pinealvision"
+  },
+  "targets": {},
+  "etags": {}
 }
