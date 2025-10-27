@@ -6,16 +6,22 @@
   "storage": {
     "rules": "storage.rules"
   },
-  "apphosting": [
+  "hosting": [
     {
-      "backendId": "pinealvisionback",
-      "rootDir": "/",
+      "site": "pinealvision",
+      "public": "out",
       "ignore": [
         "node_modules",
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log",
         "functions"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
       ]
     }
   ]
