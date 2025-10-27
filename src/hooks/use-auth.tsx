@@ -20,7 +20,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const PROTECTED_ROUTES = ['/profile', '/journal', '/exercise'];
-const PUBLIC_ROUTES = ['/', '/about', '/directions', '/training', '/pricing', '/login'];
 
 
 export function AuthProvider({children}: {children: ReactNode}) {
