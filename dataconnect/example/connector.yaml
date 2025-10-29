@@ -1,8 +1,0 @@
-connectorId: example
-generate:
-  javascriptSdk:
-    - outputDir: ../../3rdeye_pinealv_3/src/dataconnect-generated
-      package: "@dataconnect/generated"
-      packageJsonDir: ../../3rdeye_pinealv_3
-      react: false
-      angular: false
