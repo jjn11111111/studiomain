@@ -10,5 +10,7 @@
   },
   "search.exclude": {
     "": true
-  }
+  },
+  "ipynb.experimental.serialization": false,
+  "ipynb.pasteImagesAsAttachments.enabled": false
 }
