@@ -1,0 +1,16 @@
+{
+    "name": "Nix Environment",
+    "image": "ghcr.io/loophp/nix-dev-container/nix:latest",
+    "features": {},
+    "customizations": {
+      "vscode": {
+        "settings": {},
+        "extensions": [
+          "arrterian.nix-env-selector",
+          "ms-vscode.vscode-node-azure-pack",
+          "ms-python.python"
+        ]
+      }
+    },
+    "remoteUser": "vscode"
+  }
