@@ -12,3 +12,10 @@ apt update && apt install -y socat
 ~/.acme.sh/acme.sh --install-cert -d 45.77.206.96 --ecc \
   --fullchain-file /pb_data/fullchain.pem \
   --key-file /pb_data/privkey.pem
+pkill pocketbase ; sleep 2
+nohup /usr/local/bin/pocketbase serve \
+  --http=0.0.0.0:80 \
+  --https=0.0.0.0:443 \
+  --cert=/pb_data/fullchain.pem \
+  --key=/pb_data/privkey.pem \
+  > /pb_data/pb.log 2>&1 &
