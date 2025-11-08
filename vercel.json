@@ -1,11 +1,4 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "app/**",
-      "use": "@vercel/next"
-    }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  "version": 3,
+  "framework": "nextjs"
 }
