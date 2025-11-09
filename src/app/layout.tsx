@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
   description: 'Stimulate your 3rd eye Pineal gland with stereoscopic video exercises.',
 };
 
-// NOTE: AuthProvider removed - application now has open access for all visitors
+// Open access — no auth gate
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,9 +21,18 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className={cn('font-body antialiased min-h-screen flex flex-col bg-background text-foreground')}>
+      <body
+        className={cn(
+          'font-body antialiased min-h-screen flex flex-col',
+          'bg-background text-foreground',
+          'aurora-bg' // ← Activate the breathing aurora
+        )}
+      >
         <ProgressProvider>
           <main className="flex-grow flex flex-col">{children}</main>
           <Footer />
