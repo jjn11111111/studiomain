@@ -3,8 +3,10 @@
 import { Parallax, ParallaxLayer } from '@react-spring/parallax';
 import { useRef, useState, useEffect } from 'react';
 import { animated } from '@react-spring/web';
-import Particles from 'react-particles';
+import dynamic from 'next/dynamic';
 import { loadSlim } from 'tsparticles-slim';
+
+const Particles = dynamic(() => import('react-particles'), { ssr: false });
 
 export default function Home() {
   const parallaxRef = useRef(null);
@@ -67,7 +69,7 @@ export default function Home() {
               background: 'radial-gradient(circle, cyan, purple, magenta, yellow, white)',
               backgroundSize: '400% 400%',
               animation: 'swirl 60s ease-in-out infinite',
-              opacity: Math.max(1 - (scrollY / 1000), 0.3), // Fade based on scroll, min 30%
+              opacity, // Use the same opacity state for consistent fade
             }}
           >
             <p className="text-3xl text-white" style={{ animation: 'fadeIn 1s ease-in' }}>Scroll for gradient magic</p>
