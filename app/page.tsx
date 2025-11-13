@@ -11,6 +11,26 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  import Particles from 'react-particles';
+import { loadSlim } from 'tsparticles-slim';
+
+// Inside Home function, before <Parallax...>
+<Particles
+  id="tsparticles"
+  init={async (engine) => await loadSlim(engine)}
+  options={{
+    particles: {
+      number: { value: 50 },
+      color: { value: '#ffffff' },
+      shape: { type: 'circle' },
+      opacity: { value: 0.5 },
+      size: { value: { min: 1, max: 3 } },
+      move: { enable: true, speed: 0.5, direction: 'none', random: true },
+    },
+    interactivity: { detectsOn: 'canvas', modes: { push: { quantity: 4 } } },
+    style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
+  }}
+/>
 
   return (
     <Parallax pages={3} style={{ top: '0', left: '0' }}>
