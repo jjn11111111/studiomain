@@ -2,11 +2,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      // This is the key: it maps @/ to the project root
-      // which should correctly resolve your imports like "@/app/lib/stripe"
-      "@/*": ["./*"]
+      // This maps any path starting with "@/..." to the root of the project ("./*")
+      "@/*": ["./*"] 
     },
     // ... (rest of your compiler options)
-  },
+  }
   // ... (rest of the file)
 }
