@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/app/lib/supabaseServer'
-import { getOrCreateCustomer, stripe } from '@/app/lib/stripe';
+import { getSupabaseServerClient } from '@/lib/supabaseServer'
+import { getOrCreateCustomer, stripe } from '@/lib/stripe'
 
 const PRICE_ID = process.env.STRIPE_PRICE_ID!
 
