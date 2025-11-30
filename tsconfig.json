@@ -1,8 +1,29 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "target": "es2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    // 👇 THESE TWO LINES ARE CRUCIAL
+    "baseUrl": ".", 
     "paths": {
-      "@/*": ["./*"]
+      // The '@/lib/*' alias must map to where your 'lib' folder actually is.
+      // If 'lib' is inside the 'app' directory, use this:
+      "@/lib/*": ["./app/lib/*"]
+      // If 'lib' is in the project root, use this:
+      // "@/lib/*": ["./lib/*"]
     }
-  }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
