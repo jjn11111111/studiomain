@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/app/lib/supabaseServer'
-import { getOrCreateCustomer, stripe } from '@/app/lib/stripe'
+// Correct Path (Says lib is at the project root)
+import { getSupabaseServerClient } from '@/lib/supabaseServer' 
+import { getStripeCustomer, stripe } from '@/lib/stripe'
 
 export async function POST() {
   try {
