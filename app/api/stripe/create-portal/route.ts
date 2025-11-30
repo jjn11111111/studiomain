@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-// CHANGE THESE LINES:
-import { getSupabaseServerClient } from '@/lib/supabaseServer'
+// 1. Correct Supabase import
+import { getSupabaseServerClient } from '@/lib/supabaseServer' 
+// 2. Correct Stripe imports (which includes getOrCreateCustomer)
 
 export async function POST() {
   // ... rest of the code
