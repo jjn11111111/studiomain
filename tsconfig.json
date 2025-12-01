@@ -14,14 +14,12 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    // 👇 THESE TWO LINES ARE CRUCIAL
-    "baseUrl": ".", 
+    "baseUrl": ".",
     "paths": {
-      // The '@/lib/*' alias must map to where your 'lib' folder actually is.
-      // If 'lib' is inside the 'app' directory, use this:
-      "@/lib/*": ["./app/lib/*"]
-      // If 'lib' is in the project root, use this:
-      // "@/lib/*": ["./lib/*"]
+      // General alias: allows imports like '@/app/...'
+      "@/*": ["./*"],
+      // Specific alias for your libraries: resolves '@/lib/...' to the project's root 'lib' folder
+      "@/lib/*": ["./lib/*"] 
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
