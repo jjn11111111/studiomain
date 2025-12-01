@@ -16,7 +16,6 @@
     "incremental": true,
     "baseUrl": ".", 
     "paths": {
-      // The reliable alias to map '@/...' imports to the project root
       "@/*": ["./*"] 
     }
   },
