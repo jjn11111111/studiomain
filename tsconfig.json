@@ -15,9 +15,11 @@
     "jsx": "preserve",
     "incremental": true,
     // 👇 THESE TWO LINES ARE CRUCIAL
-    "baseUrl": ".", 
     "paths": {
-      // The '@/lib/*' alias must map to where your 'lib' folder actually is.
+      "@/*": ["./*"],
+      // THIS LINE IS THE FIX: Maps @/lib/* directly to the root lib folder
+      "@/lib/*": ["./lib/*"] 
+    }
       // If 'lib' is inside the 'app' directory, use this:
       "@/lib/*": ["./app/lib/*"]
       // If 'lib' is in the project root, use this:
