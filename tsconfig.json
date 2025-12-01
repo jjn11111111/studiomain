@@ -14,15 +14,11 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    // 👇 THESE TWO LINES ARE CRUCIAL
     "baseUrl": ".", 
     "paths": {
-      // The '@/lib/*' alias must map to where your 'lib' folder actually is.
-      // If 'lib' is inside the 'app' directory, use this:
-      // In tsconfig.json (Lines 22-25)
-"paths": {
-  "@/lib/*": ["./lib/*"] // CHANGE THIS LINE
-}
+      // The reliable alias to map '@/...' imports to the project root
+      "@/*": ["./*"] 
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
