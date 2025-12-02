@@ -1,1 +1,3 @@
-export function createSupabaseServerClient() { return {}; }
+export function getSupabaseServerClient() { 
+  return {}; 
+}
