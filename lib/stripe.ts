@@ -1,6 +1,12 @@
 import Stripe from 'stripe'
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripeKey = process.env.STRIPE_SECRET_KEY
+
+if (!stripeKey) {
+  throw new Error('Missing STRIPE_SECRET_KEY environment variable')
+}
+
+export const stripe = new Stripe(stripeKey, {
   apiVersion: '2025-11-17.clover',
 })
 
