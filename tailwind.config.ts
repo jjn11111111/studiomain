@@ -1,7 +1,12 @@
 import type { Config } from 'tailwindcss';
 
+HEAD
 const config: Config = {
   darkMode: ['class', '[data-mode="dark"]'], // Fixed: Add the second element
+
+export default {
+  darkMode: ['class', '[data-mode="dark"]'], // Changed this line
+1b059b56008cddfe9e6c38327570dedabf7f5904
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
