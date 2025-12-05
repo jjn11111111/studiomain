@@ -1,8 +1,14 @@
 import Stripe from 'stripe'
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
-})
+const getStripeClient = () => {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-11-17.clover',
+  })
+}
+
+export const stripe = typeof process.env.STRIPE_SECRET_KEY !== 'undefined' 
+  ? getStripeClient()
+  : null as any
 
 export async function getOrCreateCustomer(params: { userId: string; email?: string }) {
   // This is a placeholder implementation
