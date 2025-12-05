@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabaseServer'
 import { getOrCreateCustomer, stripe } from '@/lib/stripe'
 
+export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 const PRICE_ID = process.env.STRIPE_PRICE_ID!
 
