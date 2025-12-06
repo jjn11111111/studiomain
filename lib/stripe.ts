@@ -1,17 +1,17 @@
-import Stripe from 'stripe'
+import Stripe from 'stripe';
+import { loadStripe, Stripe as StripeJS } from '@stripe/stripe-js';
 
-const stripeKey = process.env.STRIPE_SECRET_KEY
+// Server-side Stripe instance
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
+});
 
-if (!stripeKey) {
-  throw new Error('Missing STRIPE_SECRET_KEY environment variable')
-}
+// Client-side Stripe instance (singleton pattern)
+let stripePromise: Promise<StripeJS | null>;
 
-export const stripe = new Stripe(stripeKey, {
-  apiVersion: '2025-11-17.clover',
-})
-
-export async function getOrCreateCustomer(params: { userId: string; email?: string }) {
-  // This is a placeholder implementation
-  // You'll need to implement actual customer creation logic
-  return { id: 'cus_placeholder' }
-}
+export const getStripe = () => {
+  if (!stripePromise) {
+    stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+  }
+  return stripePromise;
+};
