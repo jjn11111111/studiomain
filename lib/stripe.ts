@@ -15,7 +15,6 @@ export const getStripe = () => {
   }
   return stripePromise;
 };
-<<<<<<< HEAD
 
 // Helper function to get or create a customer
 export async function getOrCreateCustomer(params: { userId: string; email?: string }) {
@@ -44,5 +43,3 @@ export async function getOrCreateCustomer(params: { userId: string; email?: stri
     throw error;
   }
 }
-=======
->>>>>>> 9a031609e86c2b45ea1a54cadb62ee40c038ab3c
