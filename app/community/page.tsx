@@ -3,9 +3,8 @@ import { supabase } from '@/lib/supabase';  // Import your init
 import { useEffect, useState } from 'react';
 
 export default function Community() {
-  const [posts, setPosts] = useState([]);
-  const [error, setError] = useState(null);  // Bonus: Handle errors
-
+  
+useState<string | null>(null)
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error: fetchError } = await supabase.from('community_posts').select('*');
