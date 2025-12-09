@@ -1,36 +1,60 @@
 'use client';
-import { supabase } from '@/lib/supabase';  // Import your init
-import { useEffect, useState } from 'react';
 
-export default function Community() {
-  
-useState<string | null>(null)
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+
+export default function CommunityPage() {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error: fetchError } = await supabase.from('community_posts').select('*');
       if (fetchError) setError(fetchError.message);
       else setPosts(data || []);
+      setLoading(false);
     };
     fetchPosts();
-
-    // Real-time subscription (bonus for efficiency)
-    const channel = supabase.channel('posts-channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'community_posts' }, () => fetchPosts())
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
   }, []);
 
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500">Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8">
-      <h1>Community Posts</h1>
-      {posts.map((post: any) => (
-        <div key={post.id} className="bg-white/10 p-4 mb-4 rounded">
-          {post.content} (Module: {post.module})
-        </div>
-      ))}
+    <div className="min-h-screen p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold mb-8">Community</h1>
+        
+        {posts.length === 0 ? (
+          <p>No posts yet.</p>
+        ) : (
+          <div className="space-y-4">
+            {posts.map((post) => (
+              <div key={post.id} className="border rounded-lg p-6 shadow-sm">
+                <h2 className="text-2xl font-semibold mb-2">{post.title}</h2>
+                <p className="text-gray-700">{post.content}</p>
+                <div className="mt-4 text-sm text-gray-500">
+                  Posted on {new Date(post.created_at).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
