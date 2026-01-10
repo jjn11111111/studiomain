@@ -8,7 +8,7 @@ const PRICE_ID = process.env.STRIPE_PRICE_ID!
 
 export async function POST() {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient()
     const { data: { user }, error } = await supabase.auth.getUser()
     if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
