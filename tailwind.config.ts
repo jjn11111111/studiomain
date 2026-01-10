@@ -1,6 +1,4 @@
-import type { Config } from 'tailwindcss';
-
-const config: Config = {
+const config = {
   darkMode: ['class', '[data-mode="dark"]'],
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
