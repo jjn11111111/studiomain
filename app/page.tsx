@@ -1,7 +1,17 @@
-export default function Home() {
+import { HeroSection } from "@/components/hero-section"
+import { LogoSection } from "@/components/logo-section"
+import { ModulesPreview } from "@/components/modules-preview"
+import { PracticeSection } from "@/components/practice-section"
+import { HowItWorks } from "@/components/how-it-works"
+
+export default function HomePage() {
   return (
-    <main>
-      <h1>Welcome to Studio Main</h1>
+    <main className="min-h-screen">
+      <HeroSection />
+      <LogoSection />
+      <ModulesPreview />
+      <PracticeSection />
+      <HowItWorks />
     </main>
-  );
+  )
 }
