@@ -1,7 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server"
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
-// Generate a simple JWT-like access token
-// Format: base64url(email.timestamp.signature)
+import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,8 +20,9 @@ export async function POST(request: NextRequest) {
     const tokenData = `${email}.${timestamp}.${signature}`
     const token = Buffer.from(tokenData).toString("base64url")
 
-    // Generate the magic link
-    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL || "http://localhost:3000"
+    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+      : "http://localhost:3000"
     const magicLink = `${baseUrl}/access/${token}`
 
     return NextResponse.json({
