@@ -53,8 +53,8 @@ export function HeroSection() {
 
   return (
     <section className="relative bg-gradient-to-br from-black via-purple-950/20 to-black min-h-screen flex flex-col items-center justify-center overflow-hidden">
-      <div className="w-full max-w-2xl mx-auto px-4">
-        <div className="relative aspect-[9/16] md:aspect-video overflow-hidden shadow-2xl">
+      <div className="absolute inset-0">
+        <div className="relative w-full h-full overflow-hidden">
           {!videoError && (
             <video
               ref={videoRef}
@@ -111,25 +111,25 @@ export function HeroSection() {
             </div>
           </div>
         </div>
+      </div>
 
-        <div
-          className="flex justify-center gap-16 mt-8 transition-transform duration-100 ease-out"
-          style={{ transform: `translateY(${scrollY * 0.3}px)`, opacity: fadeOpacity }}
-        >
-          <div>
-            <div className="font-sans text-5xl font-bold text-white drop-shadow-lg text-center">
-              3
-            </div>
-            <div className="text-sm text-white/60 text-center">Modules</div>
+      <div
+        className="absolute bottom-24 left-0 right-0 flex justify-center gap-16 transition-transform duration-100 ease-out z-10"
+        style={{ transform: `translateY(${scrollY * 0.3}px)`, opacity: fadeOpacity }}
+      >
+        <div>
+          <div className="font-sans text-5xl font-bold text-white drop-shadow-lg text-center">
+            3
           </div>
-          <div>
-            <div className="font-sans text-5xl font-bold text-white drop-shadow-lg text-center">
-              30
-            </div>
-            <div className="text-sm text-white/60 text-center">Exercises</div>
-          </div>
-          <UserCounter />
+          <div className="text-sm text-white/60 text-center">Modules</div>
         </div>
+        <div>
+          <div className="font-sans text-5xl font-bold text-white drop-shadow-lg text-center">
+            30
+          </div>
+          <div className="text-sm text-white/60 text-center">Exercises</div>
+        </div>
+        <UserCounter />
       </div>
 
       <div className="absolute bottom-0 w-full flex">
