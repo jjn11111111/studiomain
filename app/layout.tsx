@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Oswald, Bebas_Neue } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" })
@@ -11,7 +10,6 @@ export const metadata: Metadata = {
   title: "Pineal Vision | 3rd Eye CrossTrainer",
   description:
     "Stereoscopic video exercises designed to decalcify and activate your pineal gland. Reconnect with your spiritual interface.",
-  generator: "v0.app",
   icons: {
     icon: [
       {
@@ -29,6 +27,7 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-icon.png",
   },
+    generator: 'v0.app'
 }
 
 export const viewport: Viewport = {
@@ -44,7 +43,6 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${oswald.className} ${oswald.variable} ${bebasNeue.variable} antialiased`}>
         {children}
-        <Analytics />
       </body>
     </html>
   )

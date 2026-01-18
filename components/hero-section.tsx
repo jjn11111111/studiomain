@@ -84,14 +84,14 @@ export function HeroSection() {
             className="absolute inset-0 flex items-center justify-center transition-transform duration-100 ease-out"
             style={{ transform: parallaxTransform, opacity: fadeOpacity }}
           >
-            <div className="text-center px-6">
-              <h1 className="font-[family-name:var(--font-oswald)] text-5xl sm:text-6xl md:text-7xl font-black tracking-wide mb-3 leading-none">
+            <div className="text-center px-8 py-10 bg-black/50 backdrop-blur-sm rounded-lg">
+              <h1 className="font-sans text-5xl sm:text-6xl md:text-7xl font-black tracking-wide mb-3 leading-none">
                 <span className="block text-white drop-shadow-2xl">PINEAL VISION</span>
               </h1>
 
               <div className="flex items-center justify-center gap-3 mb-6">
                 <div className="h-px w-16 bg-gradient-to-r from-transparent to-purple-400" />
-                <span className="font-[family-name:var(--font-oswald)] text-sm sm:text-base tracking-[0.3em] text-white/80 drop-shadow-lg">
+                <span className="font-sans text-sm sm:text-base tracking-[0.3em] text-white/80 drop-shadow-lg">
                   3RD EYE CROSSTRAINER
                 </span>
                 <div className="h-px w-16 bg-gradient-to-l from-transparent to-purple-400" />
@@ -103,7 +103,7 @@ export function HeroSection() {
 
               <Link
                 href="/exercises"
-                className="inline-flex items-center gap-2 px-8 py-3 bg-white text-black font-[family-name:var(--font-oswald)] text-base tracking-wider hover:bg-white/90 transition-colors shadow-2xl"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-white text-black font-sans text-base tracking-wider hover:bg-white/90 transition-colors shadow-2xl"
               >
                 START TRAINING
                 <ArrowRight className="w-5 h-5" />
@@ -117,13 +117,13 @@ export function HeroSection() {
           style={{ transform: `translateY(${scrollY * 0.3}px)`, opacity: fadeOpacity }}
         >
           <div>
-            <div className="font-[family-name:var(--font-oswald)] text-5xl font-bold text-white drop-shadow-lg text-center">
+            <div className="font-sans text-5xl font-bold text-white drop-shadow-lg text-center">
               3
             </div>
             <div className="text-sm text-white/60 text-center">Modules</div>
           </div>
           <div>
-            <div className="font-[family-name:var(--font-oswald)] text-5xl font-bold text-white drop-shadow-lg text-center">
+            <div className="font-sans text-5xl font-bold text-white drop-shadow-lg text-center">
               30
             </div>
             <div className="text-sm text-white/60 text-center">Exercises</div>
@@ -134,17 +134,17 @@ export function HeroSection() {
 
       <div className="absolute bottom-0 w-full flex">
         <div className="w-1/3 bg-[#E53935] p-4 flex items-center justify-center">
-          <span className="text-white font-[family-name:var(--font-oswald)] text-xs sm:text-sm tracking-wider text-center">
+          <span className="text-white font-sans text-xs sm:text-sm tracking-wider text-center">
             DEVELOP PSYCHIC GIFTS
           </span>
         </div>
         <div className="w-1/3 bg-[#FDD835] p-4 flex items-center justify-center">
-          <span className="text-black font-[family-name:var(--font-oswald)] text-xs sm:text-sm tracking-wider text-center">
+          <span className="text-black font-sans text-xs sm:text-sm tracking-wider text-center">
             INCREASE INTUITIVE KNOWING
           </span>
         </div>
         <div className="w-1/3 bg-[#1E88E5] p-4 flex items-center justify-center">
-          <span className="text-white font-[family-name:var(--font-oswald)] text-xs sm:text-sm tracking-wider text-center">
+          <span className="text-white font-sans text-xs sm:text-sm tracking-wider text-center">
             ENGAGE MAXIMUM POTENTIAL
           </span>
         </div>

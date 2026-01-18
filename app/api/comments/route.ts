@@ -1,33 +1,25 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
+import { NextResponse } from "next/server"
 
-export async function GET(request: NextRequest) {
-  try {
-    const searchParams = request.nextUrl.searchParams
-    const exerciseId = searchParams.get("exerciseId")
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const exerciseId = searchParams.get("exerciseId")
 
-    if (!exerciseId) {
-      return NextResponse.json({ error: "Exercise ID required" }, { status: 400 })
-    }
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    const response = await fetch(`${supabaseUrl}/rest/v1/comments?exercise_id=eq.${exerciseId}&order=created_at.desc`, {
-      headers: {
-        apikey: supabaseKey!,
-        Authorization: `Bearer ${supabaseKey}`,
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch comments")
-    }
-
-    const comments = await response.json()
-
-    return NextResponse.json({ comments })
-  } catch (error) {
-    console.error("Error fetching comments:", error)
-    return NextResponse.json({ comments: [] }, { status: 200 })
+  if (!exerciseId) {
+    return NextResponse.json({ error: "Exercise ID required" }, { status: 400 })
   }
+
+  const supabase = await createClient()
+
+  const { data: comments, error } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("exercise_id", exerciseId)
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ comments })
 }

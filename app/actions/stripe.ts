@@ -1,36 +1,29 @@
 "use server"
 
-import { stripe } from "@/lib/stripe"
-import { PRODUCTS } from "@/lib/products"
+import Stripe from "stripe"
 
-export async function createCheckoutSession(productId: string, customerEmail?: string) {
-  const product = PRODUCTS.find((p) => p.id === productId)
-  if (!product) {
-    throw new Error(`Product with id "${productId}" not found`)
-  }
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-12-18.acacia",
+})
+
+export async function createCheckoutSession(productId: string, email: string): Promise<string> {
+  // Use VERCEL_URL (auto-provided by Vercel) or fallback to your deployed URL
+  const baseUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : "https://studiomain1.vercel.app"
 
   const session = await stripe.checkout.sessions.create({
     ui_mode: "embedded",
+    customer_email: email,
     line_items: [
       {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: product.name,
-            description: product.description,
-          },
-          unit_amount: product.priceInCents,
-          recurring: {
-            interval: product.interval,
-          },
-        },
+        price: productId,
         quantity: 1,
       },
     ],
     mode: "subscription",
-    customer_email: customerEmail,
-    return_url: `${process.env.NEXT_PUBLIC_VERCEL_URL || "http://localhost:3000"}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+    return_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
   })
 
-  return session.client_secret
+  return session.client_secret!
 }

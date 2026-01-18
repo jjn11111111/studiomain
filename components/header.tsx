@@ -17,7 +17,7 @@ export function Header() {
               <Eye className="h-8 w-8 text-primary" />
               <div className="absolute inset-0 blur-sm bg-primary/30 rounded-full" />
             </div>
-            <span className="font-[family-name:var(--font-cinzel)] text-lg font-semibold tracking-wide">
+            <span className="font-sans text-lg font-semibold tracking-wide">
               Pineal Vision
             </span>
           </Link>
@@ -32,11 +32,10 @@ export function Header() {
             <Link href="/exercises" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Modules
             </Link>
-            <Link
-              href="/subscribe"
-              className="text-sm text-purple-400 hover:text-purple-300 transition-colors font-semibold"
-            >
-              Subscribe
+            <Link href="/subscribe">
+              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-4 py-2 rounded-full shadow-lg shadow-purple-500/25">
+                Subscribe
+              </Button>
             </Link>
             <Link href="/exercises">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Start Training</Button>
@@ -61,8 +60,10 @@ export function Header() {
             <Link href="/exercises" className="text-muted-foreground hover:text-foreground">
               Modules
             </Link>
-            <Link href="/subscribe" className="text-purple-400 hover:text-purple-300 font-semibold">
-              Subscribe
+            <Link href="/subscribe">
+              <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-full shadow-lg shadow-purple-500/25">
+                Subscribe
+              </Button>
             </Link>
             <Link href="/exercises">
               <Button className="w-full bg-primary text-primary-foreground">Start Training</Button>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 
 export function LogoSection() {
-  const logoUrl = "/images/untitled-20design.jpg"
+  const logoUrl = "/images/logo.jpg"
   const [scrollY, setScrollY] = useState(0)
 
   useEffect(() => {
@@ -15,10 +15,10 @@ export function LogoSection() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const parallaxTransform = `translateY(${scrollY * 0.15}px)`
+  const parallaxTransform = `translateY(${scrollY * 0.05}px)`
 
   return (
-    <section className="relative py-20 bg-black overflow-hidden">
+    <section className="relative py-32 bg-black">
       {/* Background gradient glow */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/20 to-black" />
 
