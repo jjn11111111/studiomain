@@ -1,28 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { createCheckoutSession } from "@/app/actions/stripe"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-export default function StripeCheckout({ productId }: { productId: string }) {
-  const [email, setEmail] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/8x2fZhcMpaMb8dt8xsaVa00"
 
-  const handleCheckout = async () => {
+export default function StripeCheckout() {
+  const [email, setEmail] = useState("")
+
+  const handleCheckout = () => {
     if (!email) return
-    setLoading(true)
-    setError(null)
-    
-    try {
-      const url = await createCheckoutSession(productId, email)
-      window.location.href = url
-    } catch (err) {
-      console.error("[v0] Checkout error:", err)
-      setError("Failed to start checkout. Please try again.")
-      setLoading(false)
-    }
+    // Redirect to Stripe Payment Link with prefilled email
+    window.location.href = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}`
   }
 
   return (
@@ -37,12 +27,11 @@ export default function StripeCheckout({ productId }: { productId: string }) {
       />
       <Button
         onClick={handleCheckout}
-        disabled={!email || loading}
+        disabled={!email}
         className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg py-6"
       >
-        {loading ? "Loading..." : "Continue to Payment"}
+        Continue to Payment
       </Button>
-      {error && <p className="text-red-500 text-center">{error}</p>}
     </div>
   )
 }

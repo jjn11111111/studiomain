@@ -38,7 +38,7 @@ export default function SubscribePage() {
               </li>
             </ul>
             
-            <StripeCheckout productId="price_1Sr3vSEayDxmvcntCsvdKyZn" />
+            <StripeCheckout />
           </div>
         </div>
       </div>
