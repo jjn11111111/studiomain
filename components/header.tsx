@@ -23,6 +23,9 @@ export function Header() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
+            <Link href="/philosophy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Philosophy
+            </Link>
             <Link href="/learn" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Learn
             </Link>
@@ -51,6 +54,9 @@ export function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-background border-b border-border">
           <nav className="flex flex-col gap-4 p-4">
+            <Link href="/philosophy" className="text-muted-foreground hover:text-foreground">
+              Philosophy
+            </Link>
             <Link href="/learn" className="text-muted-foreground hover:text-foreground">
               Learn
             </Link>
