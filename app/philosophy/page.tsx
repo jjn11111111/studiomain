@@ -110,24 +110,20 @@ export default function PhilosophyPage() {
           </div>
 
           {/* Ben Browne Cymatic Image */}
-          <div className="relative max-w-xl mx-auto">
-            <div className="relative w-full aspect-square border-4 border-purple-500/40 shadow-2xl shadow-purple-500/30 bg-black">
-              <Image
-                src="/images/benbrowne.avif"
-                alt="Ben Browne Cymatics - 27hz Sine Wave visualization showing geometric sound patterns"
-                fill
-                className="object-contain"
-                priority
-                sizes="(max-width: 768px) 100vw, 600px"
-                unoptimized
+          <div className="relative max-w-4xl mx-auto">
+            <div className="relative w-full aspect-[3/1] border-4 border-purple-500/40 shadow-2xl shadow-purple-500/30 bg-black">
+              <img
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/benbrowne-ntob3uF3eawwQi17MSdD1Huifgnk0b.jpeg"
+                alt="This Is Your Brain On Cymatics by Ben Browne - showing 27hz sine wave pattern overlaid on human brain cross section"
+                className="w-full h-full object-contain"
               />
             </div>
             <div className="absolute -inset-8 bg-gradient-to-r from-purple-500/20 via-transparent to-pink-500/20 blur-3xl -z-10" />
             <p className="text-center mt-6 text-white/80 text-lg">
-              <span className="text-purple-400 font-semibold">Ben Browne Cymatics</span> — 27hz Sine Wave
+              <span className="text-purple-400 font-semibold">Ben Browne</span> — "This Is Your Brain On Cymatics"
             </p>
-            <p className="text-center mt-2 text-white/50 text-sm max-w-lg mx-auto">
-              Sound made visible. The geometric patterns formed by frequency reveal the fundamental structures underlying all manifest reality.
+            <p className="text-center mt-2 text-white/50 text-sm max-w-2xl mx-auto">
+              27hz sine wave vibrating a pool of water, lit from beneath, viewed through a ring of lights — directly overlaid on a cross section of the human brain, revealing the geometric congruence between sound frequency and biological structure.
             </p>
           </div>
         </div>
