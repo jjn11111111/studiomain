@@ -110,21 +110,23 @@ export default function PhilosophyPage() {
           </div>
 
           {/* Ben Browne Cymatic Image */}
-          <div className="relative max-w-2xl mx-auto">
-            <div className="relative aspect-square rounded-full overflow-hidden border-2 border-purple-500/30 shadow-2xl shadow-purple-500/20">
+          <div className="relative max-w-xl mx-auto">
+            <div className="relative w-full aspect-square border-4 border-purple-500/40 shadow-2xl shadow-purple-500/30 bg-black">
               <Image
-                src="/images/benbrowne-cymatics.avif"
+                src="/images/benbrowne.avif"
                 alt="Ben Browne Cymatics - 27hz Sine Wave visualization showing geometric sound patterns"
                 fill
-                className="object-cover"
+                className="object-contain"
                 priority
+                sizes="(max-width: 768px) 100vw, 600px"
+                unoptimized
               />
             </div>
-            <div className="absolute -inset-4 bg-gradient-to-r from-purple-500/20 via-transparent to-pink-500/20 rounded-full blur-3xl -z-10" />
-            <p className="text-center mt-6 text-white/60 text-sm">
-              <span className="text-purple-400">Ben Browne Cymatics</span> — 27hz Sine Wave
+            <div className="absolute -inset-8 bg-gradient-to-r from-purple-500/20 via-transparent to-pink-500/20 blur-3xl -z-10" />
+            <p className="text-center mt-6 text-white/80 text-lg">
+              <span className="text-purple-400 font-semibold">Ben Browne Cymatics</span> — 27hz Sine Wave
             </p>
-            <p className="text-center mt-2 text-white/40 text-xs max-w-lg mx-auto">
+            <p className="text-center mt-2 text-white/50 text-sm max-w-lg mx-auto">
               Sound made visible. The geometric patterns formed by frequency reveal the fundamental structures underlying all manifest reality.
             </p>
           </div>
