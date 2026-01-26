@@ -33,13 +33,24 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    request.nextUrl.pathname.startsWith("/dashboard") &&
-    !user
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
-    return NextResponse.redirect(url);
+  // Protect exercise routes - require authentication
+  const protectedPaths = ["/exercises"]
+  const isProtectedPath = protectedPaths.some(path => 
+    request.nextUrl.pathname.startsWith(path)
+  )
+
+  if (isProtectedPath && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/auth/login"
+    url.searchParams.set("redirect", request.nextUrl.pathname)
+    return NextResponse.redirect(url)
+  }
+
+  // Redirect logged-in users away from auth pages
+  if (request.nextUrl.pathname.startsWith("/auth") && user) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/exercises"
+    return NextResponse.redirect(url)
   }
 
   return supabaseResponse;

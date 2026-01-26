@@ -33,12 +33,13 @@ export async function POST(request: Request) {
         )
 
         await supabase.from("subscriptions").upsert({
+          email: session.customer_email,
           stripe_customer_id: session.customer as string,
           stripe_subscription_id: subscription.id,
           status: subscription.status,
           plan_id: subscription.items.data[0]?.price.id,
           current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-        })
+        }, { onConflict: "email" })
       }
       break
     }
