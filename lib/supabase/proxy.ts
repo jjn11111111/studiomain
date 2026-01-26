@@ -46,6 +46,26 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Check for active subscription on protected paths
+  if (isProtectedPath && user) {
+    const { data: subscription } = await supabase
+      .from("subscriptions")
+      .select("status, current_period_end")
+      .eq("email", user.email)
+      .single()
+
+    const hasActiveSubscription = subscription && 
+      subscription.status === "active" && 
+      new Date(subscription.current_period_end) > new Date()
+
+    if (!hasActiveSubscription) {
+      const url = request.nextUrl.clone()
+      url.pathname = "/subscribe"
+      url.searchParams.set("message", "subscription_required")
+      return NextResponse.redirect(url)
+    }
+  }
+
   // Redirect logged-in users away from auth pages
   if (request.nextUrl.pathname.startsWith("/auth") && user) {
     const url = request.nextUrl.clone()
