@@ -25,6 +25,7 @@ export default function ResetPasswordPage() {
     const verifyToken = async () => {
       const urlParams = new URLSearchParams(window.location.search)
       const hash = urlParams.get("token_hash")
+      const code = urlParams.get("code")
       const type = urlParams.get("type")
       
       // Store the token hash for later use
@@ -32,7 +33,31 @@ export default function ResetPasswordPage() {
         setTokenHash(hash)
       }
       
-      if (hash && type === "recovery") {
+      // Handle PKCE code exchange (token_hash starting with pkce_)
+      if (hash && hash.startsWith("pkce_") && type === "recovery") {
+        // For PKCE, we need to exchange the code
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(hash.replace("pkce_", ""))
+        
+        if (!exchangeError && data.session) {
+          window.history.replaceState(null, "", window.location.pathname)
+          setIsVerifying(false)
+          return
+        }
+      }
+      
+      // Handle regular code parameter
+      if (code) {
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+        
+        if (!exchangeError && data.session) {
+          window.history.replaceState(null, "", window.location.pathname)
+          setIsVerifying(false)
+          return
+        }
+      }
+      
+      // Handle regular OTP token_hash (non-PKCE)
+      if (hash && !hash.startsWith("pkce_") && type === "recovery") {
         const { data, error: verifyError } = await supabase.auth.verifyOtp({
           token_hash: hash,
           type: "recovery",
@@ -43,7 +68,6 @@ export default function ResetPasswordPage() {
           setIsVerifying(false)
           return
         }
-        // If verify failed, we'll try to use the token when updating password
       }
       
       // Check if we already have a session
@@ -53,7 +77,8 @@ export default function ResetPasswordPage() {
         return
       }
       
-      // No session and no valid token - but let them try anyway
+      // No session - show error
+      setError("Invalid or expired reset link. Please request a new one.")
       setIsVerifying(false)
     }
     
@@ -78,29 +103,6 @@ export default function ResetPasswordPage() {
     setIsLoading(true)
 
     try {
-      // Check for existing session first
-      let { data: { session } } = await supabase.auth.getSession()
-      
-      // If no session but we have a token, try to verify it again
-      if (!session && tokenHash) {
-        const { data, error: verifyError } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: "recovery",
-        })
-        if (verifyError) {
-          setError("Reset link expired. Please request a new one.")
-          setIsLoading(false)
-          return
-        }
-        session = data.session
-      }
-      
-      if (!session) {
-        setError("Session expired. Please request a new reset link.")
-        setIsLoading(false)
-        return
-      }
-      
       const { error } = await supabase.auth.updateUser({
         password: password,
       })
