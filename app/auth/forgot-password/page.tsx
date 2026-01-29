@@ -25,6 +25,8 @@ export default function ForgotPasswordPage() {
         redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
       })
       if (error) throw error
+      // Store flag so we know user requested password reset
+      sessionStorage.setItem('pending_password_recovery', 'true')
       setIsSuccess(true)
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Failed to send reset email")
