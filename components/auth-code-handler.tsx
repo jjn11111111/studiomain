@@ -1,38 +1,38 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 
 export function AuthCodeHandler() {
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
-    // Check for code in URL query params
-    const code = searchParams.get("code")
+    const supabase = createClient()
     
-    // Check for tokens in hash fragment (Supabase implicit flow)
-    const hash = window.location.hash
-    const hashParams = new URLSearchParams(hash.substring(1))
-    const accessToken = hashParams.get("access_token")
-    const type = hashParams.get("type")
-    
-    console.log("[v0] AuthCodeHandler - code:", !!code, "accessToken:", !!accessToken, "type:", type, "hash:", hash)
+    // Listen for auth state changes - Supabase auto-processes the code
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[v0] AuthCodeHandler - auth event:", event, "user:", session?.user?.email)
+      
+      // PASSWORD_RECOVERY event means user clicked password reset link
+      if (event === "PASSWORD_RECOVERY") {
+        console.log("[v0] PASSWORD_RECOVERY detected, redirecting to reset-password")
+        router.replace("/auth/reset-password")
+        return
+      }
+      
+      // SIGNED_IN can also happen from recovery flow
+      // Check if we're on the homepage with no intended destination
+      if (event === "SIGNED_IN" && session && window.location.pathname === "/") {
+        // Check if user metadata indicates recovery
+        console.log("[v0] SIGNED_IN on homepage, checking if recovery flow")
+      }
+    })
 
-    if (code) {
-      // Redirect to callback with the code
-      console.log("[v0] Redirecting to /auth/callback with code")
-      router.replace(`/auth/callback?code=${code}`)
-      return
+    return () => {
+      subscription.unsubscribe()
     }
-
-    if (accessToken || type === "recovery") {
-      // Redirect to confirm page to handle the hash tokens
-      console.log("[v0] Redirecting to /auth/confirm with hash")
-      router.replace(`/auth/confirm${hash}`)
-      return
-    }
-  }, [searchParams, router])
+  }, [router])
 
   return null
 }
