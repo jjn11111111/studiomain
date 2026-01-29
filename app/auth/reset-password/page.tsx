@@ -20,17 +20,36 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const supabase = createClient()
     
-    // Handle hash tokens from Supabase email links
-    const handleHashTokens = async () => {
+    const verifyAndSetSession = async () => {
+      // Check for token_hash in URL query params (from custom email template)
+      const urlParams = new URLSearchParams(window.location.search)
+      const tokenHash = urlParams.get("token_hash")
+      const type = urlParams.get("type")
+      
+      if (tokenHash && type === "recovery") {
+        // Verify the OTP token
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: "recovery",
+        })
+        if (error) {
+          setError("Invalid or expired reset link. Please request a new one.")
+          return
+        }
+        // Clear the URL params
+        window.history.replaceState(null, "", window.location.pathname)
+        return
+      }
+      
+      // Handle hash tokens from Supabase email links (alternative format)
       const hash = window.location.hash
       if (hash) {
         const hashParams = new URLSearchParams(hash.substring(1))
         const accessToken = hashParams.get("access_token")
         const refreshToken = hashParams.get("refresh_token")
-        const type = hashParams.get("type")
+        const hashType = hashParams.get("type")
         
-        if (accessToken && refreshToken && type === "recovery") {
-          // Set the session from the hash tokens
+        if (accessToken && refreshToken && hashType === "recovery") {
           const { error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
@@ -38,7 +57,6 @@ export default function ResetPasswordPage() {
           if (error) {
             setError("Invalid or expired reset link. Please request a new one.")
           }
-          // Clear the hash from the URL
           window.history.replaceState(null, "", window.location.pathname)
           return
         }
@@ -54,12 +72,11 @@ export default function ResetPasswordPage() {
     // Listen for PASSWORD_RECOVERY event
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
-        // Clear any error - we have a valid recovery session
         setError(null)
       }
     })
     
-    handleHashTokens()
+    verifyAndSetSession()
     
     return () => {
       subscription.unsubscribe()
