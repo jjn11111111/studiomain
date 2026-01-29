@@ -2,6 +2,17 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
+  // Check if there's a code parameter at the root - redirect to auth callback
+  // This handles Supabase email links that go to /?code=... instead of /auth/callback?code=...
+  const code = request.nextUrl.searchParams.get("code")
+  
+  if (request.nextUrl.pathname === "/" && code) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/auth/callback"
+    url.searchParams.set("type", "recovery")
+    return NextResponse.redirect(url)
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -66,7 +77,16 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Redirect logged-in users away from auth pages
+  // Redirect logged-in users away from auth pages (except reset-password and callback for recovery)
+  const isResetPasswordPage = request.nextUrl.pathname === "/auth/reset-password"
+  const isCallbackRoute = request.nextUrl.pathname === "/auth/callback"
+  const isConfirmPage = request.nextUrl.pathname === "/auth/confirm"
+  
+  // Allow callback route and reset-password for all users (auth happens in the route handler)
+  if (isCallbackRoute || isResetPasswordPage || isConfirmPage) {
+    return supabaseResponse
+  }
+  
   if (request.nextUrl.pathname.startsWith("/auth") && user) {
     const url = request.nextUrl.clone()
     url.pathname = "/exercises"

@@ -22,9 +22,11 @@ export default function ForgotPasswordPage() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`,
+        redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
       })
       if (error) throw error
+      // Store timestamp so we know user requested password reset (persists across tabs)
+      localStorage.setItem('pending_password_recovery', Date.now().toString())
       setIsSuccess(true)
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Failed to send reset email")
