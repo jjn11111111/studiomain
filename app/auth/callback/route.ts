@@ -12,21 +12,9 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error && data.session) {
-      // Check if this is a password recovery flow
-      const isRecoveryFlow = type === "recovery" || 
-        next === "/auth/reset-password" || 
-        (next && next.includes("reset-password"))
-      
-      if (isRecoveryFlow) {
-        return NextResponse.redirect(`${origin}/auth/reset-password`)
-      }
-      
-      // If no next param specified, default to reset-password for email links
-      if (!next) {
-        return NextResponse.redirect(`${origin}/auth/reset-password`)
-      }
-      
-      return NextResponse.redirect(`${origin}${next}`)
+      // Redirect to the next page, or /exercises by default
+      const redirectTo = next || "/exercises"
+      return NextResponse.redirect(`${origin}${redirectTo}`)
     }
   }
 
