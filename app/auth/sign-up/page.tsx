@@ -7,17 +7,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Eye, ArrowLeft } from "lucide-react"
+import { Eye, ArrowLeft, Mail, Check } from "lucide-react"
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [isSent, setIsSent] = useState(false)
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,29 +22,15 @@ export default function SignUpPage() {
     setIsLoading(true)
     setError(null)
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      setIsLoading(false)
-      return
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters")
-      setIsLoading(false)
-      return
-    }
-
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signInWithOtp({
         email,
-        password,
         options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-            `${window.location.origin}/exercises`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/subscribe`,
         },
       })
       if (error) throw error
-      router.push("/auth/sign-up-success")
+      setIsSent(true)
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
@@ -81,72 +64,76 @@ export default function SignUpPage() {
 
           {/* Card */}
           <div className="bg-white/5 border border-purple-500/20 rounded-2xl p-8 backdrop-blur-sm">
-            <h1 className="text-2xl font-bold text-white text-center mb-2">Create Account</h1>
-            <p className="text-white/60 text-center mb-8">Sign up to begin your training</p>
-
-            <form onSubmit={handleSignUp} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-white/80">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-black/40 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-400"
-                />
+            {isSent ? (
+              <div className="text-center space-y-4">
+                <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+                  <Check className="w-8 h-8 text-green-400" />
+                </div>
+                <h1 className="text-2xl font-bold text-white">Check Your Email</h1>
+                <p className="text-white/60">
+                  {"We've sent a magic link to"}<br />
+                  <span className="text-purple-400 font-medium">{email}</span>
+                </p>
+                <p className="text-white/40 text-sm">
+                  Click the link in the email to create your account. No password needed.
+                </p>
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsSent(false)}
+                  className="text-purple-400 hover:text-purple-300"
+                >
+                  Use a different email
+                </Button>
               </div>
+            ) : (
+              <>
+                <div className="text-center mb-8">
+                  <Mail className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+                  <h1 className="text-2xl font-bold text-white mb-2">Get Started</h1>
+                  <p className="text-white/60">{"Enter your email and we'll send you a magic link"}</p>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-white/80">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-black/40 border-purple-500/30 text-white focus:border-purple-400"
-                />
-              </div>
+                <form onSubmit={handleSignUp} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-white/80">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="your@email.com"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="bg-black/40 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-400"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password" className="text-white/80">Confirm Password</Label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-black/40 border-purple-500/30 text-white focus:border-purple-400"
-                />
-              </div>
+                  {error && (
+                    <p className="text-red-400 text-sm text-center">{error}</p>
+                  )}
 
-              {error && (
-                <p className="text-red-400 text-sm text-center">{error}</p>
-              )}
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 rounded-full"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Sending link..." : "Send Magic Link"}
+                  </Button>
+                </form>
 
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 rounded-full"
-                disabled={isLoading}
-              >
-                {isLoading ? "Creating account..." : "Create Account"}
-              </Button>
-            </form>
+                <div className="mt-6 text-center text-sm text-white/60">
+                  Already have an account?{" "}
+                  <Link href="/auth/login" className="text-purple-400 hover:text-purple-300 underline underline-offset-4">
+                    Sign in
+                  </Link>
+                </div>
 
-            <div className="mt-6 text-center text-sm text-white/60">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="text-purple-400 hover:text-purple-300 underline underline-offset-4">
-                Sign in
-              </Link>
-            </div>
-
-            <div className="mt-4 text-center">
-              <p className="text-white/40 text-xs">
-                By signing up, you agree to our Terms of Service
-              </p>
-            </div>
+                <div className="mt-4 text-center">
+                  <p className="text-white/40 text-xs">
+                    No password needed. Just click the link in your email.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
