@@ -20,84 +20,23 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const supabase = createClient()
     
-    const verifyAndSetSession = async () => {
-      // Check for token_hash in URL query params (from custom email template)
+    const verifyToken = async () => {
       const urlParams = new URLSearchParams(window.location.search)
       const tokenHash = urlParams.get("token_hash")
       const type = urlParams.get("type")
       
       if (tokenHash && type === "recovery") {
-        // Verify the OTP token
-        const { data, error } = await supabase.auth.verifyOtp({
+        const { error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
           type: "recovery",
         })
-        if (error) {
-          console.log("[v0] verifyOtp error:", error.message)
-          setError("Invalid or expired reset link. Please request a new one.")
-          return
-        }
-        console.log("[v0] verifyOtp success, user:", data.user?.email)
-        // Clear the URL params after successful verification
-        window.history.replaceState(null, "", window.location.pathname)
-        setError(null) // Clear any error
-        return
-      }
-      
-      // Handle hash tokens from Supabase email links (alternative format)
-      const hash = window.location.hash
-      if (hash) {
-        const hashParams = new URLSearchParams(hash.substring(1))
-        const accessToken = hashParams.get("access_token")
-        const refreshToken = hashParams.get("refresh_token")
-        const hashType = hashParams.get("type")
-        
-        if (accessToken && refreshToken && hashType === "recovery") {
-          const { error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          })
-          if (error) {
-            setError("Invalid or expired reset link. Please request a new one.")
-          } else {
-            setError(null)
-          }
+        if (!error) {
           window.history.replaceState(null, "", window.location.pathname)
-          return
         }
       }
-      
-      // Check if we already have a valid session (user may have been redirected after code exchange)
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        // User has a valid session, they can reset their password
-        setError(null)
-        return
-      }
-      
-      // No token in URL and no session - show error only if we have no way to reset
-      // But give a moment for auth state to settle
-      setTimeout(async () => {
-        const { data: { session: recheckedSession } } = await supabase.auth.getSession()
-        if (!recheckedSession) {
-          setError("Invalid or expired reset link. Please request a new one.")
-        }
-      }, 1000)
     }
     
-    // Listen for PASSWORD_RECOVERY event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("[v0] Auth state change:", event, "session:", !!session)
-      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
-        setError(null)
-      }
-    })
-    
-    verifyAndSetSession()
-    
-    return () => {
-      subscription.unsubscribe()
-    }
+    verifyToken()
   }, [])
 
   const handleResetPassword = async (e: React.FormEvent) => {
