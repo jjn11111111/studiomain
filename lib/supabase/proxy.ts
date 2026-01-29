@@ -3,10 +3,13 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
   // Check if there's a code parameter at the root - redirect to auth callback
-  // This handles Supabase email links that go to /?code=... instead of /auth/callback?code=...
   const code = request.nextUrl.searchParams.get("code")
   
+  // Debug: log every request to see if middleware runs
+  console.log("[MIDDLEWARE]", request.nextUrl.pathname, "code:", code)
+  
   if (request.nextUrl.pathname === "/" && code) {
+    console.log("[MIDDLEWARE] Redirecting to /auth/callback")
     const url = request.nextUrl.clone()
     url.pathname = "/auth/callback"
     url.searchParams.set("type", "recovery")
