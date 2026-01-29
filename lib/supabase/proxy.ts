@@ -5,15 +5,11 @@ export async function updateSession(request: NextRequest) {
   // Check if there's a code parameter at the root - redirect to auth callback
   // This handles Supabase email links that go to /?code=... instead of /auth/callback?code=...
   const code = request.nextUrl.searchParams.get("code")
-  const fullUrl = request.url
-  const searchParamsString = request.nextUrl.search
-  console.log("[v0] updateSession - path:", request.nextUrl.pathname, "fullUrl:", fullUrl, "search:", searchParamsString, "code:", code)
   
   if (request.nextUrl.pathname === "/" && code) {
-    console.log("[v0] Redirecting /?code to /auth/callback")
     const url = request.nextUrl.clone()
     url.pathname = "/auth/callback"
-    // Preserve all query params including code and type
+    url.searchParams.set("type", "recovery")
     return NextResponse.redirect(url)
   }
 
@@ -85,8 +81,6 @@ export async function updateSession(request: NextRequest) {
   const isResetPasswordPage = request.nextUrl.pathname === "/auth/reset-password"
   const isCallbackRoute = request.nextUrl.pathname === "/auth/callback"
   const isConfirmPage = request.nextUrl.pathname === "/auth/confirm"
-  
-  console.log("[v0] Middleware - path:", request.nextUrl.pathname, "user:", !!user, "isResetPasswordPage:", isResetPasswordPage, "isCallbackRoute:", isCallbackRoute)
   
   // Allow callback route and reset-password for all users (auth happens in the route handler)
   if (isCallbackRoute || isResetPasswordPage || isConfirmPage) {
