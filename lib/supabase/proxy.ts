@@ -66,8 +66,13 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Redirect logged-in users away from auth pages
-  if (request.nextUrl.pathname.startsWith("/auth") && user) {
+  // Redirect logged-in users away from auth pages (except reset-password and callback for recovery)
+  const isResetPasswordPage = request.nextUrl.pathname === "/auth/reset-password"
+  const isCallbackWithRecovery = request.nextUrl.pathname === "/auth/callback" && 
+    request.nextUrl.searchParams.get("type") === "recovery"
+  const isConfirmPage = request.nextUrl.pathname === "/auth/confirm"
+  
+  if (request.nextUrl.pathname.startsWith("/auth") && user && !isResetPasswordPage && !isCallbackWithRecovery && !isConfirmPage) {
     const url = request.nextUrl.clone()
     url.pathname = "/exercises"
     return NextResponse.redirect(url)
