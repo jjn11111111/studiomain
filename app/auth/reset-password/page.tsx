@@ -15,19 +15,74 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(true)
+  const [tokenHash, setTokenHash] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    // Check if we have a valid session from the reset link
-    const checkSession = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        // No session means the link is invalid or expired
-        setError("Invalid or expired reset link. Please request a new one.")
+    const supabase = createClient()
+    
+    const verifyToken = async () => {
+      const urlParams = new URLSearchParams(window.location.search)
+      const hash = urlParams.get("token_hash")
+      const code = urlParams.get("code")
+      const type = urlParams.get("type")
+      
+      // Store the token hash for later use
+      if (hash) {
+        setTokenHash(hash)
       }
+      
+      // Handle PKCE code exchange (token_hash starting with pkce_)
+      if (hash && hash.startsWith("pkce_") && type === "recovery") {
+        // For PKCE, we need to exchange the code
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(hash.replace("pkce_", ""))
+        
+        if (!exchangeError && data.session) {
+          window.history.replaceState(null, "", window.location.pathname)
+          setIsVerifying(false)
+          return
+        }
+      }
+      
+      // Handle regular code parameter
+      if (code) {
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+        
+        if (!exchangeError && data.session) {
+          window.history.replaceState(null, "", window.location.pathname)
+          setIsVerifying(false)
+          return
+        }
+      }
+      
+      // Handle regular OTP token_hash (non-PKCE)
+      if (hash && !hash.startsWith("pkce_") && type === "recovery") {
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: hash,
+          type: "recovery",
+        })
+        
+        if (!verifyError && data.session) {
+          window.history.replaceState(null, "", window.location.pathname)
+          setIsVerifying(false)
+          return
+        }
+      }
+      
+      // Check if we already have a session
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setIsVerifying(false)
+        return
+      }
+      
+      // No session - show error
+      setError("Invalid or expired reset link. Please request a new one.")
+      setIsVerifying(false)
     }
-    checkSession()
+    
+    verifyToken()
   }, [])
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -148,8 +203,12 @@ export default function ResetPasswordPage() {
                     />
                   </div>
 
-                  {error && (
+                  {error && !isVerifying && (
                     <p className="text-red-400 text-sm text-center">{error}</p>
+                  )}
+                  
+                  {isVerifying && (
+                    <p className="text-white/60 text-sm text-center">Verifying reset link...</p>
                   )}
 
                   <Button 
