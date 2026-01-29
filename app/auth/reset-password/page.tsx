@@ -28,16 +28,19 @@ export default function ResetPasswordPage() {
       
       if (tokenHash && type === "recovery") {
         // Verify the OTP token
-        const { error } = await supabase.auth.verifyOtp({
+        const { data, error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
           type: "recovery",
         })
         if (error) {
+          console.log("[v0] verifyOtp error:", error.message)
           setError("Invalid or expired reset link. Please request a new one.")
           return
         }
-        // Clear the URL params
+        console.log("[v0] verifyOtp success, user:", data.user?.email)
+        // Clear the URL params after successful verification
         window.history.replaceState(null, "", window.location.pathname)
+        setError(null) // Clear any error
         return
       }
       
@@ -56,22 +59,36 @@ export default function ResetPasswordPage() {
           })
           if (error) {
             setError("Invalid or expired reset link. Please request a new one.")
+          } else {
+            setError(null)
           }
           window.history.replaceState(null, "", window.location.pathname)
           return
         }
       }
       
-      // Check if we have a valid session from the reset link
+      // Check if we already have a valid session (user may have been redirected after code exchange)
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        setError("Invalid or expired reset link. Please request a new one.")
+      if (session) {
+        // User has a valid session, they can reset their password
+        setError(null)
+        return
       }
+      
+      // No token in URL and no session - show error only if we have no way to reset
+      // But give a moment for auth state to settle
+      setTimeout(async () => {
+        const { data: { session: recheckedSession } } = await supabase.auth.getSession()
+        if (!recheckedSession) {
+          setError("Invalid or expired reset link. Please request a new one.")
+        }
+      }, 1000)
     }
     
     // Listen for PASSWORD_RECOVERY event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[v0] Auth state change:", event, "session:", !!session)
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
         setError(null)
       }
     })
