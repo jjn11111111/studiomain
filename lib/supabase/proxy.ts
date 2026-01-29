@@ -68,11 +68,17 @@ export async function updateSession(request: NextRequest) {
 
   // Redirect logged-in users away from auth pages (except reset-password and callback for recovery)
   const isResetPasswordPage = request.nextUrl.pathname === "/auth/reset-password"
-  const isCallbackWithRecovery = request.nextUrl.pathname === "/auth/callback" && 
-    request.nextUrl.searchParams.get("type") === "recovery"
+  const isCallbackRoute = request.nextUrl.pathname === "/auth/callback"
   const isConfirmPage = request.nextUrl.pathname === "/auth/confirm"
   
-  if (request.nextUrl.pathname.startsWith("/auth") && user && !isResetPasswordPage && !isCallbackWithRecovery && !isConfirmPage) {
+  console.log("[v0] Middleware - path:", request.nextUrl.pathname, "user:", !!user, "isResetPasswordPage:", isResetPasswordPage, "isCallbackRoute:", isCallbackRoute)
+  
+  // Allow callback route and reset-password for all users (auth happens in the route handler)
+  if (isCallbackRoute || isResetPasswordPage || isConfirmPage) {
+    return supabaseResponse
+  }
+  
+  if (request.nextUrl.pathname.startsWith("/auth") && user) {
     const url = request.nextUrl.clone()
     url.pathname = "/exercises"
     return NextResponse.redirect(url)
