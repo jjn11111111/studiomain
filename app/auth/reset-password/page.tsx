@@ -15,6 +15,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [isReady, setIsReady] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -26,12 +27,23 @@ export default function ResetPasswordPage() {
       const type = urlParams.get("type")
       
       if (tokenHash && type === "recovery") {
-        const { error } = await supabase.auth.verifyOtp({
+        const { data, error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
           type: "recovery",
         })
-        if (!error) {
+        if (!error && data.session) {
           window.history.replaceState(null, "", window.location.pathname)
+          setIsReady(true)
+        } else {
+          setError("Invalid or expired reset link. Please request a new one.")
+        }
+      } else {
+        // Check if we already have a session (from redirect flow)
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          setIsReady(true)
+        } else {
+          setError("Invalid or expired reset link. Please request a new one.")
         }
       }
     }
@@ -57,6 +69,14 @@ export default function ResetPasswordPage() {
     setIsLoading(true)
 
     try {
+      // Verify we have a session before updating
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        setError("Session expired. Please request a new reset link.")
+        setIsLoading(false)
+        return
+      }
+      
       const { error } = await supabase.auth.updateUser({
         password: password,
       })
