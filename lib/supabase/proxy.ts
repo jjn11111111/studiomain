@@ -5,7 +5,10 @@ export async function updateSession(request: NextRequest) {
   // Check if there's a code parameter at the root - redirect to auth callback
   // This handles Supabase email links that go to /?code=... instead of /auth/callback?code=...
   const code = request.nextUrl.searchParams.get("code")
+  console.log("[v0] updateSession - path:", request.nextUrl.pathname, "code:", !!code)
+  
   if (request.nextUrl.pathname === "/" && code) {
+    console.log("[v0] Redirecting /?code to /auth/callback")
     const url = request.nextUrl.clone()
     url.pathname = "/auth/callback"
     // Preserve all query params including code and type
