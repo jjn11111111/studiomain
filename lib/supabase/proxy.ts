@@ -2,6 +2,16 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
+  // Check if there's a code parameter at the root - redirect to auth callback
+  // This handles Supabase email links that go to /?code=... instead of /auth/callback?code=...
+  const code = request.nextUrl.searchParams.get("code")
+  if (request.nextUrl.pathname === "/" && code) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/auth/callback"
+    // Preserve all query params including code and type
+    return NextResponse.redirect(url)
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });

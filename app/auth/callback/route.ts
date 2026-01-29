@@ -4,12 +4,10 @@ import { NextResponse } from "next/server"
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
-  const next = searchParams.get("next") ?? "/"
+  const next = searchParams.get("next")
   const type = searchParams.get("type")
-  const tokenHash = searchParams.get("token_hash")
-  const supabaseType = searchParams.get("type") // Supabase passes type for recovery
   
-  console.log("[v0] Callback - code:", !!code, "type:", type, "tokenHash:", !!tokenHash, "supabaseType:", supabaseType, "next:", next)
+  console.log("[v0] Callback - code:", !!code, "type:", type, "next:", next)
 
   if (code) {
     const supabase = await createClient()
@@ -17,12 +15,30 @@ export async function GET(request: Request) {
     
     console.log("[v0] Exchange result - error:", error?.message, "user:", data?.user?.email)
     
-    if (!error) {
-      // If this is a password recovery flow, redirect to reset password page
-      if (type === "recovery" || supabaseType === "recovery" || next === "/auth/reset-password" || next.includes("reset-password")) {
-        console.log("[v0] Redirecting to reset-password")
+    if (!error && data.session) {
+      // Check if this is a password recovery flow
+      const isRecoveryFlow = type === "recovery" || 
+        next === "/auth/reset-password" || 
+        (next && next.includes("reset-password"))
+      
+      if (isRecoveryFlow) {
+        console.log("[v0] Redirecting to reset-password (recovery flow)")
         return NextResponse.redirect(`${origin}/auth/reset-password`)
       }
+      
+      // If no next param specified, this is likely from a password reset email
+      // Supabase strips custom query params, so we check if user has no destination
+      if (!next) {
+        // Check if user recently requested password reset
+        const user = data.session.user
+        console.log("[v0] No next param, user metadata:", user.user_metadata)
+        
+        // Default to reset-password for email link clicks without next param
+        // This handles password reset emails from Supabase
+        console.log("[v0] Redirecting to reset-password (no next param)")
+        return NextResponse.redirect(`${origin}/auth/reset-password`)
+      }
+      
       console.log("[v0] Redirecting to:", next)
       return NextResponse.redirect(`${origin}${next}`)
     }
