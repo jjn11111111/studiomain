@@ -15,7 +15,8 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
-  const [isReady, setIsReady] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(true)
+  const [tokenHash, setTokenHash] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -23,29 +24,37 @@ export default function ResetPasswordPage() {
     
     const verifyToken = async () => {
       const urlParams = new URLSearchParams(window.location.search)
-      const tokenHash = urlParams.get("token_hash")
+      const hash = urlParams.get("token_hash")
       const type = urlParams.get("type")
       
-      if (tokenHash && type === "recovery") {
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
+      // Store the token hash for later use
+      if (hash) {
+        setTokenHash(hash)
+      }
+      
+      if (hash && type === "recovery") {
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: hash,
           type: "recovery",
         })
-        if (!error && data.session) {
+        
+        if (!verifyError && data.session) {
           window.history.replaceState(null, "", window.location.pathname)
-          setIsReady(true)
-        } else {
-          setError("Invalid or expired reset link. Please request a new one.")
+          setIsVerifying(false)
+          return
         }
-      } else {
-        // Check if we already have a session (from redirect flow)
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
-          setIsReady(true)
-        } else {
-          setError("Invalid or expired reset link. Please request a new one.")
-        }
+        // If verify failed, we'll try to use the token when updating password
       }
+      
+      // Check if we already have a session
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setIsVerifying(false)
+        return
+      }
+      
+      // No session and no valid token - but let them try anyway
+      setIsVerifying(false)
     }
     
     verifyToken()
@@ -69,8 +78,23 @@ export default function ResetPasswordPage() {
     setIsLoading(true)
 
     try {
-      // Verify we have a session before updating
-      const { data: { session } } = await supabase.auth.getSession()
+      // Check for existing session first
+      let { data: { session } } = await supabase.auth.getSession()
+      
+      // If no session but we have a token, try to verify it again
+      if (!session && tokenHash) {
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: "recovery",
+        })
+        if (verifyError) {
+          setError("Reset link expired. Please request a new one.")
+          setIsLoading(false)
+          return
+        }
+        session = data.session
+      }
+      
       if (!session) {
         setError("Session expired. Please request a new reset link.")
         setIsLoading(false)
@@ -177,8 +201,12 @@ export default function ResetPasswordPage() {
                     />
                   </div>
 
-                  {error && (
+                  {error && !isVerifying && (
                     <p className="text-red-400 text-sm text-center">{error}</p>
+                  )}
+                  
+                  {isVerifying && (
+                    <p className="text-white/60 text-sm text-center">Verifying reset link...</p>
                   )}
 
                   <Button 
