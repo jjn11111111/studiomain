@@ -9,10 +9,9 @@ export async function updateSession(request: NextRequest) {
   console.log("[MIDDLEWARE]", request.nextUrl.pathname, "code:", code)
   
   if (request.nextUrl.pathname === "/" && code) {
-    console.log("[MIDDLEWARE] Redirecting to /auth/callback")
+    console.log("[MIDDLEWARE] Redirecting to /api/auth/exchange")
     const url = request.nextUrl.clone()
-    url.pathname = "/auth/callback"
-    url.searchParams.set("type", "recovery")
+    url.pathname = "/api/auth/exchange"
     return NextResponse.redirect(url)
   }
 
