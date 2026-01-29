@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
+import { AccessGate } from "@/components/access-gate"
 import { ArrowLeft, Play, Lock } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -94,10 +94,11 @@ export default function ModulePage() {
   }, [moduleId])
 
   return (
-    <main className="min-h-screen bg-black">
-      <Header />
-      
-      {/* Module header */}
+    <AccessGate>
+      <main className="min-h-screen bg-black">
+        <Header />
+        
+        {/* Module header */}
       <div className={`${config.color} ${config.textColor} pt-24 pb-12 px-4 sm:px-6 lg:px-8`}>
         <div className="max-w-4xl mx-auto">
           <Link
@@ -157,7 +158,8 @@ export default function ModulePage() {
         </div>
       </div>
 
-      <Footer />
-    </main>
+        <Footer />
+      </main>
+    </AccessGate>
   )
 }
