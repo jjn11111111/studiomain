@@ -17,14 +17,18 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
       const supabase = createClient()
       
       // Check if user is logged in
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      console.log("[v0] AccessGate - user:", user?.email, "error:", userError?.message)
       
       if (!user?.email) {
+        console.log("[v0] AccessGate - No user found, showing login prompt")
         setIsLoading(false)
         setIsLoggedIn(false)
         return
       }
       
+      console.log("[v0] AccessGate - User logged in:", user.email)
       setIsLoggedIn(true)
       
       // Check if user has active subscription
@@ -36,9 +40,13 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
         })
 
         const data = await response.json()
+        console.log("[v0] AccessGate - Subscription check response:", data)
 
         if (data.hasAccess) {
+          console.log("[v0] AccessGate - User has access!")
           setHasAccess(true)
+        } else {
+          console.log("[v0] AccessGate - User does NOT have access")
         }
       } catch (error) {
         console.error("[v0] Failed to check subscription:", error)

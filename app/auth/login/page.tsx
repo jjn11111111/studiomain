@@ -122,7 +122,7 @@ function LoginForm() {
                 </form>
 
                 <div className="mt-6 text-center text-sm text-white/40">
-                  No password needed. Just click the link in your email.
+                  No password required. Just click the link in your email.
                 </div>
               </>
             )}
