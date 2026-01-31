@@ -37,14 +37,16 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session
-      console.log("[v0] Checkout session completed for:", session.customer_email)
+      // Get email from customer_email OR customer_details.email (payment links use customer_details)
+      const email = session.customer_email || session.customer_details?.email
+      console.log("[v0] Checkout session completed for:", email)
       
-      if (session.customer_email) {
+      if (email) {
         // Check if subscription already exists for this email
         const { data: existing } = await supabase
           .from("subscriptions")
           .select("id")
-          .eq("email", session.customer_email)
+          .eq("email", email)
           .single()
 
         if (existing) {
@@ -57,19 +59,19 @@ export async function POST(request: Request) {
               status: "active",
               current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
             })
-            .eq("email", session.customer_email)
+            .eq("email", email)
           
           if (updateError) {
             console.error("[v0] Error updating subscription:", updateError)
           } else {
-            console.log("[v0] Updated subscription for:", session.customer_email)
+            console.log("[v0] Updated subscription for:", email)
           }
         } else {
           // Insert new subscription
           const { error: insertError } = await supabase
             .from("subscriptions")
             .insert({
-              email: session.customer_email,
+              email: email,
               stripe_customer_id: session.customer as string,
               stripe_subscription_id: session.subscription as string,
               status: "active",
@@ -79,7 +81,7 @@ export async function POST(request: Request) {
           if (insertError) {
             console.error("[v0] Error inserting subscription:", insertError)
           } else {
-            console.log("[v0] Created subscription for:", session.customer_email)
+            console.log("[v0] Created subscription for:", email)
           }
         }
       }
