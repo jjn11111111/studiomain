@@ -53,7 +53,7 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
       const { data, error } = await supabase
         .from("exercises")
         .select("*")
-        .eq("module", moduleId)
+        .eq("module", moduleId.toUpperCase())
         .eq("exercise_number", exerciseNumber)
         .single()
 
@@ -75,7 +75,7 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
       const { count } = await supabase
         .from("exercises")
         .select("*", { count: "exact", head: true })
-        .eq("module", moduleId)
+        .eq("module", moduleId.toUpperCase())
 
       if (count) setTotalExercises(count)
       setLoading(false)
