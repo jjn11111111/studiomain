@@ -44,7 +44,7 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <Eye className="h-6 w-6 text-primary" />
-            <span className="font-[family-name:var(--font-cinzel)] font-semibold">Pineal Vision</span>
+            <span className="font-[family-name:var(--font-oswald)] font-semibold">Pineal Vision</span>
           </div>
 
           <nav className="flex items-center gap-6 text-sm text-muted-foreground">

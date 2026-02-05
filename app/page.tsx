@@ -5,6 +5,7 @@ import { LogoSection } from "@/components/logo-section"
 import { ModulesPreview } from "@/components/modules-preview"
 import { PracticeSection } from "@/components/practice-section"
 import { HowItWorks } from "@/components/how-it-works"
+import { Footer } from "@/components/footer"
 
 export default async function HomePage({
   searchParams,
@@ -27,6 +28,7 @@ export default async function HomePage({
       <ModulesPreview />
       <PracticeSection />
       <HowItWorks />
+      <Footer />
     </main>
   )
 }

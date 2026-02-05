@@ -8,7 +8,7 @@ export function PracticeSection() {
     <section className="py-24 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="font-[family-name:var(--font-cinzel)] text-3xl sm:text-4xl font-bold mb-4">
+          <h2 className="font-[family-name:var(--font-oswald)] text-3xl sm:text-4xl font-bold mb-4">
             Practice with Static Images
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-pretty text-lg">
@@ -18,7 +18,7 @@ export function PracticeSection() {
 
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur mb-12 max-w-3xl mx-auto">
           <CardHeader>
-            <CardTitle className="text-2xl font-[family-name:var(--font-cinzel)] flex items-center gap-2">
+            <CardTitle className="text-2xl font-[family-name:var(--font-oswald)] flex items-center gap-2">
               <Eye className="h-6 w-6 text-primary" />
               How to View Stereoscopic Images
             </CardTitle>
