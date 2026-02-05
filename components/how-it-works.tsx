@@ -29,7 +29,7 @@ export function HowItWorks() {
     <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="font-[family-name:var(--font-cinzel)] text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
+          <h2 className="font-[family-name:var(--font-oswald)] text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-pretty">
             A simple process that creates profound results through consistent practice.
           </p>
@@ -39,7 +39,7 @@ export function HowItWorks() {
           {steps.map((step, index) => (
             <div key={index} className="flex gap-6 items-start group">
               <div className="flex-shrink-0 w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <span className="font-[family-name:var(--font-cinzel)] text-primary font-bold">{step.number}</span>
+                <span className="font-[family-name:var(--font-oswald)] text-primary font-bold">{step.number}</span>
               </div>
               <div className="flex-1 pt-2">
                 <h3 className="font-semibold text-xl mb-2">{step.title}</h3>
