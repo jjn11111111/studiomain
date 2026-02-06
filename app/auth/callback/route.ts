@@ -35,5 +35,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/auth/error?message=Could not authenticate`)
+  return NextResponse.redirect(`${origin}/?error=auth_failed`)
 }
