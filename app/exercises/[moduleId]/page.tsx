@@ -157,6 +157,6 @@ export default function ModulePage() {
       </div>
 
         <Footer />
-      </main>
+    </main>
   )
 }
