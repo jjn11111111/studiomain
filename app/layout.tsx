@@ -41,23 +41,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                if (window.location.pathname === '/' && window.location.search.includes('code=')) {
-                  var params = new URLSearchParams(window.location.search);
-                  var code = params.get('code');
-                  if (code) {
-                    window.location.replace('/auth/callback?code=' + code + '&type=recovery');
-                  }
-                }
-              })();
-            `,
-          }}
-        />
-      </head>
       <body className={`${oswald.className} ${oswald.variable} ${bebasNeue.variable} antialiased`}>
         {children}
       </body>
