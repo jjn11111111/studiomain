@@ -14,11 +14,6 @@ export default async function HomePage({
 }) {
   const params = await searchParams
   
-  // If there's a code parameter, redirect to auth callback to handle it properly
-  if (params.code) {
-    const type = params.type || "recovery" // Default to recovery for email links
-    redirect(`/auth/callback?code=${params.code}&type=${type}`)
-  }
   
   return (
     <main className="min-h-screen">
