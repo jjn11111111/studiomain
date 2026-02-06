@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useState, Suspense } from "react"
 import { Eye, ArrowLeft, Mail, Check } from "lucide-react"
-import Loading from "./loading"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
@@ -135,7 +134,11 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-purple-400 text-xl">Loading...</div>
+      </div>
+    }>
       <LoginForm />
     </Suspense>
   )
