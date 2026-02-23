@@ -13,38 +13,58 @@ interface PracticeImage {
   category: string | null
 }
 
+const PRACTICE_STORAGE_BASE =
+  process.env.NEXT_PUBLIC_PRACTICE_IMAGES_BASE ||
+  "https://azbdkfqhrvncwhzdlfoy.supabase.co/storage/v1/object/public/user-uploads"
+
 const mockImages: PracticeImage[] = [
   {
     id: "1",
-    title: "House & Tree",
-    description: "Basic stereoscopic cross-view practice",
-    image_url: "https://jzfwbcjpklxppwpuimty.supabase.co/storage/v1/object/public/misc.3rdeye/practice-1.png",
+    title: "Boardwalk Stereo",
+    description: "Beginner cross-view practice on the boardwalk.",
+    image_url: `${PRACTICE_STORAGE_BASE}/boardwalk stereo.jpeg`,
     difficulty: "beginner",
-    category: "basic",
+    category: "scene",
   },
   {
     id: "2",
-    title: "Geometric Shapes",
-    description: "Practice depth perception with simple shapes",
-    image_url: "https://jzfwbcjpklxppwpuimty.supabase.co/storage/v1/object/public/misc.3rdeye/practice-2.png",
+    title: "Little Kids in Snow",
+    description: "Soft depth cues in a snowy scene.",
+    image_url: `${PRACTICE_STORAGE_BASE}/littlekidsnow.jpeg`,
     difficulty: "beginner",
-    category: "shapes",
+    category: "people",
   },
   {
     id: "3",
-    title: "Nature Scene",
-    description: "Intermediate depth with natural elements",
-    image_url: "https://jzfwbcjpklxppwpuimty.supabase.co/storage/v1/object/public/misc.3rdeye/practice-3.png",
+    title: "Mirror Balls",
+    description: "Intermediate reflections and depth.",
+    image_url: `${PRACTICE_STORAGE_BASE}/mirror balls.jpeg`,
+    difficulty: "intermediate",
+    category: "objects",
+  },
+  {
+    id: "4",
+    title: "Stereo 11",
+    description: "Advanced fine-depth stereogram.",
+    image_url: `${PRACTICE_STORAGE_BASE}/stereo11.jpg`,
+    difficulty: "advanced",
+    category: "abstract",
+  },
+  {
+    id: "5",
+    title: "Sunset Stereo",
+    description: "Warm gradient depth practice.",
+    image_url: `${PRACTICE_STORAGE_BASE}/sunsetstereo.jpeg`,
     difficulty: "intermediate",
     category: "nature",
   },
   {
-    id: "4",
-    title: "Deep Layers",
-    description: "Master multiple depth layers",
-    image_url: "https://jzfwbcjpklxppwpuimty.supabase.co/storage/v1/object/public/misc.3rdeye/practice-5.png",
-    difficulty: "advanced",
-    category: "advanced",
+    id: "6",
+    title: "Two Houses",
+    description: "Compare depth between structures.",
+    image_url: `${PRACTICE_STORAGE_BASE}/two houses.jpg`,
+    difficulty: "beginner",
+    category: "architecture",
   },
 ]
 

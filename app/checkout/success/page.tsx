@@ -18,38 +18,45 @@ async function addSubscription(sessionId: string) {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId)
     const email = session.customer_email || session.customer_details?.email
-    
+
     if (!email) return null
-    
-    // Check if subscription already exists
+
+    let periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    if (session.subscription) {
+      try {
+        const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+        periodEnd = new Date(sub.current_period_end * 1000).toISOString()
+      } catch {
+        // keep 30-day fallback
+      }
+    }
+
     const { data: existing } = await supabase
       .from("subscriptions")
       .select("id")
       .eq("email", email)
       .single()
-    
+
     if (existing) {
-      // Update existing
       await supabase
         .from("subscriptions")
         .update({
           status: "active",
           stripe_customer_id: session.customer as string,
-          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          current_period_end: periodEnd,
         })
         .eq("email", email)
     } else {
-      // Insert new
       await supabase
         .from("subscriptions")
         .insert({
           email: email,
           status: "active",
           stripe_customer_id: session.customer as string,
-          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          current_period_end: periodEnd,
         })
     }
-    
+
     return email
   } catch (error) {
     console.error("Error adding subscription:", error)

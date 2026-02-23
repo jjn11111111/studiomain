@@ -49,7 +49,7 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
   useEffect(() => {
     async function fetchExercise() {
       const supabase = createClient()
-      
+
       const { data, error } = await supabase
         .from("exercises")
         .select("*")
@@ -58,8 +58,7 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
         .single()
 
       if (error || !data) {
-        console.error("[v0] Error fetching exercise:", error)
-        // Create a placeholder exercise if not found in database
+        console.error("[VideoExerciseView] Error fetching exercise:", error)
         setExercise({
           id: `${moduleId}-${exerciseId}`,
           module: moduleId,
@@ -68,10 +67,58 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
           video_url: "",
         })
       } else {
-        setExercise(data)
+        let rawUrl = (data.video_url ?? "").trim()
+
+        // Resolve Supabase Storage paths to public URLs in a flexible, secure way:
+        // - If it starts with http/https, use as-is.
+        // - If it's a path, choose a bucket based on:
+        //   1) An explicit bucket prefix in the path (e.g. "Module B/...")
+        //   2) NEXT_PUBLIC_VIDEO_STORAGE_BUCKET
+        //   3) A sane per-module default (Module A/B/C)
+        let resolvedUrl = rawUrl
+
+        if (rawUrl && !/^https?:\/\//i.test(rawUrl)) {
+          // 1) Try to split "BucketName/path/inside/bucket.ext"
+          let bucketFromPath: string | null = null
+          let objectPath = rawUrl
+          const firstSlash = rawUrl.indexOf("/")
+
+          if (firstSlash > 0) {
+            const possibleBucket = rawUrl.slice(0, firstSlash)
+            const restPath = rawUrl.slice(firstSlash + 1)
+
+            // Whitelist known buckets so arbitrary input can't select buckets
+            const knownBuckets = new Set(["Module A", "Module B", "Module C", "home page", "videos"])
+            if (knownBuckets.has(possibleBucket) && restPath.length > 0) {
+              bucketFromPath = possibleBucket
+              objectPath = restPath
+            }
+          }
+
+          // 2) Fallback: env or per-module default bucket
+          let bucket =
+            bucketFromPath ||
+            process.env.NEXT_PUBLIC_VIDEO_STORAGE_BUCKET ||
+            (moduleId === "a"
+              ? "Module A"
+              : moduleId === "b"
+                ? "Module B"
+                : moduleId === "c"
+                  ? "Module C"
+                  : "videos")
+
+          try {
+            const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(objectPath)
+            resolvedUrl = urlData.publicUrl
+          } catch (e) {
+            console.error("[VideoExerciseView] Error resolving storage URL", { bucket, objectPath, error: e })
+            resolvedUrl = ""
+          }
+        }
+
+        setExercise({ ...data, video_url: resolvedUrl })
       }
 
-      // Get total exercises count for this module
       const { count } = await supabase
         .from("exercises")
         .select("*", { count: "exact", head: true })
@@ -238,10 +285,18 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
       >
         {videoError || !exercise.video_url ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-            <div className={`${config.colors.bg} p-8 text-center`}>
-              <p className={`font-sans text-xl font-bold ${config.colors.text} mb-2`}>Video Unavailable</p>
-              <p className={`font-sans text-sm ${config.colors.text} opacity-70`}>Unable to load this exercise video</p>
-              <p className={`font-sans text-xs ${config.colors.text} opacity-50 mt-2`}>Please ensure you have an active subscription</p>
+            <div className={`${config.colors.bg} p-8 text-center max-w-md`}>
+              <p className={`font-sans text-xl font-bold ${config.colors.text} mb-2`}>
+                {!exercise.video_url ? "Video not yet assigned" : "Video unavailable"}
+              </p>
+              <p className={`font-sans text-sm ${config.colors.text} opacity-70`}>
+                {!exercise.video_url
+                  ? "Add a video URL (or storage path) for this exercise in Supabase to enable playback."
+                  : "Unable to load this exercise video. Check the URL or storage bucket and CORS."}
+              </p>
+              <p className={`font-sans text-xs ${config.colors.text} opacity-50 mt-2`}>
+                Ensure you have an active subscription to access all modules.
+              </p>
             </div>
           </div>
         ) : (
@@ -250,7 +305,8 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
             className="w-full h-full object-contain"
             muted={isMuted}
             playsInline
-            preload="metadata"
+            preload="auto"
+            crossOrigin="anonymous"
             onClick={togglePlay}
             onError={() => setVideoError(true)}
             key={exercise.video_url}

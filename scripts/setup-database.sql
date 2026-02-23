@@ -24,7 +24,10 @@ CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_customer_id ON subscriptions(stripe_customer_id);
 
 -- 2. EXERCISES TABLE
--- Stores exercise content for each module
+-- Stores exercise content for each module.
+-- video_url: use a full URL (https://...) or a path in your Supabase Storage bucket
+-- (e.g. "videos/module-a/01.mp4"). Create a public bucket named "videos" (or set
+-- NEXT_PUBLIC_VIDEO_STORAGE_BUCKET) and upload MP4s; the app will resolve paths to public URLs.
 CREATE TABLE IF NOT EXISTS exercises (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   module TEXT NOT NULL,
@@ -186,3 +189,7 @@ DROP TRIGGER IF EXISTS update_comments_updated_at ON comments;
 CREATE TRIGGER update_comments_updated_at
   BEFORE UPDATE ON comments
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Optional: After uploading videos to Supabase Storage (public bucket "videos" or your NEXT_PUBLIC_VIDEO_STORAGE_BUCKET),
+-- set video_url to the file path (e.g. 'module-a/01.mp4') or full URL. Example:
+-- UPDATE exercises SET video_url = 'https://YOUR_PROJECT.supabase.co/storage/v1/object/public/videos/module-a/01.mp4' WHERE module = 'A' AND exercise_number = 1;

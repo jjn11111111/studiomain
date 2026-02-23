@@ -42,7 +42,16 @@ export async function POST(request: Request) {
       console.log("[v0] Checkout session completed for:", email)
       
       if (email) {
-        // Check if subscription already exists for this email
+        let periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        if (session.subscription) {
+          try {
+            const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+            periodEnd = new Date(sub.current_period_end * 1000).toISOString()
+          } catch (e) {
+            console.warn("[webhook] Could not fetch subscription for period_end, using fallback")
+          }
+        }
+
         const { data: existing } = await supabase
           .from("subscriptions")
           .select("id")
@@ -50,24 +59,22 @@ export async function POST(request: Request) {
           .single()
 
         if (existing) {
-          // Update existing subscription
           const { error: updateError } = await supabase
             .from("subscriptions")
             .update({
               stripe_customer_id: session.customer as string,
               stripe_subscription_id: session.subscription as string,
               status: "active",
-              current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+              current_period_end: periodEnd,
             })
             .eq("email", email)
-          
+
           if (updateError) {
             console.error("[v0] Error updating subscription:", updateError)
           } else {
             console.log("[v0] Updated subscription for:", email)
           }
         } else {
-          // Insert new subscription
           const { error: insertError } = await supabase
             .from("subscriptions")
             .insert({
@@ -75,9 +82,9 @@ export async function POST(request: Request) {
               stripe_customer_id: session.customer as string,
               stripe_subscription_id: session.subscription as string,
               status: "active",
-              current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+              current_period_end: periodEnd,
             })
-          
+
           if (insertError) {
             console.error("[v0] Error inserting subscription:", insertError)
           } else {

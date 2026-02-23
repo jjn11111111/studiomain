@@ -4,7 +4,9 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/8x2fZhcMpaMb8dt8xsaVa00"
+const STRIPE_PAYMENT_LINK =
+  process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ||
+  "https://buy.stripe.com/8x2fZhcMpaMb8dt8xsaVa00"
 
 export default function StripeCheckout() {
   const [email, setEmail] = useState("")
