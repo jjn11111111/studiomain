@@ -2,14 +2,22 @@ import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
+// Ensure this route is always run dynamically (no static optimization)
+export const dynamic = "force-dynamic"
+
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get("code")
-  const next = searchParams.get("next")
+  const requestUrl = new URL(request.url)
+  const code = requestUrl.searchParams.get("code")
+  const next = requestUrl.searchParams.get("next")
+
+  // Use env site URL in production so redirect works even behind proxies
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : requestUrl.origin)
 
   if (code) {
     const cookieStore = await cookies()
-    
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -26,14 +34,14 @@ export async function GET(request: Request) {
         },
       }
     )
-    
+
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    
+
     if (!error) {
       const redirectTo = next || "/exercises"
-      return NextResponse.redirect(`${origin}${redirectTo}`)
+      return NextResponse.redirect(`${baseUrl}${redirectTo}`)
     }
   }
 
-  return NextResponse.redirect(`${origin}/?error=auth_failed`)
+  return NextResponse.redirect(`${baseUrl}/?error=auth_failed`)
 }
