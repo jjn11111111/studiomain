@@ -64,11 +64,7 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (hasAccess) {
-    return <>{children}</>
-  }
-
-  // Not logged in - show login prompt
+  // Not logged in – show sign-in
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-purple-900/20 to-black">
@@ -99,29 +95,21 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Logged in but no subscription
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-purple-900/20 to-black">
-      <Card className="max-w-md w-full bg-black/40 border-purple-500/30 backdrop-blur">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
-            <Lock className="w-8 h-8 text-purple-400" />
-          </div>
-          <CardTitle className="text-2xl text-white">Subscription Required</CardTitle>
-          <CardDescription className="text-purple-200">
-            Subscribe to unlock all Pineal Vision training modules
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <p className="text-sm text-purple-200 text-center">Subscribe for just $11.11/month</p>
-          </div>
+  // Logged in: show modules. Optionally show upgrade banner when no active subscription.
+  if (hasAccess) {
+    return <>{children}</>
+  }
 
-          <Button asChild className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-            <a href="/subscribe">Subscribe Now</a>
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+  // Logged in but no subscription – still show modules, with upgrade prompt at top
+  return (
+    <>
+      <div className="bg-amber-500/20 border-b border-amber-500/40 text-amber-200 px-4 py-3 text-center text-sm">
+        Subscribe to support the project and unlock all features.{" "}
+        <a href="/subscribe" className="underline font-medium hover:text-amber-100">
+          Subscribe now
+        </a>
+      </div>
+      {children}
+    </>
   )
 }
