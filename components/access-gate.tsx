@@ -13,41 +13,47 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    const checkAccess = async () => {
-      const supabase = createClient()
-      
-      // Check if user is logged in
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      
+    const supabase = createClient()
+
+    const checkAccess = async (user: { email?: string } | null) => {
       if (!user?.email) {
-        setIsLoading(false)
         setIsLoggedIn(false)
+        setIsLoading(false)
         return
       }
-      
+
       setIsLoggedIn(true)
-      
-      // Check if user has active subscription
+
       try {
         const response = await fetch("/api/check-subscription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: user.email }),
         })
-
         const data = await response.json()
-
-        if (data.hasAccess) {
-          setHasAccess(true)
-        }
+        if (data.hasAccess) setHasAccess(true)
       } catch (error) {
         console.error("Failed to check subscription:", error)
       }
-
       setIsLoading(false)
     }
 
-    checkAccess()
+    const runCheck = async () => {
+      // Prefer getSession(): reads from cookie/storage without a network call,
+      // so we see the session immediately after magic-link redirect. getUser()
+      // can fail or delay right after redirect.
+      const { data: { session } } = await supabase.auth.getSession()
+      await checkAccess(session?.user ?? null)
+    }
+
+    runCheck()
+
+    // When session appears or changes (e.g. after redirect), update state
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) checkAccess(session.user)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   if (isLoading) {
