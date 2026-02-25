@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useRef, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { getExerciseVideo } from "@/lib/exercise-videos"
 
 interface Exercise {
   id: string
@@ -53,76 +54,57 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
       const { data, error } = await supabase
         .from("exercises")
         .select("*")
-        .eq("module", moduleId.toUpperCase())
+        .eq("module", moduleId)
         .eq("exercise_number", exerciseNumber)
         .single()
 
+      const configVideo = getExerciseVideo(moduleId, exerciseNumber)
+
+      function resolveUrl(rawUrl: string): string {
+        const trimmed = (rawUrl ?? "").trim()
+        if (!trimmed) return ""
+        if (/^https?:\/\//i.test(trimmed)) return trimmed
+        let bucket = configVideo?.bucket ?? (moduleId === "a" ? "Module A" : moduleId === "b" ? "Module B" : moduleId === "c" ? "Module C" : "videos")
+        let objectPath = trimmed
+        const firstSlash = trimmed.indexOf("/")
+        if (firstSlash > 0) {
+          const possible = trimmed.slice(0, firstSlash)
+          if (["Module A", "Module B", "Module C", "videos", "home page"].includes(possible)) {
+            bucket = possible
+            objectPath = trimmed.slice(firstSlash + 1)
+          }
+        }
+        try {
+          const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(objectPath)
+          return urlData.publicUrl
+        } catch {
+          return ""
+        }
+      }
+
       if (error || !data) {
-        console.error("[VideoExerciseView] Error fetching exercise:", error)
+        const title = configVideo?.title ?? `Exercise ${exerciseNumber}`
+        const path = configVideo?.path ?? ""
+        const video_url = path ? resolveUrl(path) : ""
         setExercise({
           id: `${moduleId}-${exerciseId}`,
           module: moduleId,
           exercise_number: exerciseNumber,
-          title: `Exercise ${exerciseNumber}`,
-          video_url: "",
+          title,
+          video_url,
         })
       } else {
         let rawUrl = (data.video_url ?? "").trim()
-
-        // Resolve Supabase Storage paths to public URLs in a flexible, secure way:
-        // - If it starts with http/https, use as-is.
-        // - If it's a path, choose a bucket based on:
-        //   1) An explicit bucket prefix in the path (e.g. "Module B/...")
-        //   2) NEXT_PUBLIC_VIDEO_STORAGE_BUCKET
-        //   3) A sane per-module default (Module A/B/C)
-        let resolvedUrl = rawUrl
-
-        if (rawUrl && !/^https?:\/\//i.test(rawUrl)) {
-          // 1) Try to split "BucketName/path/inside/bucket.ext"
-          let bucketFromPath: string | null = null
-          let objectPath = rawUrl
-          const firstSlash = rawUrl.indexOf("/")
-
-          if (firstSlash > 0) {
-            const possibleBucket = rawUrl.slice(0, firstSlash)
-            const restPath = rawUrl.slice(firstSlash + 1)
-
-            // Whitelist known buckets so arbitrary input can't select buckets
-            const knownBuckets = new Set(["Module A", "Module B", "Module C", "home page", "videos"])
-            if (knownBuckets.has(possibleBucket) && restPath.length > 0) {
-              bucketFromPath = possibleBucket
-              objectPath = restPath
-            }
-          }
-
-          // 2) Fallback: env or per-module default bucket
-          let bucket =
-            bucketFromPath ||
-            process.env.NEXT_PUBLIC_VIDEO_STORAGE_BUCKET ||
-            (moduleId === "a"
-              ? "Module A"
-              : moduleId === "b"
-                ? "Module B"
-                : moduleId === "c"
-                  ? "Module C"
-                  : "videos")
-
-          try {
-            const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(objectPath)
-            resolvedUrl = urlData.publicUrl
-          } catch (e) {
-            console.error("[VideoExerciseView] Error resolving storage URL", { bucket, objectPath, error: e })
-            resolvedUrl = ""
-          }
-        }
-
-        setExercise({ ...data, video_url: resolvedUrl })
+        if (!rawUrl && configVideo?.path) rawUrl = configVideo.path
+        const resolvedUrl = rawUrl ? resolveUrl(rawUrl) : ""
+        const title = (data.title ?? configVideo?.title) ?? `Exercise ${exerciseNumber}`
+        setExercise({ ...data, title, video_url: resolvedUrl })
       }
 
       const { count } = await supabase
         .from("exercises")
         .select("*", { count: "exact", head: true })
-        .eq("module", moduleId.toUpperCase())
+        .eq("module", moduleId)
 
       if (count) setTotalExercises(count)
       setLoading(false)

@@ -53,7 +53,7 @@ export default function ModulePage() {
       const { data, error } = await supabase
         .from("exercises")
         .select("*")
-        .eq("module", moduleId.toUpperCase())
+        .eq("module", moduleId)
         .order("exercise_number", { ascending: true })
 
       if (error) {

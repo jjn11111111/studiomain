@@ -17,12 +17,14 @@ const PRACTICE_STORAGE_BASE =
   process.env.NEXT_PUBLIC_PRACTICE_IMAGES_BASE ||
   "https://azbdkfqhrvncwhzdlfoy.supabase.co/storage/v1/object/public/user-uploads"
 
+const makeUrl = (fileName: string) => `${PRACTICE_STORAGE_BASE}/${encodeURIComponent(fileName)}`
+
 const mockImages: PracticeImage[] = [
   {
     id: "1",
     title: "Boardwalk Stereo",
     description: "Beginner cross-view practice on the boardwalk.",
-    image_url: `${PRACTICE_STORAGE_BASE}/boardwalk stereo.jpeg`,
+    image_url: makeUrl("boardwalk stereo.jpeg"),
     difficulty: "beginner",
     category: "scene",
   },
@@ -30,7 +32,7 @@ const mockImages: PracticeImage[] = [
     id: "2",
     title: "Little Kids in Snow",
     description: "Soft depth cues in a snowy scene.",
-    image_url: `${PRACTICE_STORAGE_BASE}/littlekidsnow.jpeg`,
+    image_url: makeUrl("littlekidsnow.jpeg"),
     difficulty: "beginner",
     category: "people",
   },
@@ -38,7 +40,7 @@ const mockImages: PracticeImage[] = [
     id: "3",
     title: "Mirror Balls",
     description: "Intermediate reflections and depth.",
-    image_url: `${PRACTICE_STORAGE_BASE}/mirror balls.jpeg`,
+    image_url: makeUrl("mirror balls.jpeg"),
     difficulty: "intermediate",
     category: "objects",
   },
@@ -46,7 +48,7 @@ const mockImages: PracticeImage[] = [
     id: "4",
     title: "Stereo 11",
     description: "Advanced fine-depth stereogram.",
-    image_url: `${PRACTICE_STORAGE_BASE}/stereo11.jpg`,
+    image_url: makeUrl("stereo11.jpg"),
     difficulty: "advanced",
     category: "abstract",
   },
@@ -54,7 +56,7 @@ const mockImages: PracticeImage[] = [
     id: "5",
     title: "Sunset Stereo",
     description: "Warm gradient depth practice.",
-    image_url: `${PRACTICE_STORAGE_BASE}/sunsetstereo.jpeg`,
+    image_url: makeUrl("sunsetstereo.jpeg"),
     difficulty: "intermediate",
     category: "nature",
   },
@@ -62,7 +64,7 @@ const mockImages: PracticeImage[] = [
     id: "6",
     title: "Two Houses",
     description: "Compare depth between structures.",
-    image_url: `${PRACTICE_STORAGE_BASE}/two houses.jpg`,
+    image_url: makeUrl("two houses.jpg"),
     difficulty: "beginner",
     category: "architecture",
   },
