@@ -7,14 +7,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useState, Suspense } from "react"
+import { useState, Suspense, useEffect } from "react"
 import { Eye, ArrowLeft, Mail, Check } from "lucide-react"
+
+const RATE_LIMIT_SECONDS = 6
 
 function LoginForm() {
   const [email, setEmail] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isSent, setIsSent] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
+
+  // Countdown for rate-limit cooldown
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const t = setInterval(() => setCooldown((c) => (c <= 1 ? 0 : c - 1)), 1000)
+    return () => clearInterval(t)
+  }, [cooldown])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,16 +33,22 @@ function LoginForm() {
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null
+      const next = params?.get("redirect") || "/exercises"
+      const origin = typeof window !== "undefined" ? window.location.origin : ""
+      const { error: err } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/exercises`,
+          emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       })
-      if (error) throw error
+      if (err) throw err
       setIsSent(true)
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred")
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An error occurred"
+      const isRateLimit = /seconds|rate|limit/i.test(message)
+      setError(isRateLimit ? "Please wait a few seconds before requesting another link." : message)
+      if (isRateLimit) setCooldown(RATE_LIMIT_SECONDS)
     } finally {
       setIsLoading(false)
     }
@@ -111,12 +127,16 @@ function LoginForm() {
                     <p className="text-red-400 text-sm text-center">{error}</p>
                   )}
 
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 rounded-full"
-                    disabled={isLoading}
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 rounded-full disabled:opacity-70"
+                    disabled={isLoading || cooldown > 0}
                   >
-                    {isLoading ? "Sending link..." : "Send Magic Link"}
+                    {cooldown > 0
+                      ? `Send magic link again in ${cooldown}s`
+                      : isLoading
+                        ? "Sending link..."
+                        : "Send Magic Link"}
                   </Button>
                 </form>
 

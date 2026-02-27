@@ -84,34 +84,39 @@ ALTER TABLE exercises ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 
--- Subscriptions: users can only read their own (by email from JWT). Writes are via service_role (webhooks).
+-- Subscriptions: one SELECT policy (user by email from JWT; service_role via separate policy). Writes via service_role only.
 DROP POLICY IF EXISTS "Users can view own subscription" ON subscriptions;
-CREATE POLICY "Users can view own subscription" ON subscriptions
-  FOR SELECT USING (auth.jwt()->>'email' = email);
+DROP POLICY IF EXISTS "Users can read own subscription" ON subscriptions;
+DROP POLICY IF EXISTS "service_role_can_manage_subscriptions" ON subscriptions;
+DROP POLICY IF EXISTS "Service role can manage subscriptions" ON subscriptions;
+CREATE POLICY "subscriptions_select" ON subscriptions
+  FOR SELECT USING (
+    (select auth.role()) = 'service_role'
+    OR (select auth.uid()) = user_id
+    OR (select auth.jwt())->>'email' = LOWER(email)
+  );
+CREATE POLICY "subscriptions_service_role_all" ON subscriptions
+  FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- Exercises: public read; writes via service_role only
 DROP POLICY IF EXISTS "Anyone can view exercises" ON exercises;
 CREATE POLICY "Anyone can view exercises" ON exercises FOR SELECT USING (true);
-
 DROP POLICY IF EXISTS "Service role can manage exercises" ON exercises;
-CREATE POLICY "Service role can manage exercises" ON exercises FOR ALL USING (auth.role() = 'service_role');
+CREATE POLICY "Service role can manage exercises" ON exercises FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- Comments: public read; authenticated users insert/update/delete own
 DROP POLICY IF EXISTS "Anyone can view comments" ON comments;
 CREATE POLICY "Anyone can view comments" ON comments FOR SELECT USING (true);
-
 DROP POLICY IF EXISTS "Authenticated users can create comments" ON comments;
-CREATE POLICY "Authenticated users can create comments" ON comments FOR INSERT WITH CHECK (auth.uid() = user_id);
-
+CREATE POLICY "Authenticated users can create comments" ON comments FOR INSERT WITH CHECK ((select auth.uid()) = user_id);
 DROP POLICY IF EXISTS "Users can update own comments" ON comments;
-CREATE POLICY "Users can update own comments" ON comments FOR UPDATE USING (auth.uid() = user_id);
-
+CREATE POLICY "Users can update own comments" ON comments FOR UPDATE USING ((select auth.uid()) = user_id);
 DROP POLICY IF EXISTS "Users can delete own comments" ON comments;
-CREATE POLICY "Users can delete own comments" ON comments FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own comments" ON comments FOR DELETE USING ((select auth.uid()) = user_id);
 
 -- User progress: users manage own rows
 DROP POLICY IF EXISTS "Users can manage own progress" ON user_progress;
-CREATE POLICY "Users can manage own progress" ON user_progress FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Users can manage own progress" ON user_progress FOR ALL USING ((select auth.uid()) = user_id);
 
 -- ---------------------------------------------------------------------------
 -- 3. UPDATED_AT TRIGGERS
@@ -183,6 +188,8 @@ ON CONFLICT (module, exercise_number) DO NOTHING;
 -- ---------------------------------------------------------------------------
 -- 5. VIDEO URLS (Storage paths – buckets: Module A, Module B, Module C)
 -- Adjust paths if your filenames differ.
+-- Buckets must be PUBLIC in Supabase Dashboard → Storage so videos load.
+-- See STORAGE.md for creating buckets, making them public, and uploading files.
 -- ---------------------------------------------------------------------------
 
 -- Module A (A-Red Fruits)

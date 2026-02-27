@@ -50,11 +50,12 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
   useEffect(() => {
     async function fetchExercise() {
       const supabase = createClient()
+      const moduleUpper = moduleId.toUpperCase()
 
       const { data, error } = await supabase
         .from("exercises")
         .select("*")
-        .eq("module", moduleId)
+        .eq("module", moduleUpper)
         .eq("exercise_number", exerciseNumber)
         .single()
 
@@ -104,7 +105,7 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
       const { count } = await supabase
         .from("exercises")
         .select("*", { count: "exact", head: true })
-        .eq("module", moduleId)
+        .eq("module", moduleUpper)
 
       if (count) setTotalExercises(count)
       setLoading(false)
@@ -266,21 +267,50 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
         onMouseLeave={() => setShowControls(false)}
       >
         {videoError || !exercise.video_url ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-            <div className={`${config.colors.bg} p-8 text-center max-w-md`}>
-              <p className={`font-sans text-xl font-bold ${config.colors.text} mb-2`}>
-                {!exercise.video_url ? "Video not yet assigned" : "Video unavailable"}
-              </p>
-              <p className={`font-sans text-sm ${config.colors.text} opacity-70`}>
-                {!exercise.video_url
-                  ? "Add a video URL (or storage path) for this exercise in Supabase to enable playback."
-                  : "Unable to load this exercise video. Check the URL or storage bucket and CORS."}
-              </p>
-              <p className={`font-sans text-xs ${config.colors.text} opacity-50 mt-2`}>
-                Ensure you have an active subscription to access all modules.
-              </p>
-            </div>
-          </div>
+          (() => {
+            const configVideo = getExerciseVideo(moduleId, exerciseNumber)
+            const bucket = configVideo?.bucket ?? (moduleId === "a" ? "Module A" : moduleId === "b" ? "Module B" : moduleId === "c" ? "Module C" : "videos")
+            const path = configVideo?.path ?? ""
+            return (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+                <div className={`${config.colors.bg} p-8 text-center max-w-md`}>
+                  <p className={`font-sans text-xl font-bold ${config.colors.text} mb-2`}>
+                    {!exercise.video_url ? "Video not yet assigned" : "Video unavailable"}
+                  </p>
+                  <p className={`font-sans text-sm ${config.colors.text} opacity-70`}>
+                    {!exercise.video_url
+                      ? "Add a video URL (or storage path) for this exercise in Supabase to enable playback."
+                      : "Unable to load this exercise video. Check the URL or storage bucket and CORS."}
+                  </p>
+                  <p className={`font-sans text-xs ${config.colors.text} opacity-70 mt-2`}>
+                    Ensure you have an active subscription to access all modules.
+                  </p>
+                  {path && (
+                    <p className={`font-sans text-xs ${config.colors.text} opacity-90 mt-3 font-mono break-all`}>
+                      Bucket: {bucket} → {path}
+                    </p>
+                  )}
+                  {exercise.video_url && (
+                    <p className={`font-sans text-xs ${config.colors.text} opacity-90 mt-2 font-mono break-all`}>
+                      URL:{" "}
+                      <a
+                        href={exercise.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:opacity-80"
+                      >
+                        Open in new tab
+                      </a>
+                      {" "}(if 404, file is missing; if CORS error, add your app origin in Supabase)
+                    </p>
+                  )}
+                  <p className={`font-sans text-xs ${config.colors.text} opacity-50 mt-2`}>
+                    See STORAGE.md in the project for setup steps.
+                  </p>
+                </div>
+              </div>
+            )
+          })()
         ) : (
           <video
             ref={videoRef}

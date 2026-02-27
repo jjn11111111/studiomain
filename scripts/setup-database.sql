@@ -83,44 +83,45 @@ ALTER TABLE exercises ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 
--- 6. RLS Policies for SUBSCRIPTIONS
--- Users can read their own subscription
-CREATE POLICY "Users can view own subscription" ON subscriptions
-  FOR SELECT USING (auth.uid() = user_id OR auth.jwt()->>'email' = email);
-
--- Service role can manage all subscriptions (for webhooks)
+-- 6. RLS Policies for SUBSCRIPTIONS (single SELECT policy for better performance)
+DROP POLICY IF EXISTS "Users can view own subscription" ON subscriptions;
+DROP POLICY IF EXISTS "Users can read own subscription" ON subscriptions;
+DROP POLICY IF EXISTS "Service role can manage subscriptions" ON subscriptions;
+CREATE POLICY "subscriptions_select" ON subscriptions
+  FOR SELECT USING (
+    (select auth.role()) = 'service_role'
+    OR (select auth.uid()) = user_id
+    OR (select auth.jwt())->>'email' = LOWER(email)
+  );
 CREATE POLICY "Service role can manage subscriptions" ON subscriptions
-  FOR ALL USING (auth.role() = 'service_role');
+  FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- 7. RLS Policies for EXERCISES
--- Anyone can read exercises (public content)
+DROP POLICY IF EXISTS "Anyone can view exercises" ON exercises;
 CREATE POLICY "Anyone can view exercises" ON exercises
   FOR SELECT USING (true);
-
--- Only service role can manage exercises
+DROP POLICY IF EXISTS "Service role can manage exercises" ON exercises;
 CREATE POLICY "Service role can manage exercises" ON exercises
-  FOR ALL USING (auth.role() = 'service_role');
+  FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- 8. RLS Policies for COMMENTS
--- Anyone can read comments
+DROP POLICY IF EXISTS "Anyone can view comments" ON comments;
 CREATE POLICY "Anyone can view comments" ON comments
   FOR SELECT USING (true);
-
--- Authenticated users can create comments
+DROP POLICY IF EXISTS "Authenticated users can create comments" ON comments;
 CREATE POLICY "Authenticated users can create comments" ON comments
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- Users can update/delete their own comments
+  FOR INSERT WITH CHECK ((select auth.uid()) = user_id);
+DROP POLICY IF EXISTS "Users can update own comments" ON comments;
 CREATE POLICY "Users can update own comments" ON comments
-  FOR UPDATE USING (auth.uid() = user_id);
-
+  FOR UPDATE USING ((select auth.uid()) = user_id);
+DROP POLICY IF EXISTS "Users can delete own comments" ON comments;
 CREATE POLICY "Users can delete own comments" ON comments
-  FOR DELETE USING (auth.uid() = user_id);
+  FOR DELETE USING ((select auth.uid()) = user_id);
 
 -- 9. RLS Policies for USER PROGRESS
--- Users can manage their own progress
+DROP POLICY IF EXISTS "Users can manage own progress" ON user_progress;
 CREATE POLICY "Users can manage own progress" ON user_progress
-  FOR ALL USING (auth.uid() = user_id);
+  FOR ALL USING ((select auth.uid()) = user_id);
 
 -- 10. SEED EXERCISES DATA
 -- Module A: Foundation exercises

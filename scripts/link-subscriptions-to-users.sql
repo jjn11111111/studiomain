@@ -4,13 +4,8 @@ ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.
 -- Create index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
 
--- Update RLS policy to allow users to read their own subscription by user_id or email
+-- Remove legacy policy if present; use the single subscriptions_select policy from complete-app-setup or fix-rls-linter.sql
 DROP POLICY IF EXISTS "Users can read own subscription" ON subscriptions;
-CREATE POLICY "Users can read own subscription" ON subscriptions 
-  FOR SELECT USING (
-    auth.uid() = user_id OR 
-    auth.jwt() ->> 'email' = email
-  );
 
 -- Function to auto-link subscription when user signs up with matching email
 CREATE OR REPLACE FUNCTION public.link_subscription_on_signup()

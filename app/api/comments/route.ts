@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
   const { data: rows, error } = await supabase
     .from("comments")
-    .select("id, user_name, content, created_at")
+    .select("id, user_name, comment_text, created_at")
     .eq("exercise_id", exerciseId)
     .order("created_at", { ascending: false })
 
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   const comments = (rows || []).map((c) => ({
     id: c.id,
     user_name: c.user_name ?? "Anonymous",
-    comment_text: c.content,
+    comment_text: c.comment_text ?? "",
     rating: 5,
     created_at: c.created_at,
   }))

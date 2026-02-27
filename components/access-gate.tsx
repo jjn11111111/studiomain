@@ -95,21 +95,33 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Logged in: show modules. Optionally show upgrade banner when no active subscription.
+  // Logged in with active subscription – show protected content
   if (hasAccess) {
     return <>{children}</>
   }
 
-  // Logged in but no subscription – still show modules, with upgrade prompt at top
+  // Logged in but no active subscription – block access, show subscribe CTA
   return (
-    <>
-      <div className="bg-amber-500/20 border-b border-amber-500/40 text-amber-200 px-4 py-3 text-center text-sm">
-        Subscribe to support the project and unlock all features.{" "}
-        <a href="/subscribe" className="underline font-medium hover:text-amber-100">
-          Subscribe now
-        </a>
-      </div>
-      {children}
-    </>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-purple-900/20 to-black">
+      <Card className="max-w-md w-full bg-black/40 border-purple-500/30 backdrop-blur">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
+            <Lock className="w-8 h-8 text-amber-400" />
+          </div>
+          <CardTitle className="text-2xl text-white">Subscription Required</CardTitle>
+          <CardDescription className="text-purple-200">
+            Exercises and training modules are only available with an active subscription. Subscribe to unlock full access.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button asChild className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+            <a href="/subscribe">Subscribe Now</a>
+          </Button>
+          <Button asChild variant="outline" className="w-full border-purple-500/50 text-purple-200 hover:bg-purple-500/10">
+            <a href="/">Back to Home</a>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
