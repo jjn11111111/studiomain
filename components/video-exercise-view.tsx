@@ -24,9 +24,9 @@ interface VideoExerciseViewProps {
 }
 
 const moduleConfig: Record<string, { title: string; colors: { bg: string; text: string; accent: string } }> = {
-  a: { title: "Module A: Foundation", colors: { bg: "bg-red-600", text: "text-white", accent: "bg-red-800" } },
-  b: { title: "Module B: Intermediate", colors: { bg: "bg-blue-600", text: "text-white", accent: "bg-blue-800" } },
-  c: { title: "Module C: Advanced", colors: { bg: "bg-green-600", text: "text-white", accent: "bg-green-800" } },
+  a: { title: "Module A: Red Fruits", colors: { bg: "bg-red-600", text: "text-white", accent: "bg-red-800" } },
+  b: { title: "Module B: Yellow Animals", colors: { bg: "bg-yellow-400", text: "text-black", accent: "bg-yellow-500" } },
+  c: { title: "Module C: Blue Cities", colors: { bg: "bg-blue-600", text: "text-white", accent: "bg-blue-800" } },
 }
 
 export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewProps) {

@@ -147,16 +147,16 @@ CREATE TRIGGER update_comments_updated_at
 -- ---------------------------------------------------------------------------
 
 INSERT INTO exercises (module, exercise_number, title, duration_seconds, is_free, sort_order) VALUES
-  ('A', 1, 'Introduction to Vision Training', 300, true, 1),
-  ('A', 2, 'Basic Eye Coordination', 360, false, 2),
-  ('A', 3, 'Depth Perception Basics', 420, false, 3),
-  ('A', 4, 'Convergence Exercise 1', 300, false, 4),
-  ('A', 5, 'Divergence Exercise 1', 300, false, 5),
-  ('A', 6, 'Focus Flexibility', 360, false, 6),
-  ('A', 7, 'Peripheral Awareness', 420, false, 7),
-  ('A', 8, 'Tracking Exercise 1', 300, false, 8),
-  ('A', 9, 'Saccade Training', 360, false, 9),
-  ('A', 10, 'Module A Review', 480, false, 10)
+  ('A', 1, 'A - Apple', 300, true, 1),
+  ('A', 2, 'B - Banana', 360, false, 2),
+  ('A', 3, 'C - Cherry', 420, false, 3),
+  ('A', 4, 'D - Dragon Fruit', 300, false, 4),
+  ('A', 5, 'E - Elderberry', 300, false, 5),
+  ('A', 6, 'F - Fig', 360, false, 6),
+  ('A', 7, 'G - Guava', 420, false, 7),
+  ('A', 8, 'H - Honeydew', 300, false, 8),
+  ('A', 9, 'I - Icaco', 360, false, 9),
+  ('A', 10, 'J - Jackfruit', 480, false, 10)
 ON CONFLICT (module, exercise_number) DO NOTHING;
 
 INSERT INTO exercises (module, exercise_number, title, duration_seconds, is_free, sort_order) VALUES

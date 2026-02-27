@@ -4,16 +4,16 @@
  */
 export const EXERCISE_VIDEOS: Record<string, Record<number, { title: string; path: string }>> = {
   a: {
-    1: { title: "Introduction to Vision Training", path: "ex1.mp4" },
-    2: { title: "Basic Eye Coordination", path: "ex2.mp4" },
-    3: { title: "Depth Perception Basics", path: "ex3.mp4" },
-    4: { title: "Convergence Exercise 1", path: "ex4.mp4" },
-    5: { title: "Divergence Exercise 1", path: "ex5.mp4" },
-    6: { title: "Focus Flexibility", path: "ex6.mp4" },
-    7: { title: "Peripheral Awareness", path: "ex7.mp4" },
-    8: { title: "Tracking Exercise 1", path: "ex8.mp4" },
-    9: { title: "Saccade Training", path: "ex9.mp4" },
-    10: { title: "Module A Review", path: "ex10.mp4" },
+    1: { title: "A - Apple", path: "ex1.mp4" },
+    2: { title: "B - Banana", path: "ex2.mp4" },
+    3: { title: "C - Cherry", path: "ex3.mp4" },
+    4: { title: "D - Dragon Fruit", path: "ex4.mp4" },
+    5: { title: "E - Elderberry", path: "ex5.mp4" },
+    6: { title: "F - Fig", path: "ex6.mp4" },
+    7: { title: "G - Guava", path: "ex7.mp4" },
+    8: { title: "H - Honeydew", path: "ex8.mp4" },
+    9: { title: "I - Icaco", path: "ex9.mp4" },
+    10: { title: "J - Jackfruit", path: "ex10.mp4" },
   },
   b: {
     1: { title: "Advanced Convergence", path: "ex11.mp4" },

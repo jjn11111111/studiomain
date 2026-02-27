@@ -19,19 +19,19 @@ interface Exercise {
 
 const moduleConfig: Record<string, { title: string; color: string; textColor: string; description: string }> = {
   a: { 
-    title: "Module A: Red", 
+    title: "Module A: Red Fruits", 
     color: "bg-red-600", 
     textColor: "text-white",
     description: "Foundation exercises to develop basic stereoscopic vision and eye coordination."
   },
   b: { 
-    title: "Module B: Yellow", 
+    title: "Module B: Yellow Animals", 
     color: "bg-yellow-400", 
     textColor: "text-black",
     description: "Intermediate exercises to enhance depth perception and visual focus."
   },
   c: { 
-    title: "Module C: Blue", 
+    title: "Module C: Blue Cities", 
     color: "bg-blue-600", 
     textColor: "text-white",
     description: "Advanced exercises for pineal activation and expanded consciousness."
