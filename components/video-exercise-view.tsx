@@ -60,46 +60,21 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
         .single()
 
       const configVideo = getExerciseVideo(moduleId, exerciseNumber)
-
-      function resolveUrl(rawUrl: string): string {
-        const trimmed = (rawUrl ?? "").trim()
-        if (!trimmed) return ""
-        if (/^https?:\/\//i.test(trimmed)) return trimmed
-        let bucket = configVideo?.bucket ?? (moduleId === "a" ? "Module A" : moduleId === "b" ? "Module B" : moduleId === "c" ? "Module C" : "videos")
-        let objectPath = trimmed
-        const firstSlash = trimmed.indexOf("/")
-        if (firstSlash > 0) {
-          const possible = trimmed.slice(0, firstSlash)
-          if (["Module A", "Module B", "Module C", "videos", "home page"].includes(possible)) {
-            bucket = possible
-            objectPath = trimmed.slice(firstSlash + 1)
-          }
-        }
-        try {
-          const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(objectPath)
-          return urlData.publicUrl
-        } catch {
-          return ""
-        }
-      }
+      const proxyVideoUrl = `/api/exercise-video?moduleId=${moduleId}&exerciseId=${exerciseNumber}`
 
       if (error || !data) {
         const title = configVideo?.title ?? `Exercise ${exerciseNumber}`
         const path = configVideo?.path ?? ""
-        const video_url = path ? resolveUrl(path) : ""
         setExercise({
           id: `${moduleId}-${exerciseId}`,
           module: moduleId,
           exercise_number: exerciseNumber,
           title,
-          video_url,
+          video_url: path ? proxyVideoUrl : "",
         })
       } else {
-        let rawUrl = (data.video_url ?? "").trim()
-        if (!rawUrl && configVideo?.path) rawUrl = configVideo.path
-        const resolvedUrl = rawUrl ? resolveUrl(rawUrl) : ""
         const title = (data.title ?? configVideo?.title) ?? `Exercise ${exerciseNumber}`
-        setExercise({ ...data, title, video_url: resolvedUrl })
+        setExercise({ ...data, title, video_url: proxyVideoUrl })
       }
 
       const { count } = await supabase
@@ -301,7 +276,7 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
                       >
                         Open in new tab
                       </a>
-                      {" "}(if 404, file is missing; if CORS error, add your app origin in Supabase)
+                      . Videos are proxied from Storage—ensure the file exists and SUPABASE_SERVICE_ROLE_KEY is set.
                     </p>
                   )}
                   <p className={`font-sans text-xs ${config.colors.text} opacity-50 mt-2`}>
