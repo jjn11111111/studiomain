@@ -1,5 +1,17 @@
--- Update exercise titles for Module B (Yellow Animals) and Module C (Blue Cities).
+-- Update exercise titles for Module A (Red Fruits), Module B (Yellow Animals), and Module C (Blue Cities).
 -- Run in Supabase SQL Editor. Safe to run multiple times.
+
+-- Module A: Red Fruits (exercise_number 1–10)
+UPDATE exercises SET title = 'A - Apple'       WHERE UPPER(module) = 'A' AND exercise_number = 1;
+UPDATE exercises SET title = 'B - Banana'      WHERE UPPER(module) = 'A' AND exercise_number = 2;
+UPDATE exercises SET title = 'C - Cherry'      WHERE UPPER(module) = 'A' AND exercise_number = 3;
+UPDATE exercises SET title = 'D - Dragon Fruit' WHERE UPPER(module) = 'A' AND exercise_number = 4;
+UPDATE exercises SET title = 'E - Elderberry'  WHERE UPPER(module) = 'A' AND exercise_number = 5;
+UPDATE exercises SET title = 'F - Fig'         WHERE UPPER(module) = 'A' AND exercise_number = 6;
+UPDATE exercises SET title = 'G - Guava'       WHERE UPPER(module) = 'A' AND exercise_number = 7;
+UPDATE exercises SET title = 'H - Honeydew'    WHERE UPPER(module) = 'A' AND exercise_number = 8;
+UPDATE exercises SET title = 'I - Icaco'       WHERE UPPER(module) = 'A' AND exercise_number = 9;
+UPDATE exercises SET title = 'J - Jackfruit'   WHERE UPPER(module) = 'A' AND exercise_number = 10;
 
 -- Module B: Yellow Animals (exercise_number 1–10)
 UPDATE exercises SET title = 'Ardvaark'   WHERE UPPER(module) = 'B' AND exercise_number = 1;
