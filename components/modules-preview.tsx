@@ -8,25 +8,28 @@ import Link from "next/link"
 const modules = [
   {
     id: "a",
-    colorName: "Red Fruits",
-    level: "Module A: Red Fruits",
-    exercises: 10,
+    label: "Module A",
+    title: "Red Fruits",
+    tagline: "Foundation training for inner vision",
+    level: "Beginner · 10 guided exercises",
     color: "bg-red-600",
     textColor: "text-white",
   },
   {
     id: "b",
-    colorName: "Yellow Animals",
-    level: "Module B: Yellow Animals",
-    exercises: 10,
+    label: "Module B",
+    title: "Yellow Animals",
+    tagline: "Deeper focus and spatial awareness",
+    level: "Intermediate · 10 guided exercises",
     color: "bg-yellow-400",
     textColor: "text-black",
   },
   {
     id: "c",
-    colorName: "Blue Cities",
-    level: "Module C: Blue Cities",
-    exercises: 10,
+    label: "Module C",
+    title: "Blue Cities",
+    tagline: "Advanced integration and expansion",
+    level: "Advanced · 10 guided exercises",
     color: "bg-blue-600",
     textColor: "text-white",
   },
@@ -66,7 +69,7 @@ export function ModulesPreview() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
           {modules.map((module, index) => (
             <Link key={module.id} href={`/exercises/${module.id}/1`}>
               <div
@@ -78,24 +81,25 @@ export function ModulesPreview() {
                 <Card
                   className={`group h-full ${module.color} border-none transition-all duration-300 hover:scale-105 hover:shadow-2xl relative`}
                 >
-                  <CardContent className="p-8 flex flex-col items-center justify-center min-h-[280px]">
-                    <Badge variant="outline" className={`${module.textColor} border-current/30 mb-4`}>
-                      {module.level}
+                  <CardContent className="p-8 flex flex-col items-stretch justify-between min-h-[280px]">
+                    <Badge variant="outline" className={`${module.textColor} border-current/30 mb-3 text-xs tracking-[0.2em] uppercase`}>
+                      {module.label}
                     </Badge>
 
                     <h3
-                      className={`font-[family-name:var(--font-oswald)] text-4xl font-bold mb-3 ${module.textColor} text-center uppercase tracking-wide`}
+                      className={`font-[family-name:var(--font-oswald)] text-3xl sm:text-4xl md:text-5xl font-bold mb-3 ${module.textColor} text-left tracking-tight leading-tight`}
                     >
-                      {module.colorName}
+                      {module.title}
                     </h3>
 
-                    <div
-                      className={`font-[family-name:var(--font-oswald)] text-5xl font-bold mb-4 ${module.textColor} uppercase`}
-                    >
-                      {module.level}
-                    </div>
+                    <p className={`text-sm sm:text-base ${module.textColor} opacity-85 mb-3`}>
+                      {module.tagline}
+                    </p>
 
-                    <div className={`text-lg ${module.textColor} opacity-80`}>{module.exercises} exercises</div>
+                    <div className="mt-auto pt-2 border-t border-current/20 flex items-center justify-between text-xs sm:text-sm opacity-90">
+                      <span className={`${module.textColor}`}>{module.level}</span>
+                      <span className={`${module.textColor} font-semibold`}>Start module →</span>
+                    </div>
                   </CardContent>
                 </Card>
               </div>

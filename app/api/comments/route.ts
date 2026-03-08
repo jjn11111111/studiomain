@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   const comments = (rows || []).map((c) => ({
     id: c.id,
     user_name: c.user_name ?? "Anonymous",
-    comment_text: c.comment_text ?? "",
+    comment_text: (c as any).comment_text ?? "",
     rating: 5,
     created_at: c.created_at,
   }))

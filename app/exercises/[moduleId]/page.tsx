@@ -8,6 +8,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { getExerciseVideo } from "@/lib/exercise-videos"
 
 interface Exercise {
   id: string
@@ -49,42 +50,54 @@ export default function ModulePage() {
   useEffect(() => {
     async function fetchExercises() {
       const supabase = createClient()
-      
+      const moduleUpper = moduleId.toUpperCase()
+
       const { data, error } = await supabase
         .from("exercises")
         .select("*")
-        .eq("module", moduleId)
+        .in("module", [moduleId, moduleUpper])
         .order("exercise_number", { ascending: true })
 
       if (error) {
         console.error("[v0] Error fetching exercises:", error)
-        // Create placeholder exercises if none found
-        const placeholders = Array.from({ length: 10 }, (_, i) => ({
-          id: `${moduleId}-${i + 1}`,
-          module: moduleId,
-          exercise_number: i + 1,
-          title: `Exercise ${i + 1}`,
-          video_url: "",
-        }))
+        // Create placeholder exercises if Supabase fails
+        const placeholders = Array.from({ length: 10 }, (_, i) => {
+          const exerciseNumber = i + 1
+          const configVideo = getExerciseVideo(moduleId, exerciseNumber)
+
+          return {
+            id: `${moduleId}-${exerciseNumber}`,
+            module: moduleUpper,
+            exercise_number: exerciseNumber,
+            title: configVideo?.title ?? `Exercise ${exerciseNumber}`,
+            video_url: "",
+          }
+        })
+
         setExercises(placeholders)
       } else {
-        // If less than 10 exercises, fill with placeholders
-        const existingNumbers = new Set(data.map(e => e.exercise_number))
-        const allExercises = [...data]
-        
-        for (let i = 1; i <= 10; i++) {
-          if (!existingNumbers.has(i)) {
-            allExercises.push({
-              id: `${moduleId}-${i}`,
-              module: moduleId,
-              exercise_number: i,
-              title: `Exercise ${i}`,
-              video_url: "",
-            })
-          }
+        // Build a complete list of 10 exercises,
+        // preferring Supabase titles but falling back to config titles.
+        const byNumber = new Map<number, Exercise>()
+        for (const row of data ?? []) {
+          byNumber.set(row.exercise_number, row as Exercise)
         }
-        
-        allExercises.sort((a, b) => a.exercise_number - b.exercise_number)
+
+        const allExercises: Exercise[] = []
+
+        for (let exerciseNumber = 1; exerciseNumber <= 10; exerciseNumber++) {
+          const existing = byNumber.get(exerciseNumber)
+          const configVideo = getExerciseVideo(moduleId, exerciseNumber)
+
+          allExercises.push({
+            id: existing?.id ?? `${moduleId}-${exerciseNumber}`,
+            module: existing?.module ?? moduleUpper,
+            exercise_number: exerciseNumber,
+            title: existing?.title ?? configVideo?.title ?? `Exercise ${exerciseNumber}`,
+            video_url: existing?.video_url ?? "",
+          })
+        }
+
         setExercises(allExercises)
       }
       setLoading(false)
