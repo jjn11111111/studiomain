@@ -19,10 +19,10 @@ export default function SubscribePage() {
         <div className="bg-black/40 border border-purple-500/30 rounded-2xl p-8 backdrop-blur">
           <div className="text-center mb-8">
             <div className="text-5xl font-bold text-white mb-2">
-              $11.11
+              $5.55
               <span className="text-lg font-normal text-white/60">/month</span>
             </div>
-            <p className="text-white/50 text-sm">Cancel anytime</p>
+            <p className="text-white/50 text-sm">Cancel anytime. Billed monthly via Stripe.</p>
           </div>
 
           <ul className="space-y-3 mb-8">

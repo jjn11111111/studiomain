@@ -32,7 +32,7 @@ export default function StripeCheckout() {
         disabled={!email}
         className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg py-6"
       >
-        Continue to Payment
+        Continue to Secure Checkout ($5.55/mo)
       </Button>
     </div>
   )

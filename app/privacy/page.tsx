@@ -1,5 +1,6 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { SITE_CONTACT_EMAIL } from "@/lib/site-contact"
 
 export default function PrivacyPage() {
   return (
@@ -16,6 +17,15 @@ export default function PrivacyPage() {
           </p>
           <p className="text-white/80 text-lg leading-relaxed">
             By using our service, you agree to our collection and use of information in accordance with this policy.
+          </p>
+          <p className="text-white/80 text-lg leading-relaxed mt-6">
+            Questions or privacy requests:{" "}
+            <a
+              href={`mailto:${SITE_CONTACT_EMAIL}`}
+              className="text-purple-400 hover:text-purple-300 underline underline-offset-4"
+            >
+              {SITE_CONTACT_EMAIL}
+            </a>
           </p>
         </div>
       </div>
