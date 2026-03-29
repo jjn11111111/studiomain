@@ -31,8 +31,9 @@ const mockImages: PracticeImage[] = [
   {
     id: "2",
     title: "Little Kids in Snow",
-    description: "Soft depth cues in a snowy scene.",
-    image_url: makeUrl("littlekidsnow.jpeg"),
+    description: "Soft depth cues in a snowy forest path.",
+    // Served from /public/practice so it works without Supabase; was previously littlekidsnow.jpeg in Storage.
+    image_url: "/practice/little-kids-snow.png",
     difficulty: "beginner",
     category: "people",
   },

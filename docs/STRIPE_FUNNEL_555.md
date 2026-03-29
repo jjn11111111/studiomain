@@ -59,3 +59,36 @@ This is the canonical setup for the Pineal Vision subscription funnel at **$5.55
 - Keep one primary CTA and minimal friction (email + checkout).
 - Keep “cancel anytime” and secure-payment copy near the button.
 - Consider adding an annual option later (e.g. $49/year) after baseline data.
+
+## 7) Complimentary month (promo code) → auto-renew at full price
+
+This is how you get **one month at no charge**, then **automatic billing every month at $5.55** until the customer cancels (standard Stripe subscription behavior).
+
+### Stripe Dashboard
+
+1. **Coupons** → create a coupon:
+   - **Percent off:** 100%
+   - **Duration:** Repeating
+   - **Duration in months:** 1  
+   (Meaning: the discount applies to the first monthly invoice only; after that, Stripe charges the normal price on the subscription.)
+
+2. **Promotion codes** → create a code linked to that coupon (e.g. `COMPLIMENTARY1MO`).
+
+3. **Payment Link** (the one in `NEXT_PUBLIC_STRIPE_PAYMENT_LINK`):
+   - Must be **subscription** mode with your **$5.55/month** price.
+   - Turn on **Allow promotion codes** so customers can enter the code at checkout.
+
+### What happens next (no extra app code required)
+
+- The subscription stays **active** in Stripe; after the discounted period, Stripe **creates a new invoice** at **$5.55** each month until cancellation.
+- Your webhook **`customer.subscription.updated`** already syncs `current_period_end` (and status) to Supabase when the period rolls or status changes.
+- **`customer.subscription.deleted`** marks the row `canceled` when they cancel.
+
+### Customer communication
+
+Disclose on `/subscribe` (and in email if you send one): after any complimentary period, the plan continues at the listed monthly price until they cancel.
+
+### Optional Stripe events (later)
+
+- `invoice.payment_failed` — alert or restrict access if you want stricter handling of failed renewals.
+- Stripe **Customer portal** — let users cancel/update payment method without emailing you.

@@ -23,6 +23,9 @@ export default function SubscribePage() {
               <span className="text-lg font-normal text-white/60">/month</span>
             </div>
             <p className="text-white/50 text-sm">Cancel anytime. Billed monthly via Stripe.</p>
+            <p className="text-white/45 text-xs mt-3 max-w-md mx-auto leading-relaxed">
+              If you use a promotion for a complimentary period, your subscription continues automatically at the regular monthly rate after that—until you cancel.
+            </p>
           </div>
 
           <ul className="space-y-3 mb-8">
