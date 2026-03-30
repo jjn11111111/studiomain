@@ -60,6 +60,11 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // Refresh session cookies (Supabase + Next proxy). Do not use this alone for
+  // security-sensitive decisions without getClaims/getUser; here we only need
+  // side effects on the response cookies.
+  await supabase.auth.getClaims().catch(() => null);
+
   const {
     data: { user: userFromJwt },
   } = await supabase.auth.getUser();
@@ -74,33 +79,9 @@ export async function updateSession(request: NextRequest) {
     user = session?.user ?? null;
   }
 
-  // Protect exercise routes - require authentication
-  const protectedPaths = ["/exercises"]
-  const isProtectedPath = protectedPaths.some(path => 
-    request.nextUrl.pathname.startsWith(path)
-  )
-
-  if (isProtectedPath && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/auth/login"
-    url.searchParams.set("redirect", request.nextUrl.pathname)
-    return NextResponse.redirect(url)
-  }
-
-  // Check for active subscription on protected paths
-  if (isProtectedPath && user) {
-    const hasActiveSubscription = await userHasActiveSubscription(
-      supabase,
-      user.email
-    );
-
-    if (!hasActiveSubscription) {
-      const url = request.nextUrl.clone()
-      url.pathname = "/subscribe"
-      url.searchParams.set("message", "subscription_required")
-      return NextResponse.redirect(url)
-    }
-  }
+  // /exercises: do NOT gate here. Next.js 16 proxy + Supabase edge session reads
+  // are flaky for some users (false "logged out" → /auth/login). AccessGate +
+  // /api/check-subscription already enforce login + subscription on the page.
 
   // Redirect logged-in users away from auth pages (except reset-password and callback for recovery)
   const isResetPasswordPage = request.nextUrl.pathname === "/auth/reset-password"
