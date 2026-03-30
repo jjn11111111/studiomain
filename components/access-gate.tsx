@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,6 +12,9 @@ import { createClient } from "@/lib/supabase/client"
  * Login + subscription for /exercises. Do not redirect unauthenticated users
  * from the server layout: on Vercel, RSC often cannot see the same Supabase
  * cookies the browser client has, which falsely sent people to /auth/login.
+ *
+ * `INITIAL_SESSION` can fire with null before cookie storage finishes—we debounce
+ * “signed out” and re-read with getSession() so logged-in users are not bounced.
  */
 export function AccessGate({
   children,
@@ -26,6 +29,8 @@ export function AccessGate({
   const [hasAccess, setHasAccess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(!!initialEmail)
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   useEffect(() => {
     const supabase = createClient()
@@ -55,15 +60,60 @@ export function AccessGate({
       setIsLoading(false)
     }
 
+    const clearDebounce = () => {
+      if (debounceRef.current !== undefined) {
+        clearTimeout(debounceRef.current)
+        debounceRef.current = undefined
+      }
+    }
+
+    /** Null session from listener may be too early; confirm with getSession. */
+    const scheduleConfirmSignedOut = () => {
+      clearDebounce()
+      debounceRef.current = setTimeout(() => {
+        debounceRef.current = undefined
+        void supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            void checkAccess(session.user)
+          } else if (initialEmail) {
+            // RSC sometimes sees cookies before the browser client does; still verify subscription.
+            void checkAccess({ email: initialEmail })
+          } else {
+            void checkAccess(null)
+          }
+        })
+      }, 450)
+    }
+
+    if (initialEmail) {
+      void checkAccess({ email: initialEmail })
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === "TOKEN_REFRESHED") return
-        void checkAccess(session?.user ?? null)
+
+        if (event === "SIGNED_OUT") {
+          clearDebounce()
+          void checkAccess(null)
+          return
+        }
+
+        if (session?.user) {
+          clearDebounce()
+          void checkAccess(session.user)
+          return
+        }
+
+        scheduleConfirmSignedOut()
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [])
+    return () => {
+      clearDebounce()
+      subscription.unsubscribe()
+    }
+  }, [initialEmail])
 
   if (isLoading) {
     return (
