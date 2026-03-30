@@ -1,5 +1,23 @@
 import { createServerClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+
+async function userHasActiveSubscription(
+  supabase: SupabaseClient,
+  email: string | undefined
+): Promise<boolean> {
+  if (!email) return false;
+  // Match /api/check-subscription: lowercase + active or trialing (Stripe trial)
+  const normalized = email.trim().toLowerCase();
+  const { data: subscription, error } = await supabase
+    .from("subscriptions")
+    .select("status, current_period_end")
+    .eq("email", normalized)
+    .in("status", ["active", "trialing"])
+    .maybeSingle();
+  if (error || !subscription) return false;
+  return new Date(subscription.current_period_end) > new Date();
+}
 
 export async function updateSession(request: NextRequest) {
   // Check if there's a code parameter at the root - redirect to auth callback
@@ -61,15 +79,10 @@ export async function updateSession(request: NextRequest) {
 
   // Check for active subscription on protected paths
   if (isProtectedPath && user) {
-    const { data: subscription } = await supabase
-      .from("subscriptions")
-      .select("status, current_period_end")
-      .eq("email", user.email)
-      .single()
-
-    const hasActiveSubscription = subscription && 
-      subscription.status === "active" && 
-      new Date(subscription.current_period_end) > new Date()
+    const hasActiveSubscription = await userHasActiveSubscription(
+      supabase,
+      user.email
+    );
 
     if (!hasActiveSubscription) {
       const url = request.nextUrl.clone()
@@ -90,9 +103,23 @@ export async function updateSession(request: NextRequest) {
   }
   
   if (request.nextUrl.pathname.startsWith("/auth") && user) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/exercises"
-    return NextResponse.redirect(url)
+    const url = request.nextUrl.clone();
+    const hasActiveSubscription = await userHasActiveSubscription(
+      supabase,
+      user.email
+    );
+    if (!hasActiveSubscription) {
+      url.pathname = "/subscribe";
+      url.searchParams.set("message", "subscription_required");
+    } else {
+      const next = request.nextUrl.searchParams.get("redirect");
+      url.pathname =
+        next && next.startsWith("/") && !next.startsWith("//")
+          ? next
+          : "/exercises";
+      url.searchParams.delete("redirect");
+    }
+    return NextResponse.redirect(url);
   }
 
   return supabaseResponse;
