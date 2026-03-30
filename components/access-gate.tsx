@@ -2,64 +2,102 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Lock } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 /**
- * Subscription check only. Login is enforced in app/exercises/layout.tsx (server getUser + redirect)
- * so we do not depend on flaky client session timing.
+ * Login + subscription for /exercises. Do not redirect unauthenticated users
+ * from the server layout: on Vercel, RSC often cannot see the same Supabase
+ * cookies the browser client has, which falsely sent people to /auth/login.
  */
 export function AccessGate({
   children,
-  userEmail,
+  initialEmail,
 }: {
   children: React.ReactNode
-  userEmail: string
+  initialEmail?: string | null
 }) {
+  const pathname = usePathname()
+  const loginHref = `/auth/login?redirect=${encodeURIComponent(pathname || "/exercises")}`
+
   const [hasAccess, setHasAccess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoggedIn, setIsLoggedIn] = useState(!!initialEmail)
 
   useEffect(() => {
-    let cancelled = false
+    const supabase = createClient()
 
-    const runCheck = async () => {
+    const checkAccess = async (user: { email?: string } | null) => {
+      if (!user?.email) {
+        setIsLoggedIn(false)
+        setHasAccess(false)
+        setIsLoading(false)
+        return
+      }
+
+      setIsLoggedIn(true)
+
       try {
         const response = await fetch("/api/check-subscription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: userEmail }),
+          body: JSON.stringify({ email: user.email }),
         })
         const data = await response.json()
-        if (!cancelled) setHasAccess(!!data.hasAccess)
+        setHasAccess(!!data.hasAccess)
       } catch (error) {
         console.error("Failed to check subscription:", error)
-        if (!cancelled) setHasAccess(false)
-      } finally {
-        if (!cancelled) setIsLoading(false)
+        setHasAccess(false)
       }
+      setIsLoading(false)
     }
 
-    void runCheck()
-
-    const supabase = createClient()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        window.location.href = "/auth/login?redirect=/exercises"
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "TOKEN_REFRESHED") return
+        void checkAccess(session?.user ?? null)
       }
-    })
+    )
 
-    return () => {
-      cancelled = true
-      subscription.unsubscribe()
-    }
-  }, [userEmail])
+    return () => subscription.unsubscribe()
+  }, [])
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900/20 to-black">
         <div className="text-purple-400 text-xl">Loading...</div>
+      </div>
+    )
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-purple-900/20 to-black">
+        <Card className="max-w-md w-full bg-black/40 border-purple-500/30 backdrop-blur">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
+              <Lock className="w-8 h-8 text-purple-400" />
+            </div>
+            <CardTitle className="text-2xl text-white">Sign In Required</CardTitle>
+            <CardDescription className="text-purple-200">
+              Please sign in to access the training modules.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button asChild className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+              <a href={loginHref}>Sign In</a>
+            </Button>
+            <div className="pt-4 border-t border-purple-500/30 text-center">
+              <p className="text-xs text-purple-300">{"Don't have a subscription? "}</p>
+              <Button asChild variant="link" className="text-purple-400">
+                <a href="/subscribe">Subscribe Now</a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
