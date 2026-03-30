@@ -8,13 +8,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Lock } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
+async function fetchServerSessionEmail(): Promise<string | null> {
+  try {
+    const res = await fetch("/api/auth/session", {
+      credentials: "same-origin",
+      cache: "no-store",
+    })
+    if (!res.ok) return null
+    const data = (await res.json()) as { user: { email?: string } | null }
+    return data.user?.email ?? null
+  } catch {
+    return null
+  }
+}
+
 /**
- * Login + subscription for /exercises. Do not redirect unauthenticated users
- * from the server layout: on Vercel, RSC often cannot see the same Supabase
- * cookies the browser client has, which falsely sent people to /auth/login.
- *
- * `INITIAL_SESSION` can fire with null before cookie storage finishes—we debounce
- * “signed out” and re-read with getSession() so logged-in users are not bounced.
+ * Login + subscription for /exercises. Uses GET /api/auth/session (server cookies)
+ * before trusting the browser Supabase client, which often lags on Vercel.
  */
 export function AccessGate({
   children,
@@ -28,21 +38,31 @@ export function AccessGate({
 
   const [hasAccess, setHasAccess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoggedIn, setIsLoggedIn] = useState(!!initialEmail)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const cancelledRef = useRef(false)
+  const authSubRef = useRef<{ unsubscribe: () => void } | null>(null)
+  /** Email we already accepted (server session or hint); ignore stray INITIAL_SESSION null. */
+  const establishedEmailRef = useRef<string | null>(null)
 
   useEffect(() => {
+    cancelledRef.current = false
+    authSubRef.current = null
+    establishedEmailRef.current = null
     const supabase = createClient()
 
     const checkAccess = async (user: { email?: string } | null) => {
+      if (cancelledRef.current) return
       if (!user?.email) {
+        establishedEmailRef.current = null
         setIsLoggedIn(false)
         setHasAccess(false)
         setIsLoading(false)
         return
       }
 
+      establishedEmailRef.current = user.email
       setIsLoggedIn(true)
 
       try {
@@ -52,12 +72,12 @@ export function AccessGate({
           body: JSON.stringify({ email: user.email }),
         })
         const data = await response.json()
-        setHasAccess(!!data.hasAccess)
+        if (!cancelledRef.current) setHasAccess(!!data.hasAccess)
       } catch (error) {
         console.error("Failed to check subscription:", error)
-        setHasAccess(false)
+        if (!cancelledRef.current) setHasAccess(false)
       }
-      setIsLoading(false)
+      if (!cancelledRef.current) setIsLoading(false)
     }
 
     const clearDebounce = () => {
@@ -67,51 +87,88 @@ export function AccessGate({
       }
     }
 
-    /** Null session from listener may be too early; confirm with getSession. */
     const scheduleConfirmSignedOut = () => {
       clearDebounce()
       debounceRef.current = setTimeout(() => {
         debounceRef.current = undefined
-        void supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user) {
-            void checkAccess(session.user)
-          } else if (initialEmail) {
-            // RSC sometimes sees cookies before the browser client does; still verify subscription.
-            void checkAccess({ email: initialEmail })
-          } else {
-            void checkAccess(null)
+        void (async () => {
+          if (cancelledRef.current) return
+          const {
+            data: { session },
+          } = await supabase.auth.getSession()
+          if (session?.user?.email) {
+            await checkAccess(session.user)
+            return
           }
-        })
+          const serverAgain = await fetchServerSessionEmail()
+          if (serverAgain) {
+            await checkAccess({ email: serverAgain })
+            return
+          }
+          if (initialEmail) {
+            await checkAccess({ email: initialEmail })
+            return
+          }
+          if (establishedEmailRef.current) {
+            const retry = await fetchServerSessionEmail()
+            if (retry) {
+              await checkAccess({ email: retry })
+              return
+            }
+          }
+          await checkAccess(null)
+        })()
       }, 450)
     }
 
-    if (initialEmail) {
-      void checkAccess({ email: initialEmail })
-    }
+    void (async () => {
+      const serverEmail = await fetchServerSessionEmail()
+      const hint = serverEmail ?? initialEmail ?? null
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === "TOKEN_REFRESHED") return
+      if (cancelledRef.current) return
 
-        if (event === "SIGNED_OUT") {
-          clearDebounce()
-          void checkAccess(null)
-          return
+      if (hint) {
+        await checkAccess({ email: hint })
+      }
+
+      if (cancelledRef.current) return
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          if (event === "TOKEN_REFRESHED") return
+
+          if (event === "SIGNED_OUT") {
+            clearDebounce()
+            void checkAccess(null)
+            return
+          }
+
+          if (session?.user) {
+            clearDebounce()
+            void checkAccess(session.user)
+            return
+          }
+
+          if (event === "INITIAL_SESSION" && establishedEmailRef.current) {
+            return
+          }
+
+          scheduleConfirmSignedOut()
         }
+      )
 
-        if (session?.user) {
-          clearDebounce()
-          void checkAccess(session.user)
-          return
-        }
+      authSubRef.current = subscription
 
+      if (!hint) {
         scheduleConfirmSignedOut()
       }
-    )
+    })()
 
     return () => {
+      cancelledRef.current = true
       clearDebounce()
-      subscription.unsubscribe()
+      authSubRef.current?.unsubscribe()
+      authSubRef.current = null
     }
   }, [initialEmail])
 
