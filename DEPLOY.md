@@ -4,8 +4,9 @@ This repository is **one Next.js app** at the **repository root**. There is no n
 
 ## Vercel
 
-- **Root Directory:** `.` (leave empty / default — the app lives at the top level).
-- **Branch:** connect the production branch you use (`master` and/or `main`).
+- **Root Directory:** `.` (leave empty / default — the app lives at the top level).  
+  If it was previously set to `studiomain-app`, **clear it** so the build uses the repo root.
+- **Branch:** `master` and `main` are kept in sync for this repo; point production at either one in Vercel (only one production project is needed).
 - Set env vars on this project: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_STRIPE_PAYMENT_LINK`, optional `NEXT_PUBLIC_SITE_URL`, etc.
 
 ## Ship changes
