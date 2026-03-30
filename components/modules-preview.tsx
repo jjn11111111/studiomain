@@ -8,25 +8,25 @@ import Link from "next/link"
 const modules = [
   {
     id: "a",
-    colorName: "Red Fruits",
-    level: "Module A: Red Fruits",
-    exercises: 10,
+    shortLabel: "Module A",
+    title: "Red Fruits",
+    meta: "Beginner · 10 exercises",
     color: "bg-red-600",
     textColor: "text-white",
   },
   {
     id: "b",
-    colorName: "Yellow Animals",
-    level: "Module B: Yellow Animals",
-    exercises: 10,
+    shortLabel: "Module B",
+    title: "Yellow Animals",
+    meta: "Intermediate · 10 exercises",
     color: "bg-yellow-400",
     textColor: "text-black",
   },
   {
     id: "c",
-    colorName: "Blue Cities",
-    level: "Module C: Blue Cities",
-    exercises: 10,
+    shortLabel: "Module C",
+    title: "Blue Cities",
+    meta: "Advanced · 10 exercises",
     color: "bg-blue-600",
     textColor: "text-white",
   },
@@ -57,48 +57,55 @@ export function ModulesPreview() {
   return (
     <section ref={sectionRef} id="modules" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-card/30 overflow-hidden">
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-16" style={{ transform: `translateY(${offsetY * -0.08}px)` }}>
-          <h2 className="font-[family-name:var(--font-oswald)] text-3xl sm:text-4xl font-bold mb-4">
+        <div
+          className="text-center mb-16 max-w-xl mx-auto"
+          style={{ transform: `translateY(${offsetY * -0.08}px)` }}
+        >
+          <h2 className="font-[family-name:var(--font-oswald)] text-3xl sm:text-4xl font-bold mb-3">
             Training Modules
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-pretty">
-            Progress through carefully structured levels, each building upon the last to develop your inner vision.
+          <p className="text-muted-foreground text-pretty text-sm sm:text-base leading-snug">
+            Structured levels that build stereoscopic vision—from foundation to advanced integration.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {modules.map((module, index) => (
-            <Link key={module.id} href={`/exercises/${module.id}/1`}>
-              <div
-                style={{
-                  transform: `translateY(${offsetY * (0.06 * (index - 1))}px)`,
-                  transition: "transform 0.1s ease-out",
-                }}
+        <div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch"
+          style={{
+            transform: `translateY(${offsetY * 0.04}px)`,
+            transition: "transform 0.1s ease-out",
+          }}
+        >
+          {modules.map((module) => (
+            <Link
+              key={module.id}
+              href={`/exercises/${module.id}/1`}
+              className="block h-full min-h-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl"
+            >
+              <Card
+                className={`group h-full md:aspect-square min-h-[220px] ${module.color} border-none transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden`}
               >
-                <Card
-                  className={`group h-full ${module.color} border-none transition-all duration-300 hover:scale-105 hover:shadow-2xl relative`}
-                >
-                  <CardContent className="p-8 flex flex-col items-center justify-center min-h-[280px]">
-                    <Badge variant="outline" className={`${module.textColor} border-current/30 mb-4`}>
-                      {module.level}
-                    </Badge>
+                <CardContent className="p-6 sm:p-8 h-full flex flex-col items-center justify-center text-center gap-3">
+                  <Badge
+                    variant="outline"
+                    className={`${module.textColor} border-current/30 text-[0.65rem] tracking-[0.25em] uppercase shrink-0`}
+                  >
+                    {module.shortLabel}
+                  </Badge>
 
-                    <h3
-                      className={`font-[family-name:var(--font-oswald)] text-4xl font-bold mb-3 ${module.textColor} text-center uppercase tracking-wide`}
-                    >
-                      {module.colorName}
-                    </h3>
+                  <h3
+                    className={`font-[family-name:var(--font-oswald)] text-3xl sm:text-4xl font-bold ${module.textColor} uppercase tracking-wide leading-none`}
+                  >
+                    {module.title}
+                  </h3>
 
-                    <div
-                      className={`font-[family-name:var(--font-oswald)] text-5xl font-bold mb-4 ${module.textColor} uppercase`}
-                    >
-                      {module.level}
-                    </div>
-
-                    <div className={`text-lg ${module.textColor} opacity-80`}>{module.exercises} exercises</div>
-                  </CardContent>
-                </Card>
-              </div>
+                  <p
+                    className={`text-sm sm:text-base ${module.textColor} opacity-85 leading-tight max-w-[14rem]`}
+                  >
+                    {module.meta}
+                  </p>
+                </CardContent>
+              </Card>
             </Link>
           ))}
         </div>
