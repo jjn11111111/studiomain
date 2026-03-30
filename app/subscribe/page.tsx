@@ -44,6 +44,11 @@ export default function SubscribePage() {
           </ul>
 
           <StripeCheckout />
+
+          <p className="text-amber-300/90 text-xs leading-relaxed bg-amber-500/10 border border-amber-400/20 rounded-lg px-3 py-2 mt-6">
+            If Stripe’s hosted page shows a 404 or error on the first try, go back and press{" "}
+            <span className="font-medium text-amber-200/95">Continue to Secure Checkout</span> again with the same email—hosted checkout sometimes needs a second load after a redirect.
+          </p>
         </div>
 
         <p className="text-center text-white/40 text-xs mt-6">
