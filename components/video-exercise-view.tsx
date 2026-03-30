@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 import { useState, useRef, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { getExerciseVideo } from "@/lib/exercise-videos"
-import { ExerciseComments } from "@/components/exercise-comments"
+import { Comments } from "@/components/comments"
 
 interface Exercise {
   id: string
@@ -56,9 +56,9 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
       const { data, error } = await supabase
         .from("exercises")
         .select("*")
-        .eq("module", moduleUpper)
+        .in("module", [moduleId, moduleUpper])
         .eq("exercise_number", exerciseNumber)
-        .single()
+        .maybeSingle()
 
       const configVideo = getExerciseVideo(moduleId, exerciseNumber)
       const proxyVideoUrl = `/api/exercise-video?moduleId=${moduleId}&exerciseId=${exerciseNumber}`
@@ -73,9 +73,19 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
           title,
           video_url: path ? proxyVideoUrl : "",
         })
-      } else {
+      } else if (data) {
         const title = (data.title ?? configVideo?.title) ?? `Exercise ${exerciseNumber}`
         setExercise({ ...data, title, video_url: proxyVideoUrl })
+      } else {
+        // No row, but no error either – fall back to config
+        const title = configVideo?.title ?? `Exercise ${exerciseNumber}`
+        setExercise({
+          id: `${moduleId}-${exerciseId}`,
+          module: moduleUpper,
+          exercise_number: exerciseNumber,
+          title,
+          video_url: configVideo ? proxyVideoUrl : "",
+        })
       }
 
       const { count } = await supabase
@@ -145,12 +155,40 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
 
   const toggleFullscreen = () => {
     const container = containerRef.current
+    const video = videoRef.current
     if (!container) return
 
-    if (document.fullscreenElement) {
-      document.exitFullscreen()
-    } else {
+    const docAny = document as any
+    const isFullscreen = Boolean(document.fullscreenElement || docAny.webkitFullscreenElement)
+
+    if (isFullscreen) {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen()
+        return
+      }
+      if (docAny.webkitExitFullscreen) {
+        docAny.webkitExitFullscreen()
+        return
+      }
+      return
+    }
+
+    // iOS Safari: fullscreen works only on the <video> element.
+    if (video) {
+      const videoAny = video as any
+      if (typeof videoAny.webkitEnterFullscreen === "function") {
+        videoAny.webkitEnterFullscreen()
+        return
+      }
+      if (typeof video.requestFullscreen === "function") {
+        video.requestFullscreen()
+        return
+      }
+    }
+
+    if (typeof container.requestFullscreen === "function") {
       container.requestFullscreen()
+      return
     }
   }
 
@@ -164,24 +202,25 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
     video.currentTime = percentage * video.duration
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white">Loading exercise...</div>
-      </div>
-    )
-  }
+  const renderBody = () => {
+    if (loading) {
+      return (
+        <div className="flex-1 bg-black flex items-center justify-center">
+          <div className="text-white">Loading exercise...</div>
+        </div>
+      )
+    }
 
-  if (!exercise) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white">Exercise not found</div>
-      </div>
-    )
-  }
+    if (!exercise) {
+      return (
+        <div className="flex-1 bg-black flex items-center justify-center">
+          <div className="text-white">Exercise not found</div>
+        </div>
+      )
+    }
 
-  return (
-    <div className="min-h-screen flex flex-col">
+    return (
+      <>
       {/* Header bar */}
       <div className={`${config.colors.bg} ${config.colors.text} pt-20 pb-6 px-4 sm:px-6 lg:px-8`}>
         <div className="max-w-7xl mx-auto">
@@ -193,7 +232,7 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
             <span className="font-sans text-sm font-bold tracking-[0.2em] uppercase">{config.title}</span>
           </Link>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-6">
             <div>
               <span className="font-sans text-sm font-bold tracking-[0.3em] opacity-50">
                 {String(exerciseNumber).padStart(2, "0")} / {String(totalExercises).padStart(2, "0")}
@@ -201,6 +240,9 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
               <h1 className="font-sans text-3xl sm:text-4xl font-bold tracking-tight uppercase mt-1">
                 {exercise.title}
               </h1>
+              <p className="mt-2 font-sans text-sm sm:text-base opacity-80">
+                Expand the exercise to full screen and begin.
+              </p>
             </div>
 
             <div className="flex gap-2">
@@ -364,11 +406,15 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
         </div>
       </div>
 
-      <section className="bg-black border-t border-white/10 px-4 sm:px-6 lg:px-8 py-10">
-        <div className="max-w-7xl mx-auto text-zinc-100 [&_.text-muted-foreground]:text-zinc-400">
-          <ExerciseComments exerciseId={exercise.id} />
-        </div>
-      </section>
+      {/* Comments */}
+      <Comments exerciseId={exercise.id} />
+      </>
+    )
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {renderBody()}
     </div>
   )
 }

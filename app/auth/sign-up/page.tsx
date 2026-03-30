@@ -77,9 +77,6 @@ export default function SignUpPage() {
                 <p className="text-white/40 text-sm">
                   Click the link in the email to create your account. No password needed.
                 </p>
-                <p className="text-amber-300/90 text-xs leading-relaxed bg-amber-500/10 border border-amber-400/20 rounded-lg px-3 py-2">
-                  If the magic link opens a 404 page the first time, return to your email and tap the same link again.
-                </p>
                 <Button
                   variant="ghost"
                   onClick={() => setIsSent(false)}
@@ -102,7 +99,7 @@ export default function SignUpPage() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="Enter your email address"
+                      placeholder="your@email.com"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}

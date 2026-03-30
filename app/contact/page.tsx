@@ -1,6 +1,5 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { SITE_CONTACT_EMAIL } from "@/lib/site-contact"
 
 export default function ContactPage() {
   return (
@@ -13,13 +12,7 @@ export default function ContactPage() {
             Have questions or feedback? We'd love to hear from you.
           </p>
           <p className="text-white/80 text-lg leading-relaxed">
-            Email:{" "}
-            <a
-              href={`mailto:${SITE_CONTACT_EMAIL}`}
-              className="text-purple-400 hover:text-purple-300 underline underline-offset-4"
-            >
-              {SITE_CONTACT_EMAIL}
-            </a>
+            Email: support@pinealvision.com
           </p>
         </div>
       </div>

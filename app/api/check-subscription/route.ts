@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       .from("subscriptions")
       .select("*")
       .eq("email", email.toLowerCase())
-      .in("status", ["active", "trialing"])
+      .eq("status", "active")
       .single()
 
     if (error || !subscription) {

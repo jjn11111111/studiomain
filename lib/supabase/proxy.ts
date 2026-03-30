@@ -34,10 +34,10 @@ async function userHasActiveSubscription(
 export async function updateSession(request: NextRequest) {
   // Check if there's a code parameter at the root - redirect to auth callback
   const code = request.nextUrl.searchParams.get("code")
-  
+
   // Debug: log every request to see if middleware runs
   console.log("[MIDDLEWARE]", request.nextUrl.pathname, "code:", code)
-  
+
   if (request.nextUrl.pathname === "/" && code) {
     console.log("[MIDDLEWARE] Redirecting to /api/auth/exchange")
     const url = request.nextUrl.clone()
@@ -99,12 +99,12 @@ export async function updateSession(request: NextRequest) {
   const isResetPasswordPage = request.nextUrl.pathname === "/auth/reset-password"
   const isCallbackRoute = request.nextUrl.pathname === "/auth/callback"
   const isConfirmPage = request.nextUrl.pathname === "/auth/confirm"
-  
+
   // Allow callback route and reset-password for all users (auth happens in the route handler)
   if (isCallbackRoute || isResetPasswordPage || isConfirmPage) {
     return supabaseResponse
   }
-  
+
   if (request.nextUrl.pathname.startsWith("/auth") && user) {
     const url = request.nextUrl.clone();
     const hasActiveSubscription = await userHasActiveSubscription(

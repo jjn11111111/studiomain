@@ -1,5 +1,7 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+**Single app:** The whole product lives at the **repository root** (`app/`, `components/`, etc.). There is no nested deploy folder—push from here and set Vercel **Root Directory** to `.` (default). See [`DEPLOY.md`](./DEPLOY.md).
+
 ## Getting Started
 
 First, run the development server:

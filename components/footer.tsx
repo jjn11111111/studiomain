@@ -1,6 +1,5 @@
 import { Eye, AlertTriangle } from "lucide-react"
 import Link from "next/link"
-import { SITE_CONTACT_EMAIL } from "@/lib/site-contact"
 
 export function Footer() {
   return (
@@ -63,17 +62,9 @@ export function Footer() {
             </Link>
           </nav>
 
-          <div className="text-sm text-muted-foreground text-center md:text-right space-y-1">
-            <p>
-              <a
-                href={`mailto:${SITE_CONTACT_EMAIL}`}
-                className="text-purple-400 hover:text-purple-300 underline underline-offset-4"
-              >
-                {SITE_CONTACT_EMAIL}
-              </a>
-            </p>
-            <p>{new Date().getFullYear()} Pineal Vision. All rights reserved.</p>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            {new Date().getFullYear()} Pineal Vision. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
