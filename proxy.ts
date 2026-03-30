@@ -1,12 +1,10 @@
 import { updateSession } from "@/lib/supabase/proxy"
 import { type NextRequest } from "next/server"
 
-export async function middleware(request: NextRequest) {
+// Next.js 16+: convention is a single named export `proxy` (not `middleware`).
+export async function proxy(request: NextRequest) {
   return await updateSession(request)
 }
-
-// Also export as proxy for backwards compatibility
-export { middleware as proxy }
 
 export const config = {
   matcher: [

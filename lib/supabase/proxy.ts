@@ -61,8 +61,18 @@ export async function updateSession(request: NextRequest) {
   );
 
   const {
-    data: { user },
+    data: { user: userFromJwt },
   } = await supabase.auth.getUser();
+
+  // Next proxy can run before the JWT round-trip resolves; fall back to the
+  // cookie session so signed-in users are not bounced to /auth/login.
+  let user = userFromJwt ?? null;
+  if (!user) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    user = session?.user ?? null;
+  }
 
   // Protect exercise routes - require authentication
   const protectedPaths = ["/exercises"]
