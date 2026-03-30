@@ -2,6 +2,18 @@ import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
+/** Plain redirects drop Set-Cookie from the refreshed session on `supabaseResponse`. */
+function redirectWithRefreshedCookies(
+  supabaseResponse: NextResponse,
+  target: URL
+): NextResponse {
+  const redirectResponse = NextResponse.redirect(target);
+  supabaseResponse.cookies.getAll().forEach((c) => {
+    redirectResponse.cookies.set(c);
+  });
+  return redirectResponse;
+}
+
 async function userHasActiveSubscription(
   supabase: SupabaseClient,
   email: string | undefined
@@ -110,7 +122,7 @@ export async function updateSession(request: NextRequest) {
           : "/exercises";
       url.searchParams.delete("redirect");
     }
-    return NextResponse.redirect(url);
+    return redirectWithRefreshedCookies(supabaseResponse, url);
   }
 
   return supabaseResponse;

@@ -1,4 +1,5 @@
-import { createServerClient, parseCookieHeader } from "@supabase/ssr"
+import { createServerClient } from "@supabase/ssr"
+import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
 export const dynamic = "force-dynamic"
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
     return failRedirect
   }
 
+  const cookieStore = await cookies()
   const redirectTarget = new URL(safePath, origin)
   const response = NextResponse.redirect(redirectTarget)
 
@@ -29,7 +31,7 @@ export async function GET(request: Request) {
     {
       cookies: {
         getAll() {
-          return parseCookieHeader(request.headers.get("cookie") ?? "")
+          return cookieStore.getAll()
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {

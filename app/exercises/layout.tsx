@@ -10,10 +10,13 @@ export default async function ExercisesLayout({
   children: React.ReactNode
 }) {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  const email = user?.email
+  const { data: authUser } = await supabase.auth.getUser()
+  let email = authUser.user?.email
+
+  if (!email) {
+    const { data: sessionData } = await supabase.auth.getSession()
+    email = sessionData.session?.user?.email
+  }
 
   if (!email) {
     redirect("/auth/login?redirect=/exercises")
