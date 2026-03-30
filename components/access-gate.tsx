@@ -47,20 +47,9 @@ export function AccessGate({
       setIsLoading(false)
     }
 
-    const runCheck = async () => {
-      // getSession() alone often returns null on first client paint even when
-      // cookies are valid. getUser() validates the JWT (matches server session).
-      const { data: userData } = await supabase.auth.getUser()
-      if (userData.user) {
-        await checkAccess(userData.user)
-        return
-      }
-      const { data: { session } } = await supabase.auth.getSession()
-      await checkAccess(session?.user ?? null)
-    }
-
-    void runCheck()
-
+    // Do not call getUser()/getSession() in parallel with this listener.
+    // A slow null getUser() can finish after INITIAL_SESSION and overwrite
+    // a valid session with "signed out".
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === "TOKEN_REFRESHED") return
