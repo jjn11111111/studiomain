@@ -8,40 +8,49 @@ export const dynamic = "force-dynamic"
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get("code")
-  const next = requestUrl.searchParams.get("next")
+  const nextParam = requestUrl.searchParams.get("next")
 
-  // Use env site URL in production so redirect works even behind proxies
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : requestUrl.origin)
+  const safePath =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : "/exercises"
 
-  if (code) {
-    const cookieStore = await cookies()
+  // Same host as this callback so Set-Cookie and the final page share one origin.
+  // NEXT_PUBLIC_SITE_URL often points at a different host (e.g. custom domain vs *.vercel.app),
+  // which leaves session cookies on the wrong site and /exercises shows "Sign in required".
+  const origin = requestUrl.origin
+  const failRedirect = NextResponse.redirect(new URL("/?error=auth_failed", origin))
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options)
-            })
-          },
-        },
-      }
-    )
-
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-
-    if (!error) {
-      const redirectTo = next || "/exercises"
-      return NextResponse.redirect(`${baseUrl}${redirectTo}`)
-    }
+  if (!code) {
+    return failRedirect
   }
 
-  return NextResponse.redirect(`${baseUrl}/?error=auth_failed`)
+  const cookieStore = await cookies()
+  const redirectTarget = new URL(safePath, origin)
+  const response = NextResponse.redirect(redirectTarget)
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code)
+
+  if (error) {
+    return failRedirect
+  }
+
+  return response
 }
