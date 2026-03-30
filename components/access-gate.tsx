@@ -7,58 +7,54 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Lock } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
+/**
+ * Subscription check only. Login is enforced in app/exercises/layout.tsx (server getUser + redirect)
+ * so we do not depend on flaky client session timing.
+ */
 export function AccessGate({
   children,
-  initialEmail,
+  userEmail,
 }: {
   children: React.ReactNode
-  /** From server getUser() so we do not flash "Sign in" before the browser hydrates session. */
-  initialEmail?: string | null
+  userEmail: string
 }) {
   const [hasAccess, setHasAccess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoggedIn, setIsLoggedIn] = useState(!!initialEmail)
 
   useEffect(() => {
-    const supabase = createClient()
+    let cancelled = false
 
-    const checkAccess = async (user: { email?: string } | null) => {
-      if (!user?.email) {
-        setIsLoggedIn(false)
-        setHasAccess(false)
-        setIsLoading(false)
-        return
-      }
-
-      setIsLoggedIn(true)
-
+    const runCheck = async () => {
       try {
         const response = await fetch("/api/check-subscription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: user.email }),
+          body: JSON.stringify({ email: userEmail }),
         })
         const data = await response.json()
-        setHasAccess(!!data.hasAccess)
+        if (!cancelled) setHasAccess(!!data.hasAccess)
       } catch (error) {
         console.error("Failed to check subscription:", error)
-        setHasAccess(false)
+        if (!cancelled) setHasAccess(false)
+      } finally {
+        if (!cancelled) setIsLoading(false)
       }
-      setIsLoading(false)
     }
 
-    // Do not call getUser()/getSession() in parallel with this listener.
-    // A slow null getUser() can finish after INITIAL_SESSION and overwrite
-    // a valid session with "signed out".
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === "TOKEN_REFRESHED") return
-        void checkAccess(session?.user ?? null)
-      }
-    )
+    void runCheck()
 
-    return () => subscription.unsubscribe()
-  }, [])
+    const supabase = createClient()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        window.location.href = "/auth/login?redirect=/exercises"
+      }
+    })
+
+    return () => {
+      cancelled = true
+      subscription.unsubscribe()
+    }
+  }, [userEmail])
 
   if (isLoading) {
     return (
@@ -68,43 +64,10 @@ export function AccessGate({
     )
   }
 
-  // Not logged in – show sign-in
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-purple-900/20 to-black">
-        <Card className="max-w-md w-full bg-black/40 border-purple-500/30 backdrop-blur">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
-              <Lock className="w-8 h-8 text-purple-400" />
-            </div>
-            <CardTitle className="text-2xl text-white">Sign In Required</CardTitle>
-            <CardDescription className="text-purple-200">
-              Please sign in to access the training modules
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button asChild className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-              <a href="/auth/login">Sign In</a>
-            </Button>
-
-            <div className="pt-4 border-t border-purple-500/30 text-center">
-              <p className="text-xs text-purple-300">{"Don't have a subscription? "}</p>
-              <Button asChild variant="link" className="text-purple-400">
-                <a href="/subscribe">Subscribe Now</a>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Logged in with active subscription – show protected content
   if (hasAccess) {
     return <>{children}</>
   }
 
-  // Logged in but no active subscription – block access, show subscribe CTA
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-purple-900/20 to-black">
       <Card className="max-w-md w-full bg-black/40 border-purple-500/30 backdrop-blur">
