@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { useState, useRef, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { getExerciseVideo } from "@/lib/exercise-videos"
+import { ExerciseComments } from "@/components/exercise-comments"
 
 interface Exercise {
   id: string
@@ -362,6 +363,12 @@ export function VideoExerciseView({ moduleId, exerciseId }: VideoExerciseViewPro
           )}
         </div>
       </div>
+
+      <section className="bg-black border-t border-white/10 px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-w-7xl mx-auto text-zinc-100 [&_.text-muted-foreground]:text-zinc-400">
+          <ExerciseComments exerciseId={exercise.id} />
+        </div>
+      </section>
     </div>
   )
 }
