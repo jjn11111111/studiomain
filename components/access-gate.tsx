@@ -7,10 +7,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Lock } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
-export function AccessGate({ children }: { children: React.ReactNode }) {
+export function AccessGate({
+  children,
+  initialEmail,
+}: {
+  children: React.ReactNode
+  /** From server getUser() so we do not flash "Sign in" before the browser hydrates session. */
+  initialEmail?: string | null
+}) {
   const [hasAccess, setHasAccess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(!!initialEmail)
 
   useEffect(() => {
     const supabase = createClient()
@@ -18,6 +25,7 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
     const checkAccess = async (user: { email?: string } | null) => {
       if (!user?.email) {
         setIsLoggedIn(false)
+        setHasAccess(false)
         setIsLoading(false)
         return
       }
@@ -31,27 +39,34 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           body: JSON.stringify({ email: user.email }),
         })
         const data = await response.json()
-        if (data.hasAccess) setHasAccess(true)
+        setHasAccess(!!data.hasAccess)
       } catch (error) {
         console.error("Failed to check subscription:", error)
+        setHasAccess(false)
       }
       setIsLoading(false)
     }
 
     const runCheck = async () => {
-      // Prefer getSession(): reads from cookie/storage without a network call,
-      // so we see the session immediately after magic-link redirect. getUser()
-      // can fail or delay right after redirect.
+      // getSession() alone often returns null on first client paint even when
+      // cookies are valid. getUser() validates the JWT (matches server session).
+      const { data: userData } = await supabase.auth.getUser()
+      if (userData.user) {
+        await checkAccess(userData.user)
+        return
+      }
       const { data: { session } } = await supabase.auth.getSession()
       await checkAccess(session?.user ?? null)
     }
 
-    runCheck()
+    void runCheck()
 
-    // When session appears or changes (e.g. after redirect), update state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) checkAccess(session.user)
-    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "TOKEN_REFRESHED") return
+        void checkAccess(session?.user ?? null)
+      }
+    )
 
     return () => subscription.unsubscribe()
   }, [])

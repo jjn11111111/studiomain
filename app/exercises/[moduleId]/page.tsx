@@ -2,7 +2,6 @@
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { AccessGate } from "@/components/access-gate"
 import { ArrowLeft, Play, Lock } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -94,7 +93,6 @@ export default function ModulePage() {
   }, [moduleId])
 
   return (
-    <AccessGate>
       <main className="min-h-screen bg-black">
         <Header />
         
@@ -160,6 +158,5 @@ export default function ModulePage() {
 
         <Footer />
       </main>
-    </AccessGate>
   )
 }
