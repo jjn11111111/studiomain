@@ -22,9 +22,28 @@ async function fetchServerSessionEmail(): Promise<string | null> {
   }
 }
 
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms))
+}
+
+async function fetchServerSessionEmailWithRetries(
+  isCancelled: () => boolean,
+  attempts = 4,
+  delayMs = 120
+): Promise<string | null> {
+  for (let i = 0; i < attempts; i++) {
+    if (isCancelled()) return null
+    const email = await fetchServerSessionEmail()
+    if (email) return email
+    if (i < attempts - 1) await sleep(delayMs)
+  }
+  return null
+}
+
 /**
- * Login + subscription for /exercises. Uses GET /api/auth/session (server cookies)
- * before trusting the browser Supabase client, which often lags on Vercel.
+ * Login + subscription for /exercises. Uses server session API + client listener.
+ * Uses a per-effect `cancelled` closure (not a shared ref reset on mount) so
+ * React Strict Mode / fast navigations cannot resurrect a stale async chain.
  */
 export function AccessGate({
   children,
@@ -41,19 +60,25 @@ export function AccessGate({
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const cancelledRef = useRef(false)
-  const authSubRef = useRef<{ unsubscribe: () => void } | null>(null)
-  /** Email we already accepted (server session or hint); ignore stray INITIAL_SESSION null. */
+  /** Email we already accepted; ignore stray INITIAL_SESSION null from the client. */
   const establishedEmailRef = useRef<string | null>(null)
 
   useEffect(() => {
-    cancelledRef.current = false
-    authSubRef.current = null
+    let cancelled = false
+    const isCancelled = () => cancelled
+
     establishedEmailRef.current = null
     const supabase = createClient()
 
+    const clearDebounce = () => {
+      if (debounceRef.current !== undefined) {
+        clearTimeout(debounceRef.current)
+        debounceRef.current = undefined
+      }
+    }
+
     const checkAccess = async (user: { email?: string } | null) => {
-      if (cancelledRef.current) return
+      if (cancelled) return
       if (!user?.email) {
         establishedEmailRef.current = null
         setIsLoggedIn(false)
@@ -72,19 +97,12 @@ export function AccessGate({
           body: JSON.stringify({ email: user.email }),
         })
         const data = await response.json()
-        if (!cancelledRef.current) setHasAccess(!!data.hasAccess)
+        if (!cancelled) setHasAccess(!!data.hasAccess)
       } catch (error) {
         console.error("Failed to check subscription:", error)
-        if (!cancelledRef.current) setHasAccess(false)
+        if (!cancelled) setHasAccess(false)
       }
-      if (!cancelledRef.current) setIsLoading(false)
-    }
-
-    const clearDebounce = () => {
-      if (debounceRef.current !== undefined) {
-        clearTimeout(debounceRef.current)
-        debounceRef.current = undefined
-      }
+      if (!cancelled) setIsLoading(false)
     }
 
     const scheduleConfirmSignedOut = () => {
@@ -92,7 +110,7 @@ export function AccessGate({
       debounceRef.current = setTimeout(() => {
         debounceRef.current = undefined
         void (async () => {
-          if (cancelledRef.current) return
+          if (cancelled) return
           const {
             data: { session },
           } = await supabase.auth.getSession()
@@ -100,7 +118,7 @@ export function AccessGate({
             await checkAccess(session.user)
             return
           }
-          const serverAgain = await fetchServerSessionEmail()
+          const serverAgain = await fetchServerSessionEmailWithRetries(isCancelled, 3, 150)
           if (serverAgain) {
             await checkAccess({ email: serverAgain })
             return
@@ -110,7 +128,7 @@ export function AccessGate({
             return
           }
           if (establishedEmailRef.current) {
-            const retry = await fetchServerSessionEmail()
+            const retry = await fetchServerSessionEmailWithRetries(isCancelled, 3, 150)
             if (retry) {
               await checkAccess({ email: retry })
               return
@@ -121,17 +139,19 @@ export function AccessGate({
       }, 450)
     }
 
-    void (async () => {
-      const serverEmail = await fetchServerSessionEmail()
-      const hint = serverEmail ?? initialEmail ?? null
+    let authSubscription: { unsubscribe: () => void } | undefined
 
-      if (cancelledRef.current) return
+    void (async () => {
+      const serverEmail = await fetchServerSessionEmailWithRetries(isCancelled, 4, 120)
+      if (cancelled) return
+
+      const hint = serverEmail ?? initialEmail ?? null
 
       if (hint) {
         await checkAccess({ email: hint })
       }
 
-      if (cancelledRef.current) return
+      if (cancelled) return
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         (event, session) => {
@@ -157,7 +177,12 @@ export function AccessGate({
         }
       )
 
-      authSubRef.current = subscription
+      authSubscription = subscription
+
+      if (cancelled) {
+        subscription.unsubscribe()
+        return
+      }
 
       if (!hint) {
         scheduleConfirmSignedOut()
@@ -165,10 +190,9 @@ export function AccessGate({
     })()
 
     return () => {
-      cancelledRef.current = true
+      cancelled = true
       clearDebounce()
-      authSubRef.current?.unsubscribe()
-      authSubRef.current = null
+      authSubscription?.unsubscribe()
     }
   }, [initialEmail])
 
