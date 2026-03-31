@@ -32,16 +32,13 @@ async function userHasActiveSubscription(
 }
 
 export async function updateSession(request: NextRequest) {
-  // Check if there's a code parameter at the root - redirect to auth callback
+  // Check if there's a code parameter at the root and normalize onto the
+  // canonical auth callback route used by this app.
   const code = request.nextUrl.searchParams.get("code")
 
-  // Debug: log every request to see if middleware runs
-  console.log("[MIDDLEWARE]", request.nextUrl.pathname, "code:", code)
-
   if (request.nextUrl.pathname === "/" && code) {
-    console.log("[MIDDLEWARE] Redirecting to /api/auth/exchange")
     const url = request.nextUrl.clone()
-    url.pathname = "/api/auth/exchange"
+    url.pathname = "/auth/callback"
     return NextResponse.redirect(url)
   }
 
