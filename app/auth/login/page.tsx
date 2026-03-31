@@ -15,6 +15,9 @@ const RATE_LIMIT_SECONDS = 6
 function LoginForm() {
   const [email, setEmail] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
+  const [hostWarning, setHostWarning] = useState<string | null>(null)
+  const [preferredOrigin, setPreferredOrigin] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [isSent, setIsSent] = useState(false)
   const [cooldown, setCooldown] = useState(0)
@@ -26,20 +29,55 @@ function LoginForm() {
     return () => clearInterval(t)
   }, [cooldown])
 
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+    const origin = configured?.length ? configured : window.location.origin
+    setPreferredOrigin(origin)
+    const currentHost = new URL(window.location.href).host
+    const configuredHost = new URL(origin).host
+    if (currentHost !== configuredHost) {
+      setHostWarning(
+        `You are on ${currentHost}. For reliable sign-in, use ${configuredHost}.`
+      )
+    }
+  }, [])
+
+  // Surface auth callback failures (including hash fragments from Supabase).
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const search = new URLSearchParams(window.location.search)
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""))
+    const errorCode = search.get("error_code") || hash.get("error_code")
+    const errorDescription =
+      search.get("error_description") || hash.get("error_description")
+
+    if (errorCode === "otp_expired") {
+      setNotice("Your magic link expired or was already used. Request a new one below.")
+      setError(null)
+      return
+    }
+
+    const authError = search.get("error") || hash.get("error")
+    if (authError) {
+      setNotice(errorDescription ? decodeURIComponent(errorDescription) : "Sign-in link failed. Please request a new magic link.")
+    }
+  }, [])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
+    setNotice(null)
 
     try {
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null
       const next = params?.get("redirect") || "/exercises"
-      const origin = typeof window !== "undefined" ? window.location.origin : ""
       const { error: err } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `${preferredOrigin || window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       })
       if (err) throw err
@@ -111,6 +149,23 @@ function LoginForm() {
                   <h1 className="text-2xl font-bold text-white mb-2">Sign In</h1>
                   <p className="text-white/60">{"Enter your email and we'll send you a magic link"}</p>
                 </div>
+                {hostWarning && (
+                  <div className="mb-4 rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                    {hostWarning}
+                    {preferredOrigin && (
+                      <>
+                        {" "}
+                        <a
+                          href={`${preferredOrigin}/auth/login${typeof window !== "undefined" ? window.location.search : ""}`}
+                          className="underline underline-offset-2"
+                        >
+                          Open production login
+                        </a>
+                        .
+                      </>
+                    )}
+                  </div>
+                )}
 
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div className="space-y-2">
@@ -128,6 +183,11 @@ function LoginForm() {
 
                   {error && (
                     <p className="text-red-400 text-sm text-center">{error}</p>
+                  )}
+                  {notice && (
+                    <p className="text-amber-300 text-sm text-center bg-amber-500/10 border border-amber-400/20 rounded-lg px-3 py-2">
+                      {notice}
+                    </p>
                   )}
 
                   <Button
