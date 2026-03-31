@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { cookies, headers } from "next/headers"
 
 export const dynamic = "force-dynamic"
 
@@ -10,6 +11,9 @@ export const dynamic = "force-dynamic"
  */
 export async function GET() {
   try {
+    const headerStore = await headers()
+    const cookieStore = await cookies()
+    const debugEnabled = headerStore.get("x-auth-debug") === "1"
     const supabase = await createClient()
     const {
       data: { user: authUser },
@@ -24,12 +28,34 @@ export async function GET() {
     }
 
     if (!email) {
+      if (debugEnabled) {
+        const cookieNames = cookieStore.getAll().map((c) => c.name)
+        return NextResponse.json({
+          user: null,
+          debug: {
+            host: headerStore.get("host"),
+            xForwardedHost: headerStore.get("x-forwarded-host"),
+            cookieCount: cookieNames.length,
+            supabaseCookieCount: cookieNames.filter((n) => n.includes("sb-")).length,
+            hasAccessTokenCookie: cookieNames.some((n) => n.endsWith("auth-token")),
+          },
+        })
+      }
       return NextResponse.json({ user: null })
     }
 
-    return NextResponse.json({
-      user: { email },
-    })
+    if (debugEnabled) {
+      return NextResponse.json({
+        user: { email },
+        debug: {
+          host: headerStore.get("host"),
+          xForwardedHost: headerStore.get("x-forwarded-host"),
+          cookieCount: cookieStore.getAll().length,
+        },
+      })
+    }
+
+    return NextResponse.json({ user: { email } })
   } catch (e) {
     console.error("[auth/session]", e)
     return NextResponse.json({ user: null }, { status: 200 })

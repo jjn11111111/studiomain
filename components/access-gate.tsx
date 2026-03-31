@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Lock } from "lucide-react"
@@ -53,11 +53,15 @@ export function AccessGate({
   initialEmail?: string | null
 }) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const authDebug = searchParams?.get("authdebug") === "1"
   const loginHref = `/auth/login?redirect=${encodeURIComponent(pathname || "/exercises")}`
 
   const [hasAccess, setHasAccess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [debugReason, setDebugReason] = useState("initializing")
+  const [debugServerSnapshot, setDebugServerSnapshot] = useState<string | null>(null)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   /** Email we already accepted; ignore stray INITIAL_SESSION null from the client. */
@@ -82,6 +86,7 @@ export function AccessGate({
     const checkAccess = async (user: { email?: string } | null) => {
       if (cancelled) return
       if (!user?.email) {
+        if (authDebug) setDebugReason("checkAccess(null)")
         establishedEmailRef.current = null
         setIsLoggedIn(false)
         setHasAccess(false)
@@ -95,6 +100,7 @@ export function AccessGate({
       establishedEmailRef.current = user.email
       lastConfirmedAuthRef.current = Date.now()
       signedOutConfirmCountRef.current = 0
+      if (authDebug) setDebugReason(`checkAccess(${user.email})`)
       try {
         window.localStorage.setItem("pv:last-auth-email", user.email)
       } catch {}
@@ -116,6 +122,7 @@ export function AccessGate({
     }
 
     const scheduleConfirmSignedOut = () => {
+      if (authDebug) setDebugReason("scheduleConfirmSignedOut")
       clearDebounce()
       debounceRef.current = setTimeout(() => {
         debounceRef.current = undefined
@@ -125,21 +132,26 @@ export function AccessGate({
             data: { session },
           } = await supabase.auth.getSession()
           if (session?.user?.email) {
+            if (authDebug) setDebugReason("supabase.getSession user present")
             await checkAccess(session.user)
             return
           }
+          if (authDebug) setDebugReason("supabase.getSession null")
           const serverAgain = await fetchServerSessionEmailWithRetries(isCancelled, 3, 150)
           if (serverAgain) {
+            if (authDebug) setDebugReason("server session recovered")
             await checkAccess({ email: serverAgain })
             return
           }
           if (initialEmail) {
+            if (authDebug) setDebugReason("using initialEmail fallback")
             await checkAccess({ email: initialEmail })
             return
           }
           try {
             const remembered = window.localStorage.getItem("pv:last-auth-email")
             if (remembered) {
+              if (authDebug) setDebugReason("using localStorage fallback")
               await checkAccess({ email: remembered })
               return
             }
@@ -147,6 +159,7 @@ export function AccessGate({
           if (establishedEmailRef.current) {
             const retry = await fetchServerSessionEmailWithRetries(isCancelled, 3, 150)
             if (retry) {
+              if (authDebug) setDebugReason("establishedEmail retry recovered")
               await checkAccess({ email: retry })
               return
             }
@@ -158,6 +171,7 @@ export function AccessGate({
           ) {
             const finalRetry = await fetchServerSessionEmailWithRetries(isCancelled, 4, 200)
             if (finalRetry) {
+              if (authDebug) setDebugReason("grace window retry recovered")
               await checkAccess({ email: finalRetry })
               return
             }
@@ -165,10 +179,12 @@ export function AccessGate({
 
           signedOutConfirmCountRef.current += 1
           if (signedOutConfirmCountRef.current < 2) {
+            if (authDebug) setDebugReason("waiting for second signed-out confirmation")
             scheduleConfirmSignedOut()
             return
           }
 
+          if (authDebug) setDebugReason("confirmed signed-out after retries")
           await checkAccess(null)
         })()
       }, 450)
@@ -177,10 +193,24 @@ export function AccessGate({
     let authSubscription: { unsubscribe: () => void } | undefined
 
     void (async () => {
+      if (authDebug) setDebugReason("initial fetchServerSessionEmailWithRetries")
       const serverEmail = await fetchServerSessionEmailWithRetries(isCancelled, 4, 120)
       if (cancelled) return
 
       const hint = serverEmail ?? initialEmail ?? null
+      if (authDebug) {
+        try {
+          const r = await fetch("/api/auth/session", {
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: { "x-auth-debug": "1" },
+          })
+          const text = await r.text()
+          setDebugServerSnapshot(text)
+        } catch {
+          setDebugServerSnapshot("failed to load /api/auth/session debug")
+        }
+      }
 
       if (hint) {
         await checkAccess({ email: hint })
@@ -190,6 +220,7 @@ export function AccessGate({
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         (event, session) => {
+          if (authDebug) setDebugReason(`onAuthStateChange:${event}`)
           if (event === "TOKEN_REFRESHED") return
 
           if (event === "SIGNED_OUT") {
@@ -253,6 +284,12 @@ export function AccessGate({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {authDebug && (
+              <div className="rounded border border-amber-500/50 bg-amber-500/10 p-2 text-left text-[11px] text-amber-200">
+                <div>debugReason: {debugReason}</div>
+                {debugServerSnapshot && <div className="break-words">server: {debugServerSnapshot}</div>}
+              </div>
+            )}
             <Button asChild className="w-full bg-purple-600 hover:bg-purple-700 text-white">
               <a href={loginHref}>Sign In</a>
             </Button>
