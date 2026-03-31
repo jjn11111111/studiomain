@@ -55,7 +55,8 @@ export function AccessGate({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const authDebug = searchParams?.get("authdebug") === "1"
-  const loginHref = `/auth/login?redirect=${encodeURIComponent(pathname || "/exercises")}`
+  const redirectTarget = `${pathname || "/exercises"}${authDebug ? "?authdebug=1" : ""}`
+  const loginHref = `/auth/login?redirect=${encodeURIComponent(redirectTarget)}`
 
   const [hasAccess, setHasAccess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)

@@ -9,11 +9,13 @@ export const dynamic = "force-dynamic"
  * the browser’s follow-up request so refreshed Set-Cookie headers are often
  * visible here when createBrowserClient still shows null on first paint).
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const headerStore = await headers()
     const cookieStore = await cookies()
-    const debugEnabled = headerStore.get("x-auth-debug") === "1"
+    const url = new URL(request.url)
+    const debugEnabled =
+      headerStore.get("x-auth-debug") === "1" || url.searchParams.get("authdebug") === "1"
     const supabase = await createClient()
     const {
       data: { user: authUser },
