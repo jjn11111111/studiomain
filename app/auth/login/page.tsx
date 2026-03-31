@@ -11,6 +11,7 @@ import { useState, Suspense, useEffect } from "react"
 import { Eye, ArrowLeft, Mail, Check } from "lucide-react"
 
 const RATE_LIMIT_SECONDS = 6
+const DEFAULT_SITE_URL = "https://studiomain1.vercel.app"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
@@ -32,7 +33,7 @@ function LoginForm() {
   useEffect(() => {
     if (typeof window === "undefined") return
     const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-    const origin = configured?.length ? configured : window.location.origin
+    const origin = configured?.length ? configured : DEFAULT_SITE_URL
     setPreferredOrigin(origin)
     const currentHost = new URL(window.location.href).host
     const configuredHost = new URL(origin).host
@@ -77,7 +78,7 @@ function LoginForm() {
       const { error: err } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${preferredOrigin || window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `${preferredOrigin || DEFAULT_SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       })
       if (err) throw err
