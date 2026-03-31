@@ -62,6 +62,7 @@ export function AccessGate({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   /** Email we already accepted; ignore stray INITIAL_SESSION null from the client. */
   const establishedEmailRef = useRef<string | null>(null)
+  const lastConfirmedAuthRef = useRef(0)
 
   useEffect(() => {
     let cancelled = false
@@ -88,6 +89,7 @@ export function AccessGate({
       }
 
       establishedEmailRef.current = user.email
+      lastConfirmedAuthRef.current = Date.now()
       setIsLoggedIn(true)
 
       try {
@@ -134,6 +136,18 @@ export function AccessGate({
               return
             }
           }
+          // Resist brief auth flicker right after a confirmed login/session.
+          if (
+            establishedEmailRef.current &&
+            Date.now() - lastConfirmedAuthRef.current < 15000
+          ) {
+            const finalRetry = await fetchServerSessionEmailWithRetries(isCancelled, 4, 200)
+            if (finalRetry) {
+              await checkAccess({ email: finalRetry })
+              return
+            }
+          }
+
           await checkAccess(null)
         })()
       }, 450)
@@ -158,8 +172,8 @@ export function AccessGate({
           if (event === "TOKEN_REFRESHED") return
 
           if (event === "SIGNED_OUT") {
-            clearDebounce()
-            void checkAccess(null)
+            // Treat sign-out as tentative until server cookies agree.
+            scheduleConfirmSignedOut()
             return
           }
 
