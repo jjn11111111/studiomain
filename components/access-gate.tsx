@@ -63,6 +63,7 @@ export function AccessGate({
   /** Email we already accepted; ignore stray INITIAL_SESSION null from the client. */
   const establishedEmailRef = useRef<string | null>(null)
   const lastConfirmedAuthRef = useRef(0)
+  const signedOutConfirmCountRef = useRef(0)
 
   useEffect(() => {
     let cancelled = false
@@ -84,12 +85,19 @@ export function AccessGate({
         establishedEmailRef.current = null
         setIsLoggedIn(false)
         setHasAccess(false)
+        try {
+          window.localStorage.removeItem("pv:last-auth-email")
+        } catch {}
         setIsLoading(false)
         return
       }
 
       establishedEmailRef.current = user.email
       lastConfirmedAuthRef.current = Date.now()
+      signedOutConfirmCountRef.current = 0
+      try {
+        window.localStorage.setItem("pv:last-auth-email", user.email)
+      } catch {}
       setIsLoggedIn(true)
 
       try {
@@ -129,6 +137,13 @@ export function AccessGate({
             await checkAccess({ email: initialEmail })
             return
           }
+          try {
+            const remembered = window.localStorage.getItem("pv:last-auth-email")
+            if (remembered) {
+              await checkAccess({ email: remembered })
+              return
+            }
+          } catch {}
           if (establishedEmailRef.current) {
             const retry = await fetchServerSessionEmailWithRetries(isCancelled, 3, 150)
             if (retry) {
@@ -146,6 +161,12 @@ export function AccessGate({
               await checkAccess({ email: finalRetry })
               return
             }
+          }
+
+          signedOutConfirmCountRef.current += 1
+          if (signedOutConfirmCountRef.current < 2) {
+            scheduleConfirmSignedOut()
+            return
           }
 
           await checkAccess(null)
