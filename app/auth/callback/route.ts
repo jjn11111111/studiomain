@@ -11,7 +11,6 @@ export async function GET(request: Request) {
   const tokenHash = requestUrl.searchParams.get("token_hash")
   const typeParam = requestUrl.searchParams.get("type")
   const nextParam = requestUrl.searchParams.get("next")
-  const callbackDebug = requestUrl.searchParams.get("callbackdebug") === "1"
 
   const safePath =
     nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
@@ -28,7 +27,6 @@ export async function GET(request: Request) {
   const cookieStore = await cookies()
   const redirectTarget = new URL(safePath, origin)
   const response = NextResponse.redirect(redirectTarget)
-  const attemptedCookieNames: string[] = []
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,7 +38,6 @@ export async function GET(request: Request) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            attemptedCookieNames.push(name)
             response.cookies.set(name, value, options)
           })
         },
@@ -49,13 +46,10 @@ export async function GET(request: Request) {
   )
 
   let error: Error | null = null
-  let flow: "code" | "token_hash" | "unknown" = "unknown"
   if (code) {
-    flow = "code"
     const exchange = await supabase.auth.exchangeCodeForSession(code)
     error = exchange.error
   } else if (tokenHash) {
-    flow = "token_hash"
     const otpType = (typeParam ?? "email") as EmailOtpType
     const verify = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
@@ -65,25 +59,7 @@ export async function GET(request: Request) {
   }
 
   if (error) {
-    if (callbackDebug) {
-      return NextResponse.json({
-        ok: false,
-        flow,
-        error: error.message,
-        attemptedCookieNames,
-        redirectTarget: redirectTarget.toString(),
-      })
-    }
     return failRedirect
-  }
-
-  if (callbackDebug) {
-    return NextResponse.json({
-      ok: true,
-      flow,
-      attemptedCookieNames,
-      redirectTarget: redirectTarget.toString(),
-    })
   }
 
   return response

@@ -17,7 +17,6 @@ function LoginForm() {
   const [email, setEmail] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [hostWarning, setHostWarning] = useState<string | null>(null)
   const [preferredOrigin, setPreferredOrigin] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [isSent, setIsSent] = useState(false)
@@ -35,13 +34,6 @@ function LoginForm() {
     const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
     const origin = configured?.length ? configured : DEFAULT_SITE_URL
     setPreferredOrigin(origin)
-    const currentHost = new URL(window.location.href).host
-    const configuredHost = new URL(origin).host
-    if (currentHost !== configuredHost) {
-      setHostWarning(
-        `You are on ${currentHost}. For reliable sign-in, use ${configuredHost}.`
-      )
-    }
   }, [])
 
   // Surface auth callback failures (including hash fragments from Supabase).
@@ -150,24 +142,6 @@ function LoginForm() {
                   <h1 className="text-2xl font-bold text-white mb-2">Sign In</h1>
                   <p className="text-white/60">{"Enter your email and we'll send you a magic link"}</p>
                 </div>
-                {hostWarning && (
-                  <div className="mb-4 rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-                    {hostWarning}
-                    {preferredOrigin && (
-                      <>
-                        {" "}
-                        <a
-                          href={`${preferredOrigin}/auth/login${typeof window !== "undefined" ? window.location.search : ""}`}
-                          className="underline underline-offset-2"
-                        >
-                          Open production login
-                        </a>
-                        .
-                      </>
-                    )}
-                  </div>
-                )}
-
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-white/80">Email</Label>
