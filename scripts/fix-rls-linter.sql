@@ -70,6 +70,10 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'practice_images') THEN
     EXECUTE 'DROP POLICY IF EXISTS "Active subscribers can read" ON practice_images';
+    EXECUTE 'DROP POLICY IF EXISTS "practice_images_public_select" ON practice_images';
+    EXECUTE 'CREATE POLICY "practice_images_public_select" ON practice_images FOR SELECT USING (true)';
+    EXECUTE 'DROP POLICY IF EXISTS "practice_images_service_role_all" ON practice_images';
+    EXECUTE 'CREATE POLICY "practice_images_service_role_all" ON practice_images FOR ALL USING ((select auth.role()) = ''service_role'')';
   END IF;
 END $$;
 

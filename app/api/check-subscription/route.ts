@@ -1,11 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { normalizeEmail } from "@/lib/email-normalize"
+import { createClient as createSupabaseJsClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 import crypto from "crypto"
 
 /**
- * Subscription access must be decided from the **server session**, not the request body.
- * Client-supplied email is ignored for auth (prevents spoofing); RLS still restricts rows.
+ * Subscription access is decided from **getUser()** only (no client-supplied email).
+ * After identity is verified, we read `subscriptions` with the **service role** so RLS /
+ * JWT email claim quirks cannot hide a valid row. Safe: query is keyed only to session email.
  */
 export async function POST() {
   try {
@@ -20,16 +22,45 @@ export async function POST() {
     }
 
     const normalized = normalizeEmail(user.email)
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
 
-    // Match lib/supabase/proxy.ts userHasActiveSubscription: active + trialing (Stripe trial)
-    const { data: subscription, error } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("email", normalized)
-      .in("status", ["active", "trialing"])
-      .maybeSingle()
+    let subscription: {
+      stripe_subscription_id: string | null
+      current_period_end: string
+    } | null = null
 
-    if (error || !subscription) {
+    if (serviceKey) {
+      const admin = createSupabaseJsClient(url, serviceKey)
+      const { data: rows, error } = await admin
+        .from("subscriptions")
+        .select("stripe_subscription_id, current_period_end, status")
+        .eq("email", normalized)
+        .in("status", ["active", "trialing", "past_due"])
+        .order("current_period_end", { ascending: false })
+        .limit(1)
+
+      if (error) {
+        console.error("[check-subscription] service lookup:", error.message)
+      }
+      subscription = rows?.[0] ?? null
+    } else {
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("stripe_subscription_id, current_period_end, status")
+        .eq("email", normalized)
+        .in("status", ["active", "trialing", "past_due"])
+        .order("current_period_end", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (error) {
+        console.error("[check-subscription] anon lookup:", error.message)
+      }
+      subscription = data ?? null
+    }
+
+    if (!subscription) {
       return NextResponse.json({ hasAccess: false })
     }
 

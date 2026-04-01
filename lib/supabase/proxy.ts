@@ -19,13 +19,13 @@ async function userHasActiveSubscription(
   email: string | undefined
 ): Promise<boolean> {
   if (!email) return false;
-  // Match /api/check-subscription: lowercase + active or trialing (Stripe trial)
+  // Match /api/check-subscription: active, trialing, past_due (within current_period_end)
   const normalized = email.trim().toLowerCase();
   const { data: subscription, error } = await supabase
     .from("subscriptions")
     .select("status, current_period_end")
     .eq("email", normalized)
-    .in("status", ["active", "trialing"])
+    .in("status", ["active", "trialing", "past_due"])
     .maybeSingle();
   if (error || !subscription) return false;
   return new Date(subscription.current_period_end) > new Date();
