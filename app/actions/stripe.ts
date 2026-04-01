@@ -10,7 +10,7 @@ export async function createCheckoutSession(productId: string, email: string): P
       ? `https://${process.env.VERCEL_URL}` 
       : "https://studiomain1.vercel.app"
 
-    console.log("[v0] Creating session with:", { productId, email, baseUrl })
+    console.log("[stripe] Creating session with:", { productId, email, baseUrl })
 
     const session = await stripe.checkout.sessions.create({
       customer_email: email,
@@ -25,11 +25,11 @@ export async function createCheckoutSession(productId: string, email: string): P
       cancel_url: `${baseUrl}/subscribe`,
     })
 
-    console.log("[v0] Session created:", session.url)
+    console.log("[stripe] Session created:", session.url)
     return session.url!
   } catch (error: unknown) {
     const stripeError = error as { message?: string; type?: string }
-    console.error("[v0] Stripe error:", stripeError.message, stripeError.type)
+    console.error("[stripe] Stripe error:", stripeError.message, stripeError.type)
     throw new Error(stripeError.message || "Failed to create checkout session")
   }
 }

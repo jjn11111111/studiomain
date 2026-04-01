@@ -74,7 +74,7 @@ export default function ModulePage() {
           .order("exercise_number", { ascending: true })
 
         if (error) {
-          console.error("[v0] Error fetching exercises:", error)
+          console.error("[exercises] Error fetching exercises:", error)
           setExercises(buildPlaceholders())
         } else {
           // Build a complete list of 10 exercises,
@@ -102,7 +102,7 @@ export default function ModulePage() {
           setExercises(allExercises)
         }
       } catch (err) {
-        console.error("[v0] Unexpected error fetching exercises:", err)
+        console.error("[exercises] Unexpected error fetching exercises:", err)
         setExercises(buildPlaceholders())
       } finally {
         setLoading(false)

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature")
 
   if (!signature) {
-    console.error("[v0] Missing stripe-signature header")
+    console.error("[stripe-webhook] Missing stripe-signature header")
     return NextResponse.json({ error: "Missing signature" }, { status: 400 })
   }
 
@@ -29,11 +29,11 @@ export async function POST(request: Request) {
       process.env.STRIPE_WEBHOOK_SECRET || ""
     )
   } catch (err) {
-    console.error("[v0] Webhook signature verification failed:", err)
+    console.error("[stripe-webhook] Webhook signature verification failed:", err)
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
   }
 
-  console.log("[v0] Stripe webhook received:", event.type)
+  console.log("[stripe-webhook] Stripe webhook received:", event.type)
 
   switch (event.type) {
     case "checkout.session.completed": {
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       // Get email from customer_email OR customer_details.email (payment links use customer_details)
       const rawEmail = session.customer_email || session.customer_details?.email
       const email = rawEmail ? normalizeEmail(rawEmail) : null
-      console.log("[v0] Checkout session completed for:", email)
+      console.log("[stripe-webhook] Checkout session completed for:", email)
       
       if (email) {
         let periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
             const sub = await stripe.subscriptions.retrieve(session.subscription as string)
             periodEnd = new Date(sub.current_period_end * 1000).toISOString()
           } catch (e) {
-            console.warn("[webhook] Could not fetch subscription for period_end, using fallback")
+            console.warn("[stripe-webhook] Could not fetch subscription for period_end, using fallback")
           }
         }
 
@@ -72,9 +72,9 @@ export async function POST(request: Request) {
             .eq("email", email)
 
           if (updateError) {
-            console.error("[v0] Error updating subscription:", updateError)
+            console.error("[stripe-webhook] Error updating subscription:", updateError)
           } else {
-            console.log("[v0] Updated subscription for:", email)
+            console.log("[stripe-webhook] Updated subscription for:", email)
           }
         } else {
           const { error: insertError } = await supabase
@@ -88,9 +88,9 @@ export async function POST(request: Request) {
             })
 
           if (insertError) {
-            console.error("[v0] Error inserting subscription:", insertError)
+            console.error("[stripe-webhook] Error inserting subscription:", insertError)
           } else {
-            console.log("[v0] Created subscription for:", email)
+            console.log("[stripe-webhook] Created subscription for:", email)
           }
         }
       }
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
 
     case "customer.subscription.updated": {
       const subscription = event.data.object as Stripe.Subscription
-      console.log("[v0] Subscription updated:", subscription.id, subscription.status)
+      console.log("[stripe-webhook] Subscription updated:", subscription.id, subscription.status)
 
       const { error } = await supabase
         .from("subscriptions")
@@ -110,14 +110,14 @@ export async function POST(request: Request) {
         .eq("stripe_subscription_id", subscription.id)
       
       if (error) {
-        console.error("[v0] Error updating subscription status:", error)
+        console.error("[stripe-webhook] Error updating subscription status:", error)
       }
       break
     }
 
     case "customer.subscription.deleted": {
       const subscription = event.data.object as Stripe.Subscription
-      console.log("[v0] Subscription deleted:", subscription.id)
+      console.log("[stripe-webhook] Subscription deleted:", subscription.id)
 
       const { error } = await supabase
         .from("subscriptions")
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
         .eq("stripe_subscription_id", subscription.id)
       
       if (error) {
-        console.error("[v0] Error canceling subscription:", error)
+        console.error("[stripe-webhook] Error canceling subscription:", error)
       }
       break
     }
