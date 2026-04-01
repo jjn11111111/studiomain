@@ -3,11 +3,73 @@ import { normalizeEmail } from "@/lib/email-normalize"
 import { createClient as createSupabaseJsClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 import crypto from "crypto"
+import type { SupabaseClient } from "@supabase/supabase-js"
+
+export const dynamic = "force-dynamic"
+
+type SubRow = {
+  stripe_subscription_id: string | null
+  current_period_end: string
+  status: string | null
+}
+
+function pickActiveSubscription(rows: SubRow[] | null | undefined): SubRow | null {
+  if (!rows?.length) return null
+  const now = Date.now()
+  for (const r of rows) {
+    const end = new Date(r.current_period_end).getTime()
+    if (!Number.isFinite(end) || end < now) continue
+    const s = (r.status ?? "").toLowerCase()
+    if (["active", "trialing", "past_due"].includes(s)) return r
+    // Paid through end of period after user canceled
+    if (s === "canceled") return r
+  }
+  return null
+}
+
+async function loadSubscriptionsByEmail(
+  admin: SupabaseClient,
+  email: string
+): Promise<SubRow[]> {
+  const { data, error } = await admin
+    .from("subscriptions")
+    .select("stripe_subscription_id, current_period_end, status")
+    .eq("email", email)
+    .order("current_period_end", { ascending: false })
+    .limit(10)
+
+  if (error) {
+    console.error("[check-subscription] email lookup:", error.message)
+    return []
+  }
+  return (data ?? []) as SubRow[]
+}
+
+async function loadSubscriptionsByUserId(
+  admin: SupabaseClient,
+  userId: string
+): Promise<SubRow[]> {
+  const { data, error } = await admin
+    .from("subscriptions")
+    .select("stripe_subscription_id, current_period_end, status")
+    .eq("user_id", userId)
+    .order("current_period_end", { ascending: false })
+    .limit(10)
+
+  if (error) {
+    // user_id column may not exist on older DBs
+    if (error.message.includes("user_id") || error.code === "42703") {
+      return []
+    }
+    console.error("[check-subscription] user_id lookup:", error.message)
+    return []
+  }
+  return (data ?? []) as SubRow[]
+}
 
 /**
- * Subscription access is decided from **getUser()** only (no client-supplied email).
- * After identity is verified, we read `subscriptions` with the **service role** so RLS /
- * JWT email claim quirks cannot hide a valid row. Safe: query is keyed only to session email.
+ * Subscription access from **getUser()** only. Reads `subscriptions` with service role
+ * keyed by session email, then by **user_id** if the Stripe email differs from login email.
  */
 export async function POST() {
   try {
@@ -25,63 +87,48 @@ export async function POST() {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
 
-    let subscription: {
-      stripe_subscription_id: string | null
-      current_period_end: string
-    } | null = null
+    let subscription: SubRow | null = null
 
     if (serviceKey) {
       const admin = createSupabaseJsClient(url, serviceKey)
-      const { data: rows, error } = await admin
-        .from("subscriptions")
-        .select("stripe_subscription_id, current_period_end, status")
-        .eq("email", normalized)
-        .in("status", ["active", "trialing", "past_due"])
-        .order("current_period_end", { ascending: false })
-        .limit(1)
-
-      if (error) {
-        console.error("[check-subscription] service lookup:", error.message)
+      let rows = await loadSubscriptionsByEmail(admin, normalized)
+      subscription = pickActiveSubscription(rows)
+      if (!subscription && user.id) {
+        rows = await loadSubscriptionsByUserId(admin, user.id)
+        subscription = pickActiveSubscription(rows)
       }
-      subscription = rows?.[0] ?? null
     } else {
+      console.error(
+        "[check-subscription] SUPABASE_SERVICE_ROLE_KEY is not set — subscription checks will fail in production. Add it in Vercel → Settings → Environment Variables."
+      )
       const { data, error } = await supabase
         .from("subscriptions")
         .select("stripe_subscription_id, current_period_end, status")
         .eq("email", normalized)
-        .in("status", ["active", "trialing", "past_due"])
         .order("current_period_end", { ascending: false })
-        .limit(1)
-        .maybeSingle()
+        .limit(10)
 
       if (error) {
         console.error("[check-subscription] anon lookup:", error.message)
       }
-      subscription = data ?? null
+      subscription = pickActiveSubscription((data ?? []) as SubRow[])
     }
 
     if (!subscription) {
       return NextResponse.json({ hasAccess: false })
     }
 
-    // Check if subscription is still valid
-    const now = new Date()
-    const periodEnd = new Date(subscription.current_period_end)
-
-    if (periodEnd < now) {
-      return NextResponse.json({ hasAccess: false, error: "Subscription expired" })
-    }
-
-    // Generate a simple access token
     const token = crypto
       .createHash("sha256")
-      .update(`${normalized}-${subscription.stripe_subscription_id}-${process.env.SUPABASE_JWT_SECRET}`)
+      .update(
+        `${normalized}-${subscription.stripe_subscription_id}-${process.env.SUPABASE_JWT_SECRET ?? ""}`
+      )
       .digest("hex")
 
-    return NextResponse.json({ 
-      hasAccess: true, 
+    return NextResponse.json({
+      hasAccess: true,
       token,
-      expiresAt: subscription.current_period_end 
+      expiresAt: subscription.current_period_end,
     })
   } catch (error) {
     console.error("Check subscription error:", error)
