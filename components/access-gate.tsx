@@ -103,8 +103,9 @@ export function AccessGate({
       try {
         const response = await fetch("/api/check-subscription", {
           method: "POST",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: user.email }),
+          body: JSON.stringify({}),
         })
         const data = await response.json()
         if (!cancelled) setHasAccess(!!data.hasAccess)

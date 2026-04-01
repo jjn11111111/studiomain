@@ -1,17 +1,25 @@
 import { createClient } from "@/lib/supabase/server"
+import { normalizeEmail } from "@/lib/email-normalize"
 import { NextResponse } from "next/server"
 import crypto from "crypto"
 
-export async function POST(request: Request) {
+/**
+ * Subscription access must be decided from the **server session**, not the request body.
+ * Client-supplied email is ignored for auth (prevents spoofing); RLS still restricts rows.
+ */
+export async function POST() {
   try {
-    const { email } = await request.json()
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
-    if (!email || typeof email !== "string") {
-      return NextResponse.json({ hasAccess: false, error: "Email required" })
+    if (authError || !user?.email) {
+      return NextResponse.json({ hasAccess: false, error: "Not authenticated" })
     }
 
-    const normalized = email.trim().toLowerCase()
-    const supabase = await createClient()
+    const normalized = normalizeEmail(user.email)
 
     // Match lib/supabase/proxy.ts userHasActiveSubscription: active + trialing (Stripe trial)
     const { data: subscription, error } = await supabase

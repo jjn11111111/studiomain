@@ -93,7 +93,8 @@ CREATE POLICY "subscriptions_select" ON subscriptions
   FOR SELECT USING (
     (select auth.role()) = 'service_role'
     OR (select auth.uid()) = user_id
-    OR (select auth.jwt())->>'email' = LOWER(email)
+    OR LOWER(TRIM(COALESCE((select auth.jwt())->>'email', '')))
+       = LOWER(TRIM(COALESCE(email, '')))
   );
 CREATE POLICY "subscriptions_service_role_all" ON subscriptions
   FOR ALL USING ((select auth.role()) = 'service_role');

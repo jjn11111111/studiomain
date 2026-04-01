@@ -19,7 +19,8 @@ CREATE POLICY "subscriptions_select" ON subscriptions
   FOR SELECT USING (
     (select auth.role()) = 'service_role'
     OR (select auth.uid()) = user_id
-    OR (select auth.jwt())->>'email' = LOWER(email)
+    OR LOWER(TRIM(COALESCE((select auth.jwt())->>'email', '')))
+       = LOWER(TRIM(COALESCE(email, '')))
   );
 
 -- Service role can do everything else (INSERT/UPDATE/DELETE)

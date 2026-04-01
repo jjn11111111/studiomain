@@ -2,6 +2,7 @@ import { Header } from "@/components/header"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, ArrowRight } from "lucide-react"
+import { normalizeEmail } from "@/lib/email-normalize"
 import { createClient } from "@supabase/supabase-js"
 import Stripe from "stripe"
 
@@ -17,7 +18,8 @@ async function addSubscription(sessionId: string) {
   
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId)
-    const email = session.customer_email || session.customer_details?.email
+    const raw = session.customer_email || session.customer_details?.email
+    const email = raw ? normalizeEmail(raw) : null
 
     if (!email) return null
 

@@ -1,3 +1,4 @@
+import { normalizeEmail } from "@/lib/email-normalize"
 import { createClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
@@ -38,7 +39,8 @@ export async function POST(request: Request) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session
       // Get email from customer_email OR customer_details.email (payment links use customer_details)
-      const email = session.customer_email || session.customer_details?.email
+      const rawEmail = session.customer_email || session.customer_details?.email
+      const email = rawEmail ? normalizeEmail(rawEmail) : null
       console.log("[v0] Checkout session completed for:", email)
       
       if (email) {
