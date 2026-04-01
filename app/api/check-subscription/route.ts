@@ -6,18 +6,20 @@ export async function POST(request: Request) {
   try {
     const { email } = await request.json()
 
-    if (!email) {
+    if (!email || typeof email !== "string") {
       return NextResponse.json({ hasAccess: false, error: "Email required" })
     }
 
+    const normalized = email.trim().toLowerCase()
     const supabase = await createClient()
 
+    // Match lib/supabase/proxy.ts userHasActiveSubscription: active + trialing (Stripe trial)
     const { data: subscription, error } = await supabase
       .from("subscriptions")
       .select("*")
-      .eq("email", email.toLowerCase())
-      .eq("status", "active")
-      .single()
+      .eq("email", normalized)
+      .in("status", ["active", "trialing"])
+      .maybeSingle()
 
     if (error || !subscription) {
       return NextResponse.json({ hasAccess: false })
@@ -34,7 +36,7 @@ export async function POST(request: Request) {
     // Generate a simple access token
     const token = crypto
       .createHash("sha256")
-      .update(`${email}-${subscription.stripe_subscription_id}-${process.env.SUPABASE_JWT_SECRET}`)
+      .update(`${normalized}-${subscription.stripe_subscription_id}-${process.env.SUPABASE_JWT_SECRET}`)
       .digest("hex")
 
     return NextResponse.json({ 
