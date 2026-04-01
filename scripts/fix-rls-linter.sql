@@ -41,9 +41,8 @@ CREATE POLICY "Service role can manage exercises" ON exercises
   FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- ---------------------------------------------------------------------------
--- COMMENTS: policies that do NOT require user_id
--- Your table has (exercise_id, user_name, comment_text, rating, id, created_at) — no user_id.
--- If you add user_id later, run add-comments-user-id.sql and switch to ownership policies.
+-- COMMENTS: INSERT must bind to auth.uid() = user_id (app sets user_id on POST).
+-- If INSERT fails, ensure comments.user_id exists (see ensure-comments-columns.sql / add-comments-user-id.sql).
 -- ---------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Active subscribers can read" ON comments;
 DROP POLICY IF EXISTS "Active subscribers can insert" ON comments;
@@ -58,7 +57,7 @@ CREATE POLICY "Anyone can view comments" ON comments
   FOR SELECT USING (true);
 
 CREATE POLICY "Authenticated users can create comments" ON comments
-  FOR INSERT TO authenticated WITH CHECK (true);
+  FOR INSERT TO authenticated WITH CHECK ((select auth.uid()) = user_id);
 
 CREATE POLICY "Service role manages comments" ON comments
   FOR ALL USING ((select auth.role()) = 'service_role');
