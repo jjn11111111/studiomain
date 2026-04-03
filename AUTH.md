@@ -29,7 +29,7 @@ In your Vercel project → **Settings** → **Environment Variables**, set:
 
 - `NEXT_PUBLIC_SITE_URL` = `https://studiomain1.vercel.app`
 
-so the callback redirect uses the correct host when you want every environment (including previews) to send magic links to production. If you **omit** it, the app uses the **current site origin** for `emailRedirectTo` (good for preview URLs like `https://*-*.vercel.app`).
+so the callback redirect uses the correct host when you want every environment (including previews) to send magic links to production. If you **omit** it, the app uses the **current origin** on localhost/custom domains, but **forces the production URL** for Vercel **preview** hosts (`*.vercel.app` other than your main deploy) so Supabase accepts `signInWithOtp` without listing every preview in Redirect URLs.
 
 ### “Error sending confirmation email”
 
