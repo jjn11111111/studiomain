@@ -33,13 +33,13 @@ async function userHasActiveSubscription(
 
 export async function updateSession(request: NextRequest) {
   // If Supabase Site URL is the site root, auth params may land on `/`.
-  // Forward to `/auth/callback` (PKCE `code` or email `token_hash` flow).
+  // Forward to `/auth/exchange` (PKCE `code` or email `token_hash` flow).
   const code = request.nextUrl.searchParams.get("code")
   const tokenHash = request.nextUrl.searchParams.get("token_hash")
 
   if (request.nextUrl.pathname === "/" && (code || tokenHash)) {
     const url = request.nextUrl.clone()
-    url.pathname = "/auth/callback"
+    url.pathname = "/auth/exchange"
     return NextResponse.redirect(url)
   }
 
@@ -96,10 +96,11 @@ export async function updateSession(request: NextRequest) {
   // Redirect logged-in users away from auth pages (except reset-password and callback for recovery)
   const isResetPasswordPage = request.nextUrl.pathname === "/auth/reset-password"
   const isCallbackRoute = request.nextUrl.pathname === "/auth/callback"
+  const isExchangeRoute = request.nextUrl.pathname === "/auth/exchange"
   const isConfirmPage = request.nextUrl.pathname === "/auth/confirm"
 
-  // Allow callback route and reset-password for all users (auth happens in the route handler)
-  if (isCallbackRoute || isResetPasswordPage || isConfirmPage) {
+  // Allow auth completion routes and reset-password for all users
+  if (isCallbackRoute || isExchangeRoute || isResetPasswordPage || isConfirmPage) {
     return supabaseResponse
   }
 

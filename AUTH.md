@@ -16,9 +16,10 @@ Do **not** leave it as `http://localhost:3000` if you’re testing magic links f
 
 In the same **URL Configuration** page, under **Redirect URLs**, add:
 
-- `https://studiomain1.vercel.app/auth/callback`
-- `https://studiomain1.vercel.app/auth/confirm` (optional; redirects to `/auth/callback`)
-- If you use preview URLs: `https://*.vercel.app/auth/callback` (and the same for `/auth/confirm` if you use it)
+- `https://studiomain1.vercel.app/auth/exchange` (**required** — server sets auth cookies)
+- `https://studiomain1.vercel.app/auth/callback` (optional — legacy links; forwards to `/auth/exchange`)
+- `https://studiomain1.vercel.app/auth/confirm` (optional; redirects to `/auth/exchange`)
+- If you use preview URLs: `https://*.vercel.app/auth/callback`, `https://*.vercel.app/auth/exchange`, and `/auth/confirm` if needed
 
 Save. Magic links will only redirect to URLs in this list.
 
@@ -30,7 +31,7 @@ In your Vercel project → **Settings** → **Environment Variables**, set:
 
 so the callback redirect uses the correct host.
 
-After this, the link in the email should land on `/auth/callback`, exchange the code for a session, and redirect to `/exercises` (or the `next` param).
+After this, the link in the email lands on **`/auth/exchange`**, which sets the session cookies and redirects to `/exercises` (or the `next` param). Older links may still hit `/auth/callback` first; that page forwards query auth to `/auth/exchange`.
 
 ## 4. Make magic links reliable (PKCE + email apps)
 
@@ -38,7 +39,7 @@ The browser client uses **PKCE**. A link that only contains a `code` must be ope
 
 **Fix (recommended):** In Supabase → **Authentication** → **Email Templates** → **Magic Link**, replace the default `{{ .ConfirmationURL }}` link with a URL that includes **`token_hash`**. That path is verified on the server without PKCE storage, so it works on any device.
 
-Your app passes `emailRedirectTo` like `https://YOUR_DOMAIN/auth/callback?next=...`, so **`{{ .RedirectTo }}`** already points at `/auth/callback` with a `next` query. Use:
+Your app passes `emailRedirectTo` like `https://YOUR_DOMAIN/auth/exchange?next=...`, so **`{{ .RedirectTo }}`** already points at `/auth/exchange` with a `next` query. Use:
 
 ```html
 <p><a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=magiclink">Sign in</a></p>
@@ -47,4 +48,4 @@ Your app passes `emailRedirectTo` like `https://YOUR_DOMAIN/auth/callback?next=.
 - Keep `type=magiclink` for normal magic-link sign-in. If a template is only for email confirmation signup, use `type=signup` when Supabase documents that for your flow.
 - The first query parameter on `RedirectTo` is already `?next=...`, so the extra params use `&`.
 
-The app completes sign-in on **`/auth/callback`** in the browser (including tokens in the **hash**, for some resend / implicit edge cases), so users should not get stuck on a blank response when the fragment carries the session.
+Query-string sign-in (`code` / `token_hash`) finishes on **`/auth/exchange`** (server response) so cookies are reliable. If tokens only appear in the **URL hash** (rare), `/auth/callback` still runs a short client step to pick them up.

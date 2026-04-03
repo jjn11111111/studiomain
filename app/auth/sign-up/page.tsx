@@ -36,7 +36,7 @@ export default function SignUpPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/subscribe")}`,
+          emailRedirectTo: `${origin}/auth/exchange?next=${encodeURIComponent("/subscribe")}`,
         },
       })
       if (error) throw error

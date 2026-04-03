@@ -79,7 +79,7 @@ function LoginForm() {
       const { error: err } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${preferredOrigin || DEFAULT_PRODUCTION_SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `${preferredOrigin || DEFAULT_PRODUCTION_SITE_URL}/auth/exchange?next=${encodeURIComponent(next)}`,
         },
       })
       if (err) throw err
