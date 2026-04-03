@@ -66,13 +66,13 @@ function LoginForm() {
     setNotice(null)
 
     try {
-      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null
-      const next = params?.get("redirect") || "/exercises"
       const origin = getEmailRedirectOrigin()
+      // No ?next= here: Supabase matches redirect URLs literally; `.../callback?next=...`
+      // often fails allow list entries that list only `.../api/auth/callback` → "Error sending confirmation email".
       const { error: err } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `${origin}/api/auth/callback`,
         },
       })
       if (err) throw err
@@ -85,7 +85,7 @@ function LoginForm() {
         isRateLimit
           ? "Please wait a few seconds before requesting another link."
           : isSendFail
-            ? `${message} If you’re on a preview URL, add https://*.vercel.app/api/auth/callback under Supabase → Authentication → Redirect URLs. Sign in with the same email you used for Stripe.`
+            ? `${message} In Supabase → Authentication → Redirect URLs add https://studiomain1.vercel.app/api/auth/callback (exact) or …/api/auth/callback/** for links with query params. Use the same email you used for Stripe.`
             : message
       )
       if (isRateLimit) setCooldown(RATE_LIMIT_SECONDS)

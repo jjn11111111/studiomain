@@ -38,7 +38,8 @@ Do **not** leave it as `http://localhost:3000` if you’re testing magic links f
 
 In the same **URL Configuration** page, under **Redirect URLs**, add:
 
-- `https://studiomain1.vercel.app/api/auth/callback` (**required** — server sets auth cookies; magic links use this URL)
+- `https://studiomain1.vercel.app/api/auth/callback` (**required** — exact path, no query; matches what the app sends as `emailRedirectTo`)
+- Optionally one glob to cover query strings in **custom email links** (e.g. `?token_hash=`): `https://studiomain1.vercel.app/api/auth/callback/**` (see [Supabase redirect URL patterns](https://supabase.com/docs/guides/auth/redirect-urls))
 - `https://studiomain1.vercel.app/auth/callback` (optional — loads a page that forwards query auth to `/api/auth/callback`)
 - `https://studiomain1.vercel.app/auth/confirm` (optional; redirects to `/api/auth/callback`)
 - If you use preview URLs: add `https://*.vercel.app/api/auth/callback` (and `/auth/callback` / `/auth/confirm` if you use them)
@@ -67,14 +68,14 @@ The browser client uses **PKCE**. A link that only contains a `code` must be ope
 
 **Fix (recommended):** In Supabase → **Authentication** → **Email Templates** → **Magic Link**, replace the default `{{ .ConfirmationURL }}` link with a URL that includes **`token_hash`**. That path is verified on the server without PKCE storage, so it works on any device.
 
-Your app passes `emailRedirectTo` like `https://YOUR_DOMAIN/api/auth/callback?next=...`, so **`{{ .RedirectTo }}`** already points at `/api/auth/callback` with a `next` query. Use:
+The app sets `emailRedirectTo` to **`https://YOUR_DOMAIN/api/auth/callback`** (no query), so **`{{ .RedirectTo }}`** has no `?`. Add `token_hash` as the first query param:
 
 ```html
-<p><a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=magiclink">Sign in</a></p>
+<p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=magiclink">Sign in</a></p>
 ```
 
 - Keep `type=magiclink` for normal magic-link sign-in. If a template is only for email confirmation signup, use `type=signup` when Supabase documents that for your flow.
-- The first query parameter on `RedirectTo` is already `?next=...`, so the extra params use `&`.
+- After sign-in, users land on **`/exercises`** by default (or add `https://YOUR_DOMAIN/api/auth/callback/**` to Redirect URLs if you put extra query params on the link).
 
 Query-string sign-in (`code` / `token_hash`) finishes on **`/api/auth/callback`** (server response) so cookies are reliable. If tokens only appear in the **URL hash** (rare), `/auth/callback` still runs a short client step to pick them up.
 
