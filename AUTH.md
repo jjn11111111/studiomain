@@ -1,5 +1,27 @@
 # Auth (magic link) setup
 
+## Seamless setup (best default)
+
+Use **one production hostname** for real users so auth, Stripe, and Supabase never disagree.
+
+1. **Vercel → Settings → Environment Variables** — Set  
+   `NEXT_PUBLIC_SITE_URL` = `https://studiomain1.vercel.app`  
+   (or your final custom domain when you have one). Turn it on for **Production**, **Preview**, and **Development**. Then every deploy sends magic links and redirects through that URL, which matches Supabase’s allow list.
+
+2. **Supabase → Authentication → URL Configuration**
+   - **Site URL:** `https://studiomain1.vercel.app` — the **site root only** (no `/api/auth/callback` here).
+   - **Redirect URLs:** must include  
+     `https://studiomain1.vercel.app/api/auth/callback`  
+     Optional: `http://localhost:3000/api/auth/callback` for local magic-link tests.
+
+3. **Magic link email template** — Use the **`token_hash`** link pattern in §4 so links work on another device or in Gmail’s in-app browser.
+
+4. **Stripe** — Checkout with the **same email** you use for the magic link; subscriptions are keyed off that email.
+
+5. **Habit** — Share and bookmark **`https://studiomain1.vercel.app`**. Preview links (`*-*.vercel.app`) are for testing builds, not a second place to run checkout + auth unless you enjoy extra Supabase entries.
+
+---
+
 If clicking the magic link in the email sends you to a **404**, Supabase is redirecting to a URL your app doesn’t serve. Fix it in the Supabase Dashboard.
 
 ## 1. Set Site URL
@@ -23,13 +45,11 @@ In the same **URL Configuration** page, under **Redirect URLs**, add:
 
 Save. Magic links will only redirect to URLs in this list.
 
-## 3. (Optional) Env on Vercel
+## 3. Env on Vercel (`NEXT_PUBLIC_SITE_URL`)
 
-In your Vercel project → **Settings** → **Environment Variables**, set:
+Recommended for seamless behavior: set **`NEXT_PUBLIC_SITE_URL`** = your production URL for **all** Vercel environments (see **Seamless setup** above).
 
-- `NEXT_PUBLIC_SITE_URL` = `https://studiomain1.vercel.app`
-
-so the callback redirect uses the correct host when you want every environment (including previews) to send magic links to production. If you **omit** it, the app uses the **current origin** on localhost/custom domains, but **forces the production URL** for Vercel **preview** hosts (`*.vercel.app` other than your main deploy) so Supabase accepts `signInWithOtp` without listing every preview in Redirect URLs.
+If you **omit** it, the app still **forces the production URL** for Vercel **preview** hosts (`*.vercel.app` except your main deploy hostname) so `signInWithOtp` is not rejected; localhost and custom domains use the current origin when appropriate.
 
 ### “Error sending confirmation email”
 
