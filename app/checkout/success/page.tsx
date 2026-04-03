@@ -79,27 +79,25 @@ export default async function CheckoutSuccessPage({
       <Header />
       <div className="pt-24 pb-16 px-4 max-w-2xl mx-auto text-center">
         <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
-        <h1 className="text-4xl font-bold text-white mb-4">Welcome to Pineal Vision!</h1>
-        <p className="text-white/80 text-lg mb-4">
-          Your subscription is now active. You have full access to all exercises and modules.
-        </p>
+        <h1 className="text-4xl font-bold text-white mb-4">You’re in</h1>
+        <p className="text-white/75 mb-4">Subscription is active.</p>
         {email && (
-          <p className="text-green-400 text-sm mb-4">
-            Subscription activated for: {email}
+          <p className="text-green-400/95 text-sm mb-6">
+            Email on file: {email}
           </p>
         )}
-        <p className="text-white/60 text-sm mb-8">
-          Create your account using the same email you subscribed with to access your training.
+        <p className="text-white/50 text-sm mb-8 max-w-md mx-auto">
+          Next: log in with <span className="text-white/70">that same email</span> (email link, no password).
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/auth/sign-up">
+          <Link href="/auth/login">
             <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-8 py-3 rounded-full">
-              Create Account <ArrowRight className="ml-2 w-4 h-4" />
+              Log in <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>
-          <Link href="/auth/login">
+          <Link href="/exercises">
             <Button variant="outline" className="border-purple-500/30 text-white hover:bg-purple-500/10 px-8 py-3 rounded-full bg-transparent">
-              Already have an account? Login
+              Open exercises
             </Button>
           </Link>
         </div>

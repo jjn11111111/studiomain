@@ -3,13 +3,18 @@
 import React from "react"
 
 import { createClient } from "@/lib/supabase/client"
+import {
+  MSG_CHECK_EMAIL,
+  MSG_EMAIL_SEND_FAIL,
+  MSG_RATE_LIMIT,
+  MSG_SAME_EMAIL_AS_CHECKOUT,
+} from "@/lib/auth-copy"
+import { getEmailRedirectOrigin } from "@/lib/site-url"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useState } from "react"
-import { MagicLinkTips } from "@/components/magic-link-tips"
-import { getEmailRedirectOrigin } from "@/lib/site-url"
+import { useState, useEffect } from "react"
 import { Eye, ArrowLeft, Mail, Check } from "lucide-react"
 
 export default function SignUpPage() {
@@ -17,6 +22,13 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isSent, setIsSent] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const t = setInterval(() => setCooldown((c) => (c <= 1 ? 0 : c - 1)), 1000)
+    return () => clearInterval(t)
+  }, [cooldown])
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,8 +46,18 @@ export default function SignUpPage() {
       })
       if (error) throw error
       setIsSent(true)
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred")
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong."
+      const isRateLimit = /seconds|rate|limit/i.test(message)
+      const isSendFail = /confirmation email|sending/i.test(message)
+      setError(
+        isRateLimit
+          ? MSG_RATE_LIMIT
+          : isSendFail
+            ? MSG_EMAIL_SEND_FAIL
+            : message
+      )
+      if (isRateLimit) setCooldown(6)
     } finally {
       setIsLoading(false)
     }
@@ -43,18 +65,15 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
-      {/* Header */}
       <header className="p-4">
         <Link href="/" className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors">
           <ArrowLeft className="w-4 h-4" />
-          Back to Home
+          Home
         </Link>
       </header>
 
-      {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
-          {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
             <div className="relative">
               <Eye className="h-10 w-10 text-purple-400" />
@@ -65,48 +84,43 @@ export default function SignUpPage() {
             </span>
           </div>
 
-          {/* Card */}
           <div className="bg-white/5 border border-purple-500/20 rounded-2xl p-8 backdrop-blur-sm">
             {isSent ? (
               <div className="text-center space-y-4">
                 <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
                   <Check className="w-8 h-8 text-green-400" />
                 </div>
-                <h1 className="text-2xl font-bold text-white">Check Your Email</h1>
+                <h1 className="text-2xl font-bold text-white">Check your email</h1>
                 <p className="text-white/60">
-                  {"We've sent a magic link to"}<br />
-                  <span className="text-purple-400 font-medium">{email}</span>
+                  Sent to <span className="text-purple-400 font-medium">{email}</span>
                 </p>
-                <p className="text-white/40 text-sm">
-                  Click the link in the email to create your account. No password needed.
-                </p>
-                <MagicLinkTips />
-                <p className="text-amber-300/90 text-xs leading-relaxed bg-amber-500/10 border border-amber-400/20 rounded-lg px-3 py-2">
-                  If you see an error page, request a fresh link—don&apos;t reuse an old email link.
-                </p>
+                <p className="text-white/45 text-sm">{MSG_CHECK_EMAIL}</p>
+                <p className="text-white/40 text-xs">{MSG_SAME_EMAIL_AS_CHECKOUT}</p>
                 <Button
                   variant="ghost"
                   onClick={() => setIsSent(false)}
                   className="text-purple-400 hover:text-purple-300"
                 >
-                  Use a different email
+                  Different email
                 </Button>
               </div>
             ) : (
               <>
                 <div className="text-center mb-8">
                   <Mail className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-                  <h1 className="text-2xl font-bold text-white mb-2">Get Started</h1>
-                  <p className="text-white/60">{"Enter your email and we'll send you a magic link"}</p>
+                  <h1 className="text-2xl font-bold text-white mb-2">Sign up</h1>
+                  <p className="text-white/55 text-sm">Email link—no password.</p>
                 </div>
 
                 <form onSubmit={handleSignUp} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-white/80">Email</Label>
+                    <Label htmlFor="email" className="text-white/80">
+                      Email
+                    </Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="Enter your email address"
+                      placeholder="you@example.com"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -115,30 +129,28 @@ export default function SignUpPage() {
                   </div>
 
                   {error && (
-                    <p className="text-red-400 text-sm text-center">{error}</p>
+                    <p className="text-red-400/95 text-sm text-center">{error}</p>
                   )}
 
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 rounded-full"
-                    disabled={isLoading}
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 rounded-full disabled:opacity-70"
+                    disabled={isLoading || cooldown > 0}
                   >
-                    {isLoading ? "Sending link..." : "Send Magic Link"}
+                    {cooldown > 0
+                      ? `Retry in ${cooldown}s`
+                      : isLoading
+                        ? "Sending…"
+                        : "Email me a link"}
                   </Button>
                 </form>
 
-                <div className="mt-6 text-center text-sm text-white/60">
-                  Already have an account?{" "}
+                <p className="mt-6 text-center text-sm text-white/50">
+                  Have an account?{" "}
                   <Link href="/auth/login" className="text-purple-400 hover:text-purple-300 underline underline-offset-4">
-                    Sign in
+                    Log in
                   </Link>
-                </div>
-
-                <div className="mt-4 text-center">
-                  <p className="text-white/40 text-xs">
-                    No password needed. Just click the link in your email.
-                  </p>
-                </div>
+                </p>
               </>
             )}
           </div>

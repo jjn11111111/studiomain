@@ -235,7 +235,7 @@ export function AccessGate({
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900/20 to-black">
-        <div className="text-purple-400 text-xl">Loading...</div>
+        <div className="text-purple-400 text-lg">Loading…</div>
       </div>
     )
   }
@@ -248,19 +248,18 @@ export function AccessGate({
             <div className="mx-auto w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
               <Lock className="w-8 h-8 text-purple-400" />
             </div>
-            <CardTitle className="text-2xl text-white">Sign In Required</CardTitle>
-            <CardDescription className="text-purple-200">
-              Please sign in to access the training modules.
+            <CardTitle className="text-2xl text-white">Log in</CardTitle>
+            <CardDescription className="text-purple-200/90">
+              Sign in to open exercises.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button asChild className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-              <a href={loginHref}>Sign In</a>
+              <a href={loginHref}>Continue</a>
             </Button>
             <div className="pt-4 border-t border-purple-500/30 text-center">
-              <p className="text-xs text-purple-300">{"Don't have a subscription? "}</p>
-              <Button asChild variant="link" className="text-purple-400">
-                <a href="/subscribe">Subscribe Now</a>
+              <Button asChild variant="link" className="text-purple-400 text-sm">
+                <a href="/subscribe">Subscribe</a>
               </Button>
             </div>
           </CardContent>
@@ -280,17 +279,17 @@ export function AccessGate({
           <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
             <Lock className="w-8 h-8 text-amber-400" />
           </div>
-          <CardTitle className="text-2xl text-white">Subscription Required</CardTitle>
-          <CardDescription className="text-purple-200">
-            Exercises and training modules are only available with an active subscription. Subscribe to unlock full access.
+          <CardTitle className="text-2xl text-white">No active plan</CardTitle>
+          <CardDescription className="text-purple-200/90">
+            We don’t see a subscription for this email. Use the same address you used in Stripe, or subscribe below.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button asChild className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-            <a href="/subscribe">Subscribe Now</a>
+            <a href="/subscribe">Subscribe</a>
           </Button>
           <Button asChild variant="outline" className="w-full border-purple-500/50 text-purple-200 hover:bg-purple-500/10">
-            <a href="/">Back to Home</a>
+            <a href="/">Home</a>
           </Button>
         </CardContent>
       </Card>
