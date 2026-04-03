@@ -6,8 +6,8 @@ import { NextResponse } from "next/server"
 export const dynamic = "force-dynamic"
 
 /**
- * Server-side session exchange so Set-Cookie is applied on the redirect response.
- * Magic links use this URL directly; /auth/callback forwards here when needed.
+ * Server-side OAuth / magic-link exchange. Lives under /api so routing is
+ * unambiguous (avoids /auth/* edge cases) and Set-Cookie applies on redirect.
  */
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)

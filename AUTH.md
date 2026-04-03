@@ -16,10 +16,10 @@ Do **not** leave it as `http://localhost:3000` if you’re testing magic links f
 
 In the same **URL Configuration** page, under **Redirect URLs**, add:
 
-- `https://studiomain1.vercel.app/auth/exchange` (**required** — server sets auth cookies)
-- `https://studiomain1.vercel.app/auth/callback` (optional — legacy links; forwards to `/auth/exchange`)
-- `https://studiomain1.vercel.app/auth/confirm` (optional; redirects to `/auth/exchange`)
-- If you use preview URLs: `https://*.vercel.app/auth/callback`, `https://*.vercel.app/auth/exchange`, and `/auth/confirm` if needed
+- `https://studiomain1.vercel.app/api/auth/callback` (**required** — server sets auth cookies; magic links use this URL)
+- `https://studiomain1.vercel.app/auth/callback` (optional — loads a page that forwards query auth to `/api/auth/callback`)
+- `https://studiomain1.vercel.app/auth/confirm` (optional; redirects to `/api/auth/callback`)
+- If you use preview URLs: add `https://*.vercel.app/api/auth/callback` (and `/auth/callback` / `/auth/confirm` if you use them)
 
 Save. Magic links will only redirect to URLs in this list.
 
@@ -31,7 +31,7 @@ In your Vercel project → **Settings** → **Environment Variables**, set:
 
 so the callback redirect uses the correct host.
 
-After this, the link in the email lands on **`/auth/exchange`**, which sets the session cookies and redirects to `/exercises` (or the `next` param). Older links may still hit `/auth/callback` first; that page forwards query auth to `/auth/exchange`.
+After this, the link in the email lands on **`/api/auth/callback`**, which sets the session cookies and redirects to `/exercises` (or the `next` param). Older links may still use `/auth/callback` first; that page forwards query auth to `/api/auth/callback`.
 
 ## 4. Make magic links reliable (PKCE + email apps)
 
@@ -39,7 +39,7 @@ The browser client uses **PKCE**. A link that only contains a `code` must be ope
 
 **Fix (recommended):** In Supabase → **Authentication** → **Email Templates** → **Magic Link**, replace the default `{{ .ConfirmationURL }}` link with a URL that includes **`token_hash`**. That path is verified on the server without PKCE storage, so it works on any device.
 
-Your app passes `emailRedirectTo` like `https://YOUR_DOMAIN/auth/exchange?next=...`, so **`{{ .RedirectTo }}`** already points at `/auth/exchange` with a `next` query. Use:
+Your app passes `emailRedirectTo` like `https://YOUR_DOMAIN/api/auth/callback?next=...`, so **`{{ .RedirectTo }}`** already points at `/api/auth/callback` with a `next` query. Use:
 
 ```html
 <p><a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=magiclink">Sign in</a></p>
@@ -48,4 +48,28 @@ Your app passes `emailRedirectTo` like `https://YOUR_DOMAIN/auth/exchange?next=.
 - Keep `type=magiclink` for normal magic-link sign-in. If a template is only for email confirmation signup, use `type=signup` when Supabase documents that for your flow.
 - The first query parameter on `RedirectTo` is already `?next=...`, so the extra params use `&`.
 
-Query-string sign-in (`code` / `token_hash`) finishes on **`/auth/exchange`** (server response) so cookies are reliable. If tokens only appear in the **URL hash** (rare), `/auth/callback` still runs a short client step to pick them up.
+Query-string sign-in (`code` / `token_hash`) finishes on **`/api/auth/callback`** (server response) so cookies are reliable. If tokens only appear in the **URL hash** (rare), `/auth/callback` still runs a short client step to pick them up.
+
+## 5. Each new magic link as its own email (Gmail threading)
+
+Gmail (and some other clients) **thread** messages when the **subject line is the same** every time. Supabase’s default magic-link subject is fixed (e.g. “Your Magic Link”), so several requests show up as one conversation with new messages stacked inside it.
+
+Your app **cannot** send separate threads from code; you change this in **Supabase → Authentication → Email Templates → Magic Link → Subject**.
+
+Use a **subject that changes on every send**. Supabase provides a new **`{{ .Token }}`** (6-digit OTP) for each request, so for example:
+
+```text
+Your Pineal Vision sign-in — code {{ .Token }}
+```
+
+or:
+
+```text
+Sign in to Pineal Vision ({{ .Token }})
+```
+
+Keep the **same** `{{ .Token }}` in the body if you show the code there too. Users can still use the **link**; the code is optional for sign-in if you also expose it.
+
+**Tradeoff:** The code appears in the inbox subject line and lock-screen previews. If you want uniqueness without showing the code, you’d need a **custom email provider / Send Email hook** to set a unique subject or `Message-ID` header—hosted Supabase templates don’t expose a “random id” besides `Token` / `TokenHash`.
+
+**Note:** Rapid “Send again” clicks are still limited by Supabase **rate limits**; you may not get a new email for every click within the cooldown window.

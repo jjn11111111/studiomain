@@ -10,8 +10,8 @@ function safeNext(raw: string | null): string {
 }
 
 /**
- * Query auth (?code= / ?token_hash=) is completed on /auth/exchange (server) so
- * cookies attach to the redirect. Hash-only / implicit callbacks stay here.
+ * Query auth (?code= / ?token_hash=) is completed on /api/auth/callback (server).
+ * Hash-only / implicit callbacks stay on this page.
  */
 function AuthCallbackInner() {
   const router = useRouter()
@@ -27,7 +27,7 @@ function AuthCallbackInner() {
     if (hasQueryAuth) {
       if (redirected.current) return
       redirected.current = true
-      window.location.replace(`/auth/exchange${url.search}`)
+      window.location.replace(`/api/auth/callback${url.search}`)
       return
     }
 
