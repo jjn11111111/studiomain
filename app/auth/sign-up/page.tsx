@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { MagicLinkTips } from "@/components/magic-link-tips"
-import { DEFAULT_PRODUCTION_SITE_URL } from "@/lib/site-url"
+import { getEmailRedirectOrigin } from "@/lib/site-url"
 import { Eye, ArrowLeft, Mail, Check } from "lucide-react"
 
 export default function SignUpPage() {
@@ -17,13 +17,6 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isSent, setIsSent] = useState(false)
-  const [preferredOrigin, setPreferredOrigin] = useState("")
-
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-    setPreferredOrigin(configured?.length ? configured : DEFAULT_PRODUCTION_SITE_URL)
-  }, [])
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,7 +25,7 @@ export default function SignUpPage() {
     setError(null)
 
     try {
-      const origin = preferredOrigin || DEFAULT_PRODUCTION_SITE_URL
+      const origin = getEmailRedirectOrigin()
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {

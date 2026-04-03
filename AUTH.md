@@ -29,7 +29,15 @@ In your Vercel project → **Settings** → **Environment Variables**, set:
 
 - `NEXT_PUBLIC_SITE_URL` = `https://studiomain1.vercel.app`
 
-so the callback redirect uses the correct host.
+so the callback redirect uses the correct host when you want every environment (including previews) to send magic links to production. If you **omit** it, the app uses the **current site origin** for `emailRedirectTo` (good for preview URLs like `https://*-*.vercel.app`).
+
+### “Error sending confirmation email”
+
+Usually Supabase refused the request before sending mail. Typical causes:
+
+1. **Redirect URL** — Under **Redirect URLs**, include `https://YOUR-PREVIEW-HOST/api/auth/callback` or use a wildcard such as `https://*.vercel.app/api/auth/callback` for all Vercel previews.
+2. **Custom SMTP** — If you use custom SMTP in Supabase, check credentials and provider logs.
+3. **Stripe vs login email** — Subscribe with one address but request a magic link with another; sending still works, but access checks use the signed-in email (use the **same email you paid with**).
 
 After this, the link in the email lands on **`/api/auth/callback`**, which sets the session cookies and redirects to `/exercises` (or the `next` param). Older links may still use `/auth/callback` first; that page forwards query auth to `/api/auth/callback`.
 

@@ -4,7 +4,7 @@ import React from "react"
 
 import { MagicLinkTips } from "@/components/magic-link-tips"
 import { createClient } from "@/lib/supabase/client"
-import { DEFAULT_PRODUCTION_SITE_URL } from "@/lib/site-url"
+import { getEmailRedirectOrigin } from "@/lib/site-url"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,7 +18,6 @@ function LoginForm() {
   const [email, setEmail] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [preferredOrigin, setPreferredOrigin] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [isSent, setIsSent] = useState(false)
   const [cooldown, setCooldown] = useState(0)
@@ -29,13 +28,6 @@ function LoginForm() {
     const t = setInterval(() => setCooldown((c) => (c <= 1 ? 0 : c - 1)), 1000)
     return () => clearInterval(t)
   }, [cooldown])
-
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-    const origin = configured?.length ? configured : DEFAULT_PRODUCTION_SITE_URL
-    setPreferredOrigin(origin)
-  }, [])
 
   // Surface auth callback failures (including hash fragments from Supabase).
   useEffect(() => {
@@ -76,10 +68,11 @@ function LoginForm() {
     try {
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null
       const next = params?.get("redirect") || "/exercises"
+      const origin = getEmailRedirectOrigin()
       const { error: err } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${preferredOrigin || DEFAULT_PRODUCTION_SITE_URL}/api/auth/callback?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
         },
       })
       if (err) throw err
@@ -87,7 +80,14 @@ function LoginForm() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An error occurred"
       const isRateLimit = /seconds|rate|limit/i.test(message)
-      setError(isRateLimit ? "Please wait a few seconds before requesting another link." : message)
+      const isSendFail = /confirmation email|sending/i.test(message)
+      setError(
+        isRateLimit
+          ? "Please wait a few seconds before requesting another link."
+          : isSendFail
+            ? `${message} If you’re on a preview URL, add https://*.vercel.app/api/auth/callback under Supabase → Authentication → Redirect URLs. Sign in with the same email you used for Stripe.`
+            : message
+      )
       if (isRateLimit) setCooldown(RATE_LIMIT_SECONDS)
     } finally {
       setIsLoading(false)
