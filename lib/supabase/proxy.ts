@@ -32,11 +32,12 @@ async function userHasActiveSubscription(
 }
 
 export async function updateSession(request: NextRequest) {
-  // Check if there's a code parameter at the root and normalize onto the
-  // canonical auth callback route used by this app.
+  // If Supabase Site URL is the site root, auth params may land on `/`.
+  // Forward to `/auth/callback` (PKCE `code` or email `token_hash` flow).
   const code = request.nextUrl.searchParams.get("code")
+  const tokenHash = request.nextUrl.searchParams.get("token_hash")
 
-  if (request.nextUrl.pathname === "/" && code) {
+  if (request.nextUrl.pathname === "/" && (code || tokenHash)) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/callback"
     return NextResponse.redirect(url)

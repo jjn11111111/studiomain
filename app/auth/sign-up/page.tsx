@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { MagicLinkTips } from "@/components/magic-link-tips"
+import { DEFAULT_PRODUCTION_SITE_URL } from "@/lib/site-url"
 import { Eye, ArrowLeft, Mail, Check } from "lucide-react"
 
 export default function SignUpPage() {
@@ -15,6 +17,13 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isSent, setIsSent] = useState(false)
+  const [preferredOrigin, setPreferredOrigin] = useState("")
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+    setPreferredOrigin(configured?.length ? configured : DEFAULT_PRODUCTION_SITE_URL)
+  }, [])
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,10 +32,11 @@ export default function SignUpPage() {
     setError(null)
 
     try {
+      const origin = preferredOrigin || DEFAULT_PRODUCTION_SITE_URL
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/subscribe`,
+          emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/subscribe")}`,
         },
       })
       if (error) throw error
@@ -77,8 +87,9 @@ export default function SignUpPage() {
                 <p className="text-white/40 text-sm">
                   Click the link in the email to create your account. No password needed.
                 </p>
+                <MagicLinkTips />
                 <p className="text-amber-300/90 text-xs leading-relaxed bg-amber-500/10 border border-amber-400/20 rounded-lg px-3 py-2">
-                  If the magic link opens a 404 page the first time, return to your email and tap the same link again.
+                  If you see an error page, request a fresh link—don&apos;t reuse an old email link.
                 </p>
                 <Button
                   variant="ghost"

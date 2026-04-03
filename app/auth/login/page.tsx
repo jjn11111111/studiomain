@@ -2,7 +2,9 @@
 
 import React from "react"
 
+import { MagicLinkTips } from "@/components/magic-link-tips"
 import { createClient } from "@/lib/supabase/client"
+import { DEFAULT_PRODUCTION_SITE_URL } from "@/lib/site-url"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,7 +13,6 @@ import { useState, Suspense, useEffect } from "react"
 import { Eye, ArrowLeft, Mail, Check } from "lucide-react"
 
 const RATE_LIMIT_SECONDS = 6
-const DEFAULT_SITE_URL = "https://studiomain1.vercel.app"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
@@ -32,7 +33,7 @@ function LoginForm() {
   useEffect(() => {
     if (typeof window === "undefined") return
     const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-    const origin = configured?.length ? configured : DEFAULT_SITE_URL
+    const origin = configured?.length ? configured : DEFAULT_PRODUCTION_SITE_URL
     setPreferredOrigin(origin)
   }, [])
 
@@ -78,7 +79,7 @@ function LoginForm() {
       const { error: err } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${preferredOrigin || DEFAULT_SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `${preferredOrigin || DEFAULT_PRODUCTION_SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       })
       if (err) throw err
@@ -132,8 +133,9 @@ function LoginForm() {
                 <p className="text-white/40 text-sm">
                   Click the link in the email to sign in. No password needed.
                 </p>
+                <MagicLinkTips />
                 <p className="text-amber-300/90 text-xs leading-relaxed bg-amber-500/10 border border-amber-400/20 rounded-lg px-3 py-2">
-                  If the magic link opens a 404 page the first time, return to your email and tap the same link again.
+                  If you see an error page, request a fresh link—don&apos;t reuse an old email link.
                 </p>
                 <Button
                   variant="ghost"

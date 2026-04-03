@@ -1,14 +1,13 @@
 "use server"
 
+import { getAppBaseUrl } from "@/lib/site-url"
 import Stripe from "stripe"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function createCheckoutSession(productId: string, email: string): Promise<string> {
   try {
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : "https://studiomain1.vercel.app"
+    const baseUrl = getAppBaseUrl()
 
     console.log("[stripe] Creating session with:", { productId, email, baseUrl })
 
