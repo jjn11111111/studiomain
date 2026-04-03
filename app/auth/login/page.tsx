@@ -45,6 +45,14 @@ function LoginForm() {
     const errorDescription =
       search.get("error_description") || hash.get("error_description")
 
+    if (search.get("error") === "auth_failed") {
+      setNotice(
+        "Sign-in did not complete—often an expired link or a second click on an old email. Request a fresh magic link below."
+      )
+      setError(null)
+      return
+    }
+
     if (errorCode === "otp_expired") {
       setNotice("Your magic link expired or was already used. Request a new one below.")
       setError(null)

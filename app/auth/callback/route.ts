@@ -18,7 +18,9 @@ export async function GET(request: Request) {
       : "/exercises"
 
   const origin = requestUrl.origin
-  const failRedirect = NextResponse.redirect(new URL("/?error=auth_failed", origin))
+  const failRedirect = NextResponse.redirect(
+    new URL("/auth/login?error=auth_failed", origin)
+  )
 
   if (!code && !tokenHash) {
     return failRedirect

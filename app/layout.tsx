@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Oswald, Bebas_Neue } from "next/font/google"
+import { AuthUrlBanner } from "@/components/auth-url-banner"
 import "./globals.css"
 
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" })
@@ -41,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${oswald.className} ${oswald.variable} ${bebasNeue.variable} antialiased`}>
+        <AuthUrlBanner />
         {children}
       </body>
     </html>
