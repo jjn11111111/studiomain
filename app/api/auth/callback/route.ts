@@ -22,12 +22,17 @@ export async function GET(request: Request) {
       : "/exercises"
 
   const origin = requestUrl.origin
-  const failRedirect = NextResponse.redirect(
-    new URL("/auth/login?error=auth_failed", origin),
-  )
+
+  function loginFail(reason: "no_params" | "exchange" | "verify") {
+    const u = new URL("/auth/login", origin)
+    u.searchParams.set("error", "auth_failed")
+    u.searchParams.set("reason", reason)
+    return NextResponse.redirect(u)
+  }
 
   if (!code && !tokenHash) {
-    return failRedirect
+    console.error("[auth/callback] no_params: missing code and token_hash")
+    return loginFail("no_params")
   }
 
   const cookieStore = await cookies()
@@ -74,7 +79,9 @@ export async function GET(request: Request) {
   }
 
   if (lastError) {
-    return failRedirect
+    const reason = tokenHash ? "verify" : "exchange"
+    console.error("[auth/callback]", reason, lastError.message)
+    return loginFail(reason)
   }
 
   return response

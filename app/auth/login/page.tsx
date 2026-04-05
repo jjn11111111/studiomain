@@ -4,6 +4,10 @@ import React from "react"
 
 import { createClient } from "@/lib/supabase/client"
 import {
+  MSG_AUTH_CLIENT_POLL,
+  MSG_AUTH_EXCHANGE,
+  MSG_AUTH_NO_PARAMS,
+  MSG_AUTH_VERIFY,
   MSG_CHECK_EMAIL,
   MSG_EMAIL_SEND_FAIL,
   MSG_LINK_FAILED,
@@ -43,7 +47,18 @@ function LoginForm() {
       search.get("error_description") || hash.get("error_description")
 
     if (search.get("error") === "auth_failed" || errorCode === "otp_expired") {
-      setNotice(MSG_LINK_FAILED)
+      const reason = search.get("reason")
+      const byReason =
+        reason === "no_params"
+          ? MSG_AUTH_NO_PARAMS
+          : reason === "exchange"
+            ? MSG_AUTH_EXCHANGE
+            : reason === "verify"
+              ? MSG_AUTH_VERIFY
+              : reason === "client_poll"
+                ? MSG_AUTH_CLIENT_POLL
+                : null
+      setNotice(byReason ?? MSG_LINK_FAILED)
       setError(null)
       return
     }

@@ -57,7 +57,8 @@ function AuthCallbackInner() {
         return
       }
 
-      if (!cancelled) finish("/auth/login?error=auth_failed")
+      if (!cancelled)
+        finish("/auth/login?error=auth_failed&reason=client_poll")
     }
 
     void run()
