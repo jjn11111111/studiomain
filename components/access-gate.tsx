@@ -107,8 +107,22 @@ export function AccessGate({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({}),
         })
-        const data = await response.json()
-        if (!cancelled) setHasAccess(!!data.hasAccess)
+        const data = (await response.json()) as {
+          hasAccess?: boolean
+          error?: string
+        }
+        if (!cancelled) {
+          if (data.error === "Not authenticated") {
+            setIsLoggedIn(false)
+            setHasAccess(false)
+            try {
+              window.localStorage.removeItem("pv:last-auth-email")
+            } catch {}
+            establishedEmailRef.current = null
+          } else {
+            setHasAccess(!!data.hasAccess)
+          }
+        }
       } catch (error) {
         console.error("Failed to check subscription:", error)
         if (!cancelled) setHasAccess(false)

@@ -14,21 +14,54 @@ function redirectWithRefreshedCookies(
   return redirectResponse;
 }
 
+type SubCheckRow = { status: string | null; current_period_end: string | null };
+
+/** Same rules as /api/check-subscription pickActiveSubscription (RLS-aware anon client). */
+function subscriptionRowsGrantAccess(rows: SubCheckRow[] | null | undefined): boolean {
+  if (!rows?.length) return false;
+  const now = Date.now();
+  for (const r of rows) {
+    const end = r.current_period_end
+      ? new Date(r.current_period_end).getTime()
+      : NaN;
+    if (!Number.isFinite(end) || end < now) continue;
+    const s = (r.status ?? "").toLowerCase();
+    if (["active", "trialing", "past_due"].includes(s)) return true;
+    if (s === "canceled") return true;
+  }
+  return false;
+}
+
 async function userHasActiveSubscription(
   supabase: SupabaseClient,
-  email: string | undefined
+  user: { id: string; email?: string | undefined } | null
 ): Promise<boolean> {
-  if (!email) return false;
-  // Match /api/check-subscription: active, trialing, past_due (within current_period_end)
-  const normalized = email.trim().toLowerCase();
-  const { data: subscription, error } = await supabase
-    .from("subscriptions")
-    .select("status, current_period_end")
-    .eq("email", normalized)
-    .in("status", ["active", "trialing", "past_due"])
-    .maybeSingle();
-  if (error || !subscription) return false;
-  return new Date(subscription.current_period_end) > new Date();
+  if (!user?.id && !user?.email) return false;
+
+  const collected: SubCheckRow[] = [];
+
+  const normalized = user.email?.trim().toLowerCase() ?? "";
+  if (normalized) {
+    const { data, error } = await supabase
+      .from("subscriptions")
+      .select("status, current_period_end")
+      .eq("email", normalized)
+      .order("current_period_end", { ascending: false })
+      .limit(10);
+    if (!error && data?.length) collected.push(...(data as SubCheckRow[]));
+  }
+
+  if (user.id) {
+    const { data, error } = await supabase
+      .from("subscriptions")
+      .select("status, current_period_end")
+      .eq("user_id", user.id)
+      .order("current_period_end", { ascending: false })
+      .limit(10);
+    if (!error && data?.length) collected.push(...(data as SubCheckRow[]));
+  }
+
+  return subscriptionRowsGrantAccess(collected);
 }
 
 export async function updateSession(request: NextRequest) {
@@ -105,10 +138,7 @@ export async function updateSession(request: NextRequest) {
 
   if (request.nextUrl.pathname.startsWith("/auth") && user) {
     const url = request.nextUrl.clone();
-    const hasActiveSubscription = await userHasActiveSubscription(
-      supabase,
-      user.email
-    );
+    const hasActiveSubscription = await userHasActiveSubscription(supabase, user);
     if (!hasActiveSubscription) {
       url.pathname = "/subscribe";
       url.searchParams.set("message", "subscription_required");

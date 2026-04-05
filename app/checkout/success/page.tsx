@@ -23,10 +23,15 @@ async function addSubscription(sessionId: string) {
 
     if (!email) return null
 
+    const subscriptionId =
+      typeof session.subscription === "string"
+        ? session.subscription
+        : session.subscription?.id ?? null
+
     let periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-    if (session.subscription) {
+    if (subscriptionId) {
       try {
-        const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+        const sub = await stripe.subscriptions.retrieve(subscriptionId)
         periodEnd = new Date(sub.current_period_end * 1000).toISOString()
       } catch {
         // keep 30-day fallback
@@ -45,6 +50,7 @@ async function addSubscription(sessionId: string) {
         .update({
           status: "active",
           stripe_customer_id: session.customer as string,
+          ...(subscriptionId ? { stripe_subscription_id: subscriptionId } : {}),
           current_period_end: periodEnd,
         })
         .eq("email", email)
@@ -55,6 +61,7 @@ async function addSubscription(sessionId: string) {
           email: email,
           status: "active",
           stripe_customer_id: session.customer as string,
+          ...(subscriptionId ? { stripe_subscription_id: subscriptionId } : {}),
           current_period_end: periodEnd,
         })
     }
