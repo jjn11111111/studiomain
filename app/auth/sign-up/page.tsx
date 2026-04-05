@@ -4,10 +4,7 @@ import React from "react"
 
 import { createClient } from "@/lib/supabase/client"
 import {
-  MSG_AUTH_CHOOSE_GOOGLE_OR_EMAIL,
-  MSG_CHECK_EMAIL,
-  MSG_EMAIL_SEND_FAIL,
-  MSG_RATE_LIMIT,
+  MSG_SIGNUP_CHOOSE_GOOGLE_OR_PASSWORD,
   MSG_SAME_EMAIL_AS_CHECKOUT,
 } from "@/lib/auth-copy"
 import { AuthGoogleButton } from "@/components/auth-google-button"
@@ -16,50 +13,57 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useState, useEffect } from "react"
-import { Eye, ArrowLeft, Mail, Check } from "lucide-react"
+import { useState } from "react"
+import { Eye, ArrowLeft, Mail } from "lucide-react"
+
+const MIN_PASSWORD = 8
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirm, setConfirm] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [isSent, setIsSent] = useState(false)
-  const [cooldown, setCooldown] = useState(0)
-
-  useEffect(() => {
-    if (cooldown <= 0) return
-    const t = setInterval(() => setCooldown((c) => (c <= 1 ? 0 : c - 1)), 1000)
-    return () => clearInterval(t)
-  }, [cooldown])
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
+    setNotice(null)
+
+    if (password.length < MIN_PASSWORD) {
+      setError(`Password must be at least ${MIN_PASSWORD} characters.`)
+      return
+    }
+    if (password !== confirm) {
+      setError("Passwords do not match.")
+      return
+    }
+
     const supabase = createClient()
     setIsLoading(true)
-    setError(null)
 
     try {
       const origin = getEmailRedirectOrigin()
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
+      const { data, error: signErr } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
         options: {
           emailRedirectTo: `${origin}/api/auth/callback`,
         },
       })
-      if (error) throw error
-      setIsSent(true)
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Something went wrong."
-      const isRateLimit = /seconds|rate|limit/i.test(message)
-      const isSendFail = /confirmation email|sending/i.test(message)
-      setError(
-        isRateLimit
-          ? MSG_RATE_LIMIT
-          : isSendFail
-            ? MSG_EMAIL_SEND_FAIL
-            : message
+      if (signErr) throw signErr
+
+      if (data.session) {
+        window.location.href = "/exercises"
+        return
+      }
+
+      setNotice(
+        "Check your email to confirm your account, then return here to log in."
       )
-      if (isRateLimit) setCooldown(6)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Could not sign up.")
     } finally {
       setIsLoading(false)
     }
@@ -87,79 +91,88 @@ export default function SignUpPage() {
           </div>
 
           <div className="bg-white/5 border border-purple-500/20 rounded-2xl p-8 backdrop-blur-sm">
-            {isSent ? (
-              <div className="text-center space-y-4">
-                <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
-                  <Check className="w-8 h-8 text-green-400" />
-                </div>
-                <h1 className="text-2xl font-bold text-white">Check your email</h1>
-                <p className="text-white/60">
-                  Sent to <span className="text-purple-400 font-medium">{email}</span>
-                </p>
-                <p className="text-white/45 text-sm">{MSG_CHECK_EMAIL}</p>
-                <p className="text-white/40 text-xs">{MSG_SAME_EMAIL_AS_CHECKOUT}</p>
-                <Button
-                  variant="ghost"
-                  onClick={() => setIsSent(false)}
-                  className="text-purple-400 hover:text-purple-300"
-                >
-                  Different email
-                </Button>
+            <div className="text-center mb-6">
+              <Mail className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+              <h1 className="text-2xl font-bold text-white mb-2">Sign up</h1>
+              <p className="text-white/55 text-sm text-balance px-1">
+                {MSG_SIGNUP_CHOOSE_GOOGLE_OR_PASSWORD}
+              </p>
+            </div>
+            <AuthGoogleButton />
+            <p className="text-center text-xs text-white/40 my-8 uppercase tracking-wide">
+              Or email and password
+            </p>
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white/80">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-black/40 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-400"
+                />
               </div>
-            ) : (
-              <>
-                <div className="text-center mb-6">
-                  <Mail className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-                  <h1 className="text-2xl font-bold text-white mb-2">Sign up</h1>
-                  <p className="text-white/55 text-sm text-balance px-1">
-                    {MSG_AUTH_CHOOSE_GOOGLE_OR_EMAIL}
-                  </p>
-                </div>
-                <AuthGoogleButton />
-                <p className="text-center text-xs text-white/40 my-8 uppercase tracking-wide">
-                  Or use email
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white/80">
+                  Password ({MIN_PASSWORD}+ characters)
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bg-black/40 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-400"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm" className="text-white/80">
+                  Confirm password
+                </Label>
+                <Input
+                  id="confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  className="bg-black/40 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-400"
+                />
+              </div>
+
+              <p className="text-white/40 text-xs">{MSG_SAME_EMAIL_AS_CHECKOUT}</p>
+
+              {error && (
+                <p className="text-red-400/95 text-sm text-center">{error}</p>
+              )}
+              {notice && (
+                <p className="text-emerald-200/90 text-sm text-center bg-emerald-500/10 border border-emerald-400/15 rounded-lg px-3 py-2">
+                  {notice}
                 </p>
-                <form onSubmit={handleSignUp} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-white/80">
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="bg-black/40 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-400"
-                    />
-                  </div>
+              )}
 
-                  {error && (
-                    <p className="text-red-400/95 text-sm text-center">{error}</p>
-                  )}
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 rounded-full disabled:opacity-70"
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating account…" : "Create account"}
+              </Button>
+            </form>
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 rounded-full disabled:opacity-70"
-                    disabled={isLoading || cooldown > 0}
-                  >
-                    {cooldown > 0
-                      ? `Retry in ${cooldown}s`
-                      : isLoading
-                        ? "Sending…"
-                        : "Email me a link"}
-                  </Button>
-                </form>
-
-                <p className="mt-6 text-center text-sm text-white/50">
-                  Have an account?{" "}
-                  <Link href="/auth/login" className="text-purple-400 hover:text-purple-300 underline underline-offset-4">
-                    Log in
-                  </Link>
-                </p>
-              </>
-            )}
+            <p className="mt-6 text-center text-sm text-white/50">
+              Have an account?{" "}
+              <Link href="/auth/login" className="text-purple-400 hover:text-purple-300 underline underline-offset-4">
+                Log in
+              </Link>
+            </p>
           </div>
         </div>
       </div>

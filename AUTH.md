@@ -2,11 +2,14 @@
 
 ## Google sign-in (what users see first)
 
-The login and sign-up pages use **Continue with Google** as the main path—one flow in the same browser, no email-link quirks.
+The login and sign-up pages use **Continue with Google** first, then **email + password** (no magic-link sign-in).
 
-**You enable it once:** Supabase Dashboard → **Authentication** → **Providers** → **Google** → turn on, then add **Client ID** and **Client secret** from [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (OAuth client type **Web application**). In Google Cloud, set **Authorized redirect URIs** to your Supabase callback, e.g. `https://<your-project-ref>.supabase.co/auth/v1/callback` (copy the exact URL from the Supabase Google provider setup page).
+**Google (enable once):** Supabase → **Authentication** → **Providers** → **Google** → Client ID + secret from [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (OAuth **Web application**). In Google Cloud, **Authorized redirect URIs** = your Supabase callback, e.g. `https://<project-ref>.supabase.co/auth/v1/callback`.
 
-Email magic link stays available as a fallback under “or email.”
+**Email / password:** Supabase → **Authentication** → **Providers** → **Email** — keep **Email sign-in** enabled and **Confirm email** on or off (if on, new users must click the confirmation link once before password sign-in works).
+
+**Password reset** emails use `/auth/callback?next=…` → `/auth/reset-password`. Add to **Redirect URLs**:  
+`https://studiomain1.vercel.app/auth/callback**` (or your domain) so the `next` query is allowed.
 
 ---
 
@@ -14,7 +17,7 @@ Email magic link stays available as a fallback under “or email.”
 
 - **`/api/exercise-video`** only streams after **`resolveSessionSubscription()`** succeeds (signed-in user + active row in `subscriptions`). Guessing URLs is not enough without a valid session and plan.
 - **`/api/check-subscription`** uses the same resolver; keep **`SUPABASE_SERVICE_ROLE_KEY`** set on the server in production.
-- **Stripe:** Use the **same email** as login (subscribe page pre-fills from session when you’re signed in) so `subscriptions.email` matches **Google** or the magic-link address.
+- **Stripe:** Use the **same email** as login (subscribe page pre-fills when you’re signed in) so `subscriptions.email` matches **Google** or your password account.
 
 ---
 

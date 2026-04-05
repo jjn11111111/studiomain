@@ -128,11 +128,17 @@ export async function updateSession(request: NextRequest) {
 
   // Redirect logged-in users away from auth pages (except reset-password and callback for recovery)
   const isResetPasswordPage = request.nextUrl.pathname === "/auth/reset-password"
+  const isForgotPasswordPage = request.nextUrl.pathname === "/auth/forgot-password"
   const isCallbackRoute = request.nextUrl.pathname === "/auth/callback"
   const isConfirmPage = request.nextUrl.pathname === "/auth/confirm"
 
-  // Allow auth completion routes and reset-password for all users
-  if (isCallbackRoute || isResetPasswordPage || isConfirmPage) {
+  // Allow auth completion routes, password recovery, and forgot-password for all users
+  if (
+    isCallbackRoute ||
+    isResetPasswordPage ||
+    isForgotPasswordPage ||
+    isConfirmPage
+  ) {
     return supabaseResponse
   }
 

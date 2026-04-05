@@ -1,7 +1,5 @@
 /** Short, consistent strings for auth + subscription UI. */
 
-export const MSG_CHECK_EMAIL = "We sent a link. Open it once—it expires quickly."
-
 export const MSG_SAME_EMAIL_AS_CHECKOUT =
   "Sign in with the same email you used when you paid."
 
@@ -10,28 +8,26 @@ export const MSG_LINK_FAILED =
 
 /** Magic link reached the app without a valid token (broken or stripped link). */
 export const MSG_AUTH_NO_PARAMS =
-  "That email link didn’t work. Use Continue with Google, or request a new link below."
+  "That sign-in didn’t complete. Try Continue with Google, or sign in with email and password."
 
-/** PKCE code exchange failed (mail app browser ≠ where you asked for the link, expired link, etc.). */
+/** PKCE code exchange failed (e.g. OAuth redirect issue). */
 export const MSG_AUTH_EXCHANGE =
-  "That email link didn’t finish sign-in. Use Continue with Google instead, or request a new link and open it in the same browser where you started."
+  "Sign-in didn’t finish. Try Continue with Google again, or use email and password."
 
-/** verifyOtp / token link failed. */
+/** verifyOtp / token link failed (rare; recovery or old links). */
 export const MSG_AUTH_VERIFY =
-  "That link expired or was already used. Use Continue with Google, or request a new link below."
+  "That link expired or was already used. Use Google or email and password."
 
 /** Client callback timed out waiting for a session. */
 export const MSG_AUTH_CLIENT_POLL =
-  "Sign-in didn’t finish here. Use Continue with Google, or try the email link again."
+  "Sign-in didn’t finish in this window. Try Google or email and password."
 
-export const MSG_AUTH_CHOOSE_GOOGLE_OR_EMAIL =
-  "Use Google for the simplest sign-in. Or enter your email for a one-time link."
+export const MSG_AUTH_CHOOSE_GOOGLE_OR_PASSWORD =
+  "Use Google, or sign in with email and password."
 
-export const MSG_EMAIL_SEND_FAIL =
-  "We couldn’t send the email. Wait a moment and try again."
-
-export const MSG_RATE_LIMIT = "Wait a few seconds, then try again."
+export const MSG_SIGNUP_CHOOSE_GOOGLE_OR_PASSWORD =
+  "Use Google, or create an account with email and password."
 
 /** Subscribe page — align Stripe customer email with the account used to log in. */
 export const MSG_CHECKOUT_MATCH_LOGIN_EMAIL =
-  "Use the same email you use to log in (Google or magic link). If you’re already signed in, we pre-fill it—keep it for checkout."
+  "Use the same email you use to log in (Google or password). If you’re already signed in, we pre-fill it—keep it for checkout."
