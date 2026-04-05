@@ -8,21 +8,24 @@ export const MSG_SAME_EMAIL_AS_CHECKOUT =
 export const MSG_LINK_FAILED =
   "That sign-in link didn’t work. Send a new one below."
 
-/** Magic link hit /api/auth/callback with no ?code= or ?token_hash= (broken link, scanner, or wrong template). */
+/** Magic link reached the app without a valid token (broken or stripped link). */
 export const MSG_AUTH_NO_PARAMS =
-  "That link was missing the sign-in token—try “Open in browser” from your mail app, or request a new link. If it keeps happening, the email template should use token_hash (see AUTH.md)."
+  "That email link didn’t work. Use Continue with Google, or request a new link below."
 
-/** PKCE code exchange failed (wrong browser/device, expired, or second click). */
+/** PKCE code exchange failed (mail app browser ≠ where you asked for the link, expired link, etc.). */
 export const MSG_AUTH_EXCHANGE =
-  "That link couldn’t complete sign-in—often the mail app opened a different browser than where you asked for the link. Try again on the same device, or use “Open in browser,” then request a new link. Best fix: Supabase Magic link template with token_hash (AUTH.md)."
+  "That email link didn’t finish sign-in. Use Continue with Google instead, or request a new link and open it in the same browser where you started."
 
-/** verifyOtp failed for token_hash links. */
+/** verifyOtp / token link failed. */
 export const MSG_AUTH_VERIFY =
-  "That link expired or was already used. Request a new link below."
+  "That link expired or was already used. Use Continue with Google, or request a new link below."
 
-/** /auth/callback client couldn’t see a session (hash flow / in-app browser). */
+/** Client callback timed out waiting for a session. */
 export const MSG_AUTH_CLIENT_POLL =
-  "Sign-in didn’t finish in this window—open the email link in Safari or Chrome (not the in-app browser), or request a new link."
+  "Sign-in didn’t finish here. Use Continue with Google, or try the email link again."
+
+export const MSG_AUTH_CHOOSE_GOOGLE_OR_EMAIL =
+  "Use Google for the simplest sign-in. Or enter your email for a one-time link."
 
 export const MSG_EMAIL_SEND_FAIL =
   "We couldn’t send the email. Wait a moment and try again."

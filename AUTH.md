@@ -1,4 +1,14 @@
-# Auth (magic link) setup
+# Auth setup
+
+## Google sign-in (what users see first)
+
+The login and sign-up pages use **Continue with Google** as the main path—one flow in the same browser, no email-link quirks.
+
+**You enable it once:** Supabase Dashboard → **Authentication** → **Providers** → **Google** → turn on, then add **Client ID** and **Client secret** from [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (OAuth client type **Web application**). In Google Cloud, set **Authorized redirect URIs** to your Supabase callback, e.g. `https://<your-project-ref>.supabase.co/auth/v1/callback` (copy the exact URL from the Supabase Google provider setup page).
+
+Email magic link stays available as a fallback under “or email.”
+
+---
 
 ## Seamless setup (best default)
 

@@ -4,6 +4,7 @@ import React from "react"
 
 import { createClient } from "@/lib/supabase/client"
 import {
+  MSG_AUTH_CHOOSE_GOOGLE_OR_EMAIL,
   MSG_AUTH_CLIENT_POLL,
   MSG_AUTH_EXCHANGE,
   MSG_AUTH_NO_PARAMS,
@@ -14,6 +15,7 @@ import {
   MSG_RATE_LIMIT,
   MSG_SAME_EMAIL_AS_CHECKOUT,
 } from "@/lib/auth-copy"
+import { AuthGoogleButton } from "@/components/auth-google-button"
 import { getEmailRedirectOrigin } from "@/lib/site-url"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -150,11 +152,17 @@ function LoginForm() {
               </div>
             ) : (
               <>
-                <div className="text-center mb-8">
+                <div className="text-center mb-6">
                   <Mail className="w-12 h-12 text-purple-400 mx-auto mb-4" />
                   <h1 className="text-2xl font-bold text-white mb-2">Log in</h1>
-                  <p className="text-white/55 text-sm">Email link—no password.</p>
+                  <p className="text-white/55 text-sm text-balance px-1">
+                    {MSG_AUTH_CHOOSE_GOOGLE_OR_EMAIL}
+                  </p>
                 </div>
+                <AuthGoogleButton />
+                <p className="text-center text-xs text-white/40 my-8 uppercase tracking-wide">
+                  Or use email
+                </p>
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-white/80">
