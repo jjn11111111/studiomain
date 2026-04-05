@@ -1,15 +1,12 @@
 # Auth setup
 
-## Google sign-in (what users see first)
+## Email and password (what users see)
 
-The login and sign-up pages use **Continue with Google** first, then **email + password** (no magic-link sign-in).
+Login and sign-up use **email + password** only (no Google OAuth in the app UI).
 
-**Google (enable once):** Supabase → **Authentication** → **Providers** → **Google** → Client ID + secret from [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (OAuth **Web application**). In Google Cloud, **Authorized redirect URIs** = your Supabase callback, e.g. `https://<project-ref>.supabase.co/auth/v1/callback`.
+**Supabase:** **Authentication** → **Providers** → **Email** — enable **Email** sign-in. **Confirm email** can be on or off (if on, new users confirm once via email before signing in).
 
-**Email / password:** Supabase → **Authentication** → **Providers** → **Email** — keep **Email sign-in** enabled and **Confirm email** on or off (if on, new users must click the confirmation link once before password sign-in works).
-
-**Password reset** emails use `/auth/callback?next=…` → `/auth/reset-password`. Add to **Redirect URLs**:  
-`https://studiomain1.vercel.app/auth/callback**` (or your domain) so the `next` query is allowed.
+**Password reset:** `/auth/forgot-password` sends a link that lands on `/auth/callback?next=…` then `/auth/reset-password`. Under **URL Configuration** → **Redirect URLs**, allow your app’s **`/auth/callback**`** pattern (see §2 below).
 
 ---
 
@@ -17,7 +14,7 @@ The login and sign-up pages use **Continue with Google** first, then **email + p
 
 - **`/api/exercise-video`** only streams after **`resolveSessionSubscription()`** succeeds (signed-in user + active row in `subscriptions`). Guessing URLs is not enough without a valid session and plan.
 - **`/api/check-subscription`** uses the same resolver; keep **`SUPABASE_SERVICE_ROLE_KEY`** set on the server in production.
-- **Stripe:** Use the **same email** as login (subscribe page pre-fills when you’re signed in) so `subscriptions.email` matches **Google** or your password account.
+- **Stripe:** Use the **same email** as login (subscribe page pre-fills when you’re signed in) so `subscriptions.email` matches your account email.
 
 ---
 
@@ -27,23 +24,23 @@ Use **one production hostname** for real users so auth, Stripe, and Supabase nev
 
 1. **Vercel → Settings → Environment Variables** — Set  
    `NEXT_PUBLIC_SITE_URL` = `https://studiomain1.vercel.app`  
-   (or your final custom domain when you have one). Turn it on for **Production**, **Preview**, and **Development**. Then every deploy sends magic links and redirects through that URL, which matches Supabase’s allow list.
+   (or your final custom domain). Use it for **Production**, **Preview**, and **Development** so Supabase redirect URLs stay consistent.
 
 2. **Supabase → Authentication → URL Configuration**
-   - **Site URL:** `https://studiomain1.vercel.app` — the **site root only** (no `/api/auth/callback` here).
+   - **Site URL:** `https://studiomain1.vercel.app` — **site root only** (no `/api/auth/callback` here).
    - **Redirect URLs:** must include  
      `https://studiomain1.vercel.app/api/auth/callback`  
-     Optional: `http://localhost:3000/api/auth/callback` for local magic-link tests.
+     and patterns for **`/auth/callback`** (password reset / confirmations). See §2 below.
 
-3. **Magic link email template** — Use the **`token_hash`** link pattern in §4 so links work on another device or in Gmail’s in-app browser.
+3. **Email templates** — **Confirm signup** and **Reset password** emails must redirect to allowed URLs (same as above). §4–§5 below are **legacy** notes for magic-link sign-in (the app no longer uses magic-link login).
 
-4. **Stripe** — Checkout with the **same email** you use for the magic link; subscriptions are keyed off that email.
+4. **Stripe** — Checkout with the **same email** you use to log in; subscriptions are keyed off that email.
 
-5. **Habit** — Share and bookmark **`https://studiomain1.vercel.app`**. Preview links (`*-*.vercel.app`) are for testing builds, not a second place to run checkout + auth unless you enjoy extra Supabase entries.
+5. **Habit** — Share and bookmark **`https://studiomain1.vercel.app`**. Avoid random **preview** URLs for real login or checkout.
 
 ---
 
-If clicking the magic link in the email sends you to a **404**, Supabase is redirecting to a URL your app doesn’t serve. Fix it in the Supabase Dashboard.
+If a **confirmation or reset** link in email hits a **404**, add that URL pattern under **Redirect URLs** in Supabase.
 
 ## 1. Set Site URL
 
@@ -53,7 +50,7 @@ If clicking the magic link in the email sends you to a **404**, Supabase is redi
    - `https://studiomain1.vercel.app`
    (Use your real Vercel URL if different.)
 
-Do **not** leave it as `http://localhost:3000` if you’re testing magic links from production.
+Do **not** leave **Site URL** as `http://localhost:3000` if real users sign in on production.
 
 ## 2. Allow the callback URL
 
@@ -65,13 +62,13 @@ In the same **URL Configuration** page, under **Redirect URLs**, add:
 - `https://studiomain1.vercel.app/auth/confirm` (optional; redirects to `/api/auth/callback`)
 - If you use preview URLs: add `https://*.vercel.app/api/auth/callback` (and `/auth/callback` / `/auth/confirm` if you use them)
 
-Save. Magic links will only redirect to URLs in this list.
+Save. Auth redirects (callbacks, email confirmations, resets) only go to URLs in this list.
 
 ## 3. Env on Vercel (`NEXT_PUBLIC_SITE_URL`)
 
 Recommended for seamless behavior: set **`NEXT_PUBLIC_SITE_URL`** = your production URL for **all** Vercel environments (see **Seamless setup** above).
 
-If you **omit** it, the app still **forces the production URL** for Vercel **preview** hosts (`*.vercel.app` except your main deploy hostname) so `signInWithOtp` is not rejected; localhost and custom domains use the current origin when appropriate.
+If you **omit** it, the app still **forces the production URL** for Vercel **preview** hosts (`*.vercel.app` except your main deploy hostname); localhost and custom domains use the current origin when appropriate.
 
 ### “Error sending confirmation email”
 
@@ -79,7 +76,7 @@ Usually Supabase refused the request before sending mail. Typical causes:
 
 1. **Redirect URL** — Under **Redirect URLs**, include `https://YOUR-PREVIEW-HOST/api/auth/callback` or use a wildcard such as `https://*.vercel.app/api/auth/callback` for all Vercel previews.
 2. **Custom SMTP** — If you use custom SMTP in Supabase, check credentials and provider logs.
-3. **Stripe vs login email** — Subscribe with one address but request a magic link with another; sending still works, but access checks use the signed-in email (use the **same email you paid with**).
+3. **Stripe vs login email** — Pay with one address but sign in with another → subscription checks won’t match (use the **same email you paid with**).
 
 After this, the link in the email lands on **`/api/auth/callback`**, which sets the session cookies and redirects to `/exercises` (or the `next` param). Older links may still use `/auth/callback` first; that page forwards query auth to `/api/auth/callback`.
 

@@ -4,10 +4,9 @@ import React from "react"
 
 import { createClient } from "@/lib/supabase/client"
 import {
-  MSG_SIGNUP_CHOOSE_GOOGLE_OR_PASSWORD,
+  MSG_AUTH_SIGNUP_SUBTITLE,
   MSG_SAME_EMAIL_AS_CHECKOUT,
 } from "@/lib/auth-copy"
-import { AuthGoogleButton } from "@/components/auth-google-button"
 import { getEmailRedirectOrigin } from "@/lib/site-url"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -95,13 +94,9 @@ export default function SignUpPage() {
               <Mail className="w-12 h-12 text-purple-400 mx-auto mb-4" />
               <h1 className="text-2xl font-bold text-white mb-2">Sign up</h1>
               <p className="text-white/55 text-sm text-balance px-1">
-                {MSG_SIGNUP_CHOOSE_GOOGLE_OR_PASSWORD}
+                {MSG_AUTH_SIGNUP_SUBTITLE}
               </p>
             </div>
-            <AuthGoogleButton />
-            <p className="text-center text-xs text-white/40 my-8 uppercase tracking-wide">
-              Or email and password
-            </p>
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white/80">
