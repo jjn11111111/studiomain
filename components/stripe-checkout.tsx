@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
@@ -10,6 +10,27 @@ const STRIPE_PAYMENT_LINK =
 
 export default function StripeCheckout() {
   const [email, setEmail] = useState("")
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch("/api/auth/session", {
+          credentials: "same-origin",
+          cache: "no-store",
+        })
+        if (!res.ok || cancelled) return
+        const data = (await res.json()) as { user?: { email?: string } | null }
+        const e = data.user?.email?.trim()
+        if (e) setEmail(e)
+      } catch {
+        /* ignore */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleCheckout = () => {
     if (!email) return

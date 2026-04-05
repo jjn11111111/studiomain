@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { getExerciseVideo } from "@/lib/exercise-videos"
+import { resolveSessionSubscription } from "@/lib/subscription-access"
 
 /**
  * Proxies exercise video from Supabase Storage so the browser loads it from your
  * domain (no CORS). Uses service role so it works even if the bucket is private.
- * Requires: SUPABASE_SERVICE_ROLE_KEY and files in Storage at the paths in lib/exercise-videos.ts
+ * **Requires an authenticated user with an active subscription** (same rules as /api/check-subscription).
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -21,6 +22,14 @@ export async function GET(request: NextRequest) {
   const config = getExerciseVideo(moduleId, exerciseNumber)
   if (!config) {
     return NextResponse.json({ error: "Unknown exercise" }, { status: 404 })
+  }
+
+  const access = await resolveSessionSubscription()
+  if (access.kind === "unauthenticated") {
+    return NextResponse.json({ error: "Sign in required" }, { status: 401 })
+  }
+  if (access.kind === "no_subscription") {
+    return NextResponse.json({ error: "Subscription required" }, { status: 403 })
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL

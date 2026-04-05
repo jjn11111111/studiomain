@@ -10,6 +10,14 @@ Email magic link stays available as a fallback under “or email.”
 
 ---
 
+## Subscription security (app behavior)
+
+- **`/api/exercise-video`** only streams after **`resolveSessionSubscription()`** succeeds (signed-in user + active row in `subscriptions`). Guessing URLs is not enough without a valid session and plan.
+- **`/api/check-subscription`** uses the same resolver; keep **`SUPABASE_SERVICE_ROLE_KEY`** set on the server in production.
+- **Stripe:** Use the **same email** as login (subscribe page pre-fills from session when you’re signed in) so `subscriptions.email` matches **Google** or the magic-link address.
+
+---
+
 ## Seamless setup (best default)
 
 Use **one production hostname** for real users so auth, Stripe, and Supabase never disagree.

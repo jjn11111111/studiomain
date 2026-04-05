@@ -1,5 +1,6 @@
 import { Header } from "@/components/header"
 import StripeCheckout from "@/components/stripe-checkout"
+import { MSG_CHECKOUT_MATCH_LOGIN_EMAIL } from "@/lib/auth-copy"
 import { Check } from "lucide-react"
 
 export default function SubscribePage() {
@@ -43,6 +44,9 @@ export default function SubscribePage() {
             ))}
           </ul>
 
+          <p className="text-white/50 text-sm mb-4 text-center leading-relaxed">
+            {MSG_CHECKOUT_MATCH_LOGIN_EMAIL}
+          </p>
           <StripeCheckout />
 
           <p className="text-amber-200/80 text-xs mt-6 text-center">

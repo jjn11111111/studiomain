@@ -31,3 +31,7 @@ export const MSG_EMAIL_SEND_FAIL =
   "We couldn’t send the email. Wait a moment and try again."
 
 export const MSG_RATE_LIMIT = "Wait a few seconds, then try again."
+
+/** Subscribe page — align Stripe customer email with the account used to log in. */
+export const MSG_CHECKOUT_MATCH_LOGIN_EMAIL =
+  "Use the same email you use to log in (Google or magic link). If you’re already signed in, we pre-fill it—keep it for checkout."
