@@ -59,9 +59,10 @@ export async function GET(request: Request) {
   let lastError: { message: string } | null = null
 
   if (tokenHash) {
+    // Password reset emails use type=recovery; templates sometimes omit `type` in the URL.
     const tryTypes: EmailOtpType[] = typeParam
       ? [typeParam as EmailOtpType]
-      : ["magiclink", "email", "signup"]
+      : ["recovery", "magiclink", "email", "signup"]
     for (const t of tryTypes) {
       const { error } = await supabase.auth.verifyOtp({
         token_hash: tokenHash,
