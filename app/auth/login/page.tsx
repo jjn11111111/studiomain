@@ -2,7 +2,6 @@
 
 import React from "react"
 
-import { createClient } from "@/lib/supabase/client"
 import {
   MSG_AUTH_CLIENT_POLL,
   MSG_AUTH_EXCHANGE,
@@ -62,17 +61,21 @@ function LoginForm() {
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
     setNotice(null)
 
     try {
-      const { error: err } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
       })
-      if (err) throw err
+      const payload = (await res.json().catch(() => ({}))) as { error?: string }
+      if (!res.ok) {
+        setError(payload.error ?? "Could not sign in.")
+        return
+      }
       window.location.href = "/exercises"
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Could not sign in.")
